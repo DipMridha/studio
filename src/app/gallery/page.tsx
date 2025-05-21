@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageIcon, Loader2, Sparkles } from "lucide-react";
 
 export default function GalleryPage() {
-  const [prompt, setPrompt] = useState("A beautiful portrait of Evie, smiling warmly, soft lighting.");
+  const [prompt, setPrompt] = useState("A beautiful portrait of your AI companion, smiling warmly, soft lighting.");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -40,7 +40,7 @@ export default function GalleryPage() {
       setImageUrl(result.imageUrl);
       toast({
         title: "Image Generated!",
-        description: "Evie's new picture is ready.",
+        description: "Your companion's new picture is ready.",
       });
     } catch (error) {
       console.error("Error generating image:", error);
@@ -63,7 +63,7 @@ export default function GalleryPage() {
             AI Image Generator
           </CardTitle>
           <CardDescription>
-            Create images of Evie in different scenes or poses. Describe what you'd like to see!
+            Create images of your AI companion in different scenes or poses. Describe what you'd like to see!
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,7 +77,7 @@ export default function GalleryPage() {
             <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="E.g., Evie reading a book by a cozy fireplace, Evie on a sunny beach..."
+              placeholder="E.g., Your companion reading a book by a cozy fireplace, your companion on a sunny beach..."
               rows={3}
               className="resize-none"
               aria-label="Image prompt"
@@ -97,7 +97,7 @@ export default function GalleryPage() {
       {isLoading && (
         <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Evie is striking a pose... please wait.</p>
+          <p className="text-muted-foreground">Your companion is striking a pose... please wait.</p>
         </Card>
       )}
 
@@ -110,7 +110,7 @@ export default function GalleryPage() {
             <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-lg shadow-lg">
               <Image
                 src={imageUrl}
-                alt={prompt || "AI generated image of Evie"}
+                alt={prompt || "AI generated image of your companion"}
                 layout="fill"
                 objectFit="cover"
                 data-ai-hint="portrait"

@@ -12,7 +12,7 @@ export default function CompanionPage() {
             Customize Your Companion
           </CardTitle>
           <CardDescription>
-            Personalize Evie's appearance, traits, and more. This feature is coming soon!
+            Personalize your AI companion's appearance, traits, and more. This feature is coming soon!
           </CardDescription>
         </CardHeader>
         <CardContent>

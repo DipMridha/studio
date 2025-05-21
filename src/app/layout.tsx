@@ -9,8 +9,8 @@ const geistSans = GeistSans;
 const geistMono = GeistMono;
 
 export const metadata: Metadata = {
-  title: "Soulmate AI",
-  description: "Your AI Companion",
+  title: "Candi AI",
+  description: "Your AI Companion - Candi AI",
 };
 
 export default function RootLayout({

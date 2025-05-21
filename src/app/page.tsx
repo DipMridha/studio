@@ -12,9 +12,9 @@ export default function HomePage() {
           <div className="flex justify-center mb-4">
             <Bot className="h-16 w-16 text-primary animate-pulse" />
           </div>
-          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Soulmate AI</CardTitle>
+          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Candi AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
-            Your personal AI companion awaits. Explore the features below to get started and connect with your Soulmate.
+            Your personal AI companion awaits. Explore the features below to get started and connect with Candi AI.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8">

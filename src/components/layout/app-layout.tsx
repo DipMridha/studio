@@ -48,7 +48,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="p-4">
           <Link href="/chat" className="flex items-center gap-2">
             <Bot className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-semibold text-foreground">Soulmate AI</h1>
+            <h1 className="text-xl font-semibold text-foreground">Candi AI</h1>
           </Link>
         </SidebarHeader>
         <SidebarContent>
@@ -77,7 +77,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarTrigger />
           <Link href="/chat" className="flex items-center gap-2">
              <Bot className="h-7 w-7 text-primary" />
-            <span className="text-lg font-semibold text-foreground">Soulmate AI</span>
+            <span className="text-lg font-semibold text-foreground">Candi AI</span>
           </Link>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
