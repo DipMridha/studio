@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Loader2 } from "lucide-react";
+import { Send, User, Loader2, Languages } from "lucide-react";
 
 interface Message {
   id: string;
@@ -54,17 +54,32 @@ const initialCompanions: Companion[] = [
   },
 ];
 
+interface LanguageOption {
+  value: string;
+  label: string;
+  aiName: string; // Name to pass to the AI prompt
+}
+
+const languageOptions: LanguageOption[] = [
+  { value: "en", label: "English", aiName: "English" },
+  { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
+  { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
+  { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
+];
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
+  const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -73,10 +88,10 @@ export default function ChatPage() {
   useEffect(scrollToBottom, [messages]);
 
   const handleSendMessage = async () => {
-    if (!userInput.trim() || !userName.trim() || !selectedCompanionId) {
+    if (!userInput.trim() || !userName.trim() || !selectedCompanionId || !selectedLanguage) {
       toast({
         title: "Input required",
-        description: "Please enter your name, select a companion, and type a message.",
+        description: "Please enter your name, select a companion, choose a language, and type a message.",
         variant: "destructive",
       });
       return;
@@ -99,6 +114,7 @@ export default function ChatPage() {
         companionId: selectedCompanion.id,
         companionName: selectedCompanion.name,
         companionPersona: selectedCompanion.persona,
+        language: currentLanguageAiName,
       };
       const aiResponse = await dynamicDialogue(aiInput);
       const aiMessage: Message = {
@@ -128,9 +144,9 @@ export default function ChatPage() {
       <Card className="mb-4 flex-shrink-0">
         <CardHeader>
           <CardTitle className="text-lg">Setup Your Chat</CardTitle>
-          <CardDescription>Tell us your name and choose who you'd like to talk to.</CardDescription>
+          <CardDescription>Tell us your name, choose your companion, and select your preferred language.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="grid md:grid-cols-3 gap-4">
           <div>
             <Label htmlFor="userName">Your Name</Label>
             <Input
@@ -164,6 +180,22 @@ export default function ChatPage() {
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label htmlFor="languageSelect">Chat Language</Label>
+            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+              <SelectTrigger id="languageSelect" className="w-full" aria-label="Select Language">
+                <Languages className="mr-2 h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {languageOptions.map(lang => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
       
@@ -176,7 +208,7 @@ export default function ChatPage() {
             <div className="space-y-4">
               {messages.map((msg) => {
                 const companionForMessage = msg.sender === "ai" 
-                  ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion // Fallback to current if somehow not set
+                  ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion 
                   : selectedCompanion;
 
                 return (

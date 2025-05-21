@@ -1,7 +1,7 @@
 // src/ai/flows/dynamic-dialogue.ts
 'use server';
 /**
- * @fileOverview Implements dynamic dialogue with an AI companion, enabling personalized and adaptive conversations.
+ * @fileOverview Implements dynamic dialogue with an AI companion, enabling personalized and adaptive conversations in multiple languages.
  *
  * - dynamicDialogue - A function to engage in personalized conversations with an AI.
  * - DynamicDialogueInput - The input type for the dynamicDialogue function.
@@ -18,6 +18,7 @@ const DynamicDialogueInputSchema = z.object({
   companionId: z.string().describe('Unique identifier for the selected AI companion.'),
   companionName: z.string().describe('The name of the selected AI companion.'),
   companionPersona: z.string().describe('A detailed description of the AI companion\'s personality and how they should behave.'),
+  language: z.string().describe('The language for the conversation (e.g., "Bengali", "Hindi", "English", "Tamil").'),
 });
 export type DynamicDialogueInput = z.infer<typeof DynamicDialogueInputSchema>;
 
@@ -38,6 +39,8 @@ const dynamicDialoguePrompt = ai.definePrompt({
 Your name is {{companionName}}.
 This is your persona: "{{companionPersona}}"
 You are currently interacting with a user named {{userName}}.
+
+Please converse in {{language}}.
 
 Engage with {{userName}} according to your persona. Remember their preferences, chat history, hobbies, and mood if possible from the context of the conversation.
 Offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun, as befits your persona and the user's messages.
