@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    domains: [], // Keep empty if only using remotePatterns and data URIs
+    // Allow data URIs
+    unoptimized: false, // Keep optimization for other images
+    // This configuration is often needed for data URIs, but next/image handles them somewhat automatically.
+    // If issues arise, specific loader configurations might be needed.
+    // For now, we assume default handling is sufficient.
+    // The `generateAiImage` flow outputs a data: URI.
   },
 };
 
