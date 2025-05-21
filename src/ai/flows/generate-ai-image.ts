@@ -65,7 +65,11 @@ const generateAiImageFlow = ai.defineFlow(
       },
     });
 
-    return {imageUrl: media.url!};
+    if (!media || !media.url) {
+      throw new Error('Image generation failed: No media URL returned.');
+    }
+
+    return {imageUrl: media.url};
   }
 );
 
