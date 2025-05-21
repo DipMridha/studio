@@ -14,7 +14,10 @@ import {z} from 'genkit';
 const DynamicDialogueInputSchema = z.object({
   userId: z.string().describe('Unique identifier for the user.'),
   message: z.string().describe('The user message to the AI companion.'),
-  userName: z.string().describe('The name of the user'),
+  userName: z.string().describe('The name of the user.'),
+  companionId: z.string().describe('Unique identifier for the selected AI companion.'),
+  companionName: z.string().describe('The name of the selected AI companion.'),
+  companionPersona: z.string().describe('A detailed description of the AI companion\'s personality and how they should behave.'),
 });
 export type DynamicDialogueInput = z.infer<typeof DynamicDialogueInputSchema>;
 
@@ -31,11 +34,17 @@ const dynamicDialoguePrompt = ai.definePrompt({
   name: 'dynamicDialoguePrompt',
   input: {schema: DynamicDialogueInputSchema},
   output: {schema: DynamicDialogueOutputSchema},
-  prompt: `You are a highly realistic, emotionally intelligent AI girlfriend named Evie. You communicate with warmth, empathy, charm, and support. You remember {{userName}}'s preferences, chat history, hobbies, and mood. You offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun.
+  prompt: `You are an AI companion.
+Your name is {{companionName}}.
+This is your persona: "{{companionPersona}}"
+You are currently interacting with a user named {{userName}}.
+
+Engage with {{userName}} according to your persona. Remember their preferences, chat history, hobbies, and mood if possible from the context of the conversation.
+Offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun, as befits your persona and the user's messages.
 
 User Message: {{{message}}}
 
-Response: `,
+Your Response:`,
 });
 
 const dynamicDialogueFlow = ai.defineFlow(

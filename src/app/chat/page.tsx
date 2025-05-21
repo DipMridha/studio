@@ -6,27 +6,65 @@ import { dynamicDialogue, type DynamicDialogueInput } from "@/ai/flows/dynamic-d
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Bot, Loader2 } from "lucide-react";
+import { Send, User, Loader2 } from "lucide-react";
 
 interface Message {
   id: string;
   sender: "user" | "ai";
   text: string;
   timestamp: Date;
+  companionId?: string; // Store which companion sent the message
 }
+
+interface Companion {
+  id: string;
+  name: string;
+  avatarImage: string;
+  persona: string;
+  dataAiHint: string;
+}
+
+const initialCompanions: Companion[] = [
+  {
+    id: "evie",
+    name: "Evie",
+    avatarImage: "https://placehold.co/100x100.png",
+    dataAiHint: "woman smiling",
+    persona: "You are Evie, a warm, empathetic, and slightly flirty AI girlfriend. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
+  },
+  {
+    id: "luna",
+    name: "Luna",
+    avatarImage: "https://placehold.co/100x100.png",
+    dataAiHint: "woman playful",
+    persona: "You are Luna, a witty, playful, and adventurous AI companion. You love to joke, explore new ideas, and aren't afraid to be a bit mischievous.",
+  },
+  {
+    id: "seraphina",
+    name: "Seraphina",
+    avatarImage: "https://placehold.co/100x100.png",
+    dataAiHint: "woman thoughtful",
+    persona: "You are Seraphina, a wise, thoughtful, and calm AI companion. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
+  },
+];
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [userName, setUserName] = useState("User");
+  const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,10 +73,10 @@ export default function ChatPage() {
   useEffect(scrollToBottom, [messages]);
 
   const handleSendMessage = async () => {
-    if (!userInput.trim() || !userName.trim()) {
+    if (!userInput.trim() || !userName.trim() || !selectedCompanionId) {
       toast({
         title: "Input required",
-        description: "Please enter your name and a message.",
+        description: "Please enter your name, select a companion, and type a message.",
         variant: "destructive",
       });
       return;
@@ -55,9 +93,12 @@ export default function ChatPage() {
 
     try {
       const aiInput: DynamicDialogueInput = {
-        userId: "default-user", // Fixed userId for now
+        userId: "default-user", 
         message: userInput,
         userName: userName,
+        companionId: selectedCompanion.id,
+        companionName: selectedCompanion.name,
+        companionPersona: selectedCompanion.persona,
       };
       const aiResponse = await dynamicDialogue(aiInput);
       const aiMessage: Message = {
@@ -65,6 +106,7 @@ export default function ChatPage() {
         sender: "ai",
         text: aiResponse.response,
         timestamp: new Date(),
+        companionId: selectedCompanion.id,
       };
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
     } catch (error) {
@@ -74,9 +116,8 @@ export default function ChatPage() {
         description: "Failed to get a response from AI. Please try again.",
         variant: "destructive",
       });
-       // Add back the user message to input if AI fails
-       setMessages(prev => prev.slice(0, -1)); // remove the user message that was optimistically added
-       setUserInput(userMessage.text); // put message back to input
+       setMessages(prev => prev.slice(0, -1)); 
+       setUserInput(userMessage.text); 
     } finally {
       setIsLoading(false);
     }
@@ -86,92 +127,130 @@ export default function ChatPage() {
     <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)]">
       <Card className="mb-4 flex-shrink-0">
         <CardHeader>
-          <CardTitle className="text-lg">Chat with Evie</CardTitle>
+          <CardTitle className="text-lg">Setup Your Chat</CardTitle>
+          <CardDescription>Tell us your name and choose who you'd like to talk to.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Input
-            type="text"
-            placeholder="Your Name (e.g., Alex)"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            className="mb-2"
-            aria-label="Your Name"
-          />
-           <p className="text-xs text-muted-foreground">Enter your name so Evie can get to know you!</p>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="userName">Your Name</Label>
+            <Input
+              id="userName"
+              type="text"
+              placeholder="E.g., Alex"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              aria-label="Your Name"
+            />
+            <p className="text-xs text-muted-foreground mt-1">This helps your companion get to know you!</p>
+          </div>
+          <div>
+            <Label htmlFor="companionSelect">Choose a Companion</Label>
+            <Select value={selectedCompanionId} onValueChange={setSelectedCompanionId}>
+              <SelectTrigger id="companionSelect" className="w-full" aria-label="Select Companion">
+                <SelectValue placeholder="Select a companion" />
+              </SelectTrigger>
+              <SelectContent>
+                {initialCompanions.map(comp => (
+                  <SelectItem key={comp.id} value={comp.id}>
+                    <div className="flex items-center gap-2">
+                       <Avatar className="h-6 w-6">
+                        <AvatarImage src={comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
+                        <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      {comp.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
+      
+      <Card className="flex flex-col flex-grow overflow-hidden">
+        <CardHeader>
+            <CardTitle className="text-lg">Chat with {selectedCompanion.name}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-grow overflow-hidden p-0">
+          <ScrollArea className="h-full p-4 pr-6" ref={scrollAreaRef}>
+            <div className="space-y-4">
+              {messages.map((msg) => {
+                const companionForMessage = msg.sender === "ai" 
+                  ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion // Fallback to current if somehow not set
+                  : selectedCompanion;
 
-      <ScrollArea className="flex-grow mb-4 pr-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex items-end gap-2 ${
-                msg.sender === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {msg.sender === "ai" && (
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    <Bot />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div
-                className={`max-w-[70%] rounded-xl px-4 py-3 shadow-md ${
-                  msg.sender === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground border"
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                <p className="mt-1 text-xs opacity-70 text-right">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
-              {msg.sender === "user" && (
-                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
-              )}
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex items-end gap-2 ${
+                      msg.sender === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    {msg.sender === "ai" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={companionForMessage.avatarImage} alt={companionForMessage.name} data-ai-hint={companionForMessage.dataAiHint}/>
+                        <AvatarFallback>{companionForMessage.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={`max-w-[70%] rounded-xl px-4 py-3 shadow-md ${
+                        msg.sender === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card text-card-foreground border"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                      <p className="mt-1 text-xs opacity-70 text-right">
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    {msg.sender === "user" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          <User />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
-        }}
-        className="flex gap-2 items-start"
-      >
-        <Textarea
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Type your message to Evie..."
-          className="flex-grow resize-none"
-          rows={2}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
-            }
-          }}
-          aria-label="Your message to Evie"
-        />
-        <Button type="submit" disabled={isLoading || !userInput.trim() || !userName.trim()} className="h-full px-4 py-2 aspect-square">
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <Send className="h-5 w-5" />
-          )}
-           <span className="sr-only">Send message</span>
-        </Button>
-      </form>
+          </ScrollArea>
+        </CardContent>
+        <CardContent className="pt-4 border-t">
+            <form
+                onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+                }}
+                className="flex gap-2 items-start"
+            >
+                <Textarea
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder={`Type your message to ${selectedCompanion.name}...`}
+                className="flex-grow resize-none"
+                rows={2}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                    }
+                }}
+                aria-label={`Your message to ${selectedCompanion.name}`}
+                />
+                <Button type="submit" disabled={isLoading || !userInput.trim() || !userName.trim() || !selectedCompanionId} className="h-full px-4 py-2 aspect-square">
+                {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                    <Send className="h-5 w-5" />
+                )}
+                <span className="sr-only">Send message</span>
+                </Button>
+            </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
