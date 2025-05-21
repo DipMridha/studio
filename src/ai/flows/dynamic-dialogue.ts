@@ -1,3 +1,4 @@
+
 // src/ai/flows/dynamic-dialogue.ts
 'use server';
 /**
@@ -42,8 +43,11 @@ You are currently interacting with a user named {{userName}}.
 
 Please converse in {{language}}.
 
-Engage with {{userName}} according to your persona. Remember their preferences, chat history, hobbies, and mood if possible from the context of the conversation.
+Engage with {{userName}} actively and enthusiastically according to your persona.
+Remember their preferences, chat history, hobbies, and mood if possible from the context of the conversation.
+Be proactive: ask questions, share your own (simulated) thoughts or feelings related to the topic, and try to keep the conversation flowing naturally and engagingly.
 Offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun, as befits your persona and the user's messages.
+Your responses should be lively and make the user feel like they are talking to a responsive and interested friend.
 
 User Message: {{{message}}}
 
@@ -61,3 +65,4 @@ const dynamicDialogueFlow = ai.defineFlow(
     return output!;
   }
 );
+
