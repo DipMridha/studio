@@ -5,21 +5,18 @@ import { useState, useEffect, useRef } from "react";
 import { dynamicDialogue, type DynamicDialogueInput } from "@/ai/flows/dynamic-dialogue";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Loader2, Languages } from "lucide-react";
+import { Send, User, Loader2 } from "lucide-react";
 
 interface Message {
   id: string;
   sender: "user" | "ai";
   text: string;
   timestamp: Date;
-  companionId?: string; // Store which companion sent the message
+  companionId?: string;
 }
 
 interface Companion {
@@ -30,6 +27,7 @@ interface Companion {
   dataAiHint: string;
 }
 
+// This data needs to be available here for rendering chat messages and for AI calls
 const initialCompanions: Companion[] = [
   {
     id: "evie",
@@ -78,9 +76,10 @@ const initialCompanions: Companion[] = [
 interface LanguageOption {
   value: string;
   label: string;
-  aiName: string; // Name to pass to the AI prompt
+  aiName: string;
 }
 
+// This data also needs to be available for AI calls
 const languageOptions: LanguageOption[] = [
   { value: "en", label: "English", aiName: "English" },
   { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
@@ -88,16 +87,59 @@ const languageOptions: LanguageOption[] = [
   { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
 
+const CHAT_SETTINGS_KEY = "candiAiChatSettings";
+
+interface ChatSettings {
+  userName: string;
+  selectedCompanionId: string;
+  selectedLanguage: string;
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // State for settings loaded from localStorage
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Load settings from localStorage
+  useEffect(() => {
+    if (isClient) {
+      try {
+        const storedSettings = localStorage.getItem(CHAT_SETTINGS_KEY);
+        if (storedSettings) {
+          const parsedSettings: ChatSettings = JSON.parse(storedSettings);
+          setUserName(parsedSettings.userName || "User");
+          setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
+          setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
+        } else {
+          // Set defaults if no settings found, and perhaps inform the user
+          toast({
+            title: "Welcome!",
+            description: "Chat settings use defaults. You can change them on the Companion page.",
+          });
+        }
+      } catch (error) {
+          console.error("Failed to load chat settings from localStorage for chat page:", error);
+           toast({
+            title: "Error loading settings",
+            description: "Using default chat settings. Please check Companion page.",
+            variant: "destructive",
+          });
+      }
+    }
+  }, [isClient, toast]);
+
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
@@ -109,14 +151,23 @@ export default function ChatPage() {
   useEffect(scrollToBottom, [messages]);
 
   const handleSendMessage = async () => {
-    if (!userInput.trim() || !userName.trim() || !selectedCompanionId || !selectedLanguage) {
+    if (!userInput.trim()) {
       toast({
         title: "Input required",
-        description: "Please enter your name, select a companion, choose a language, and type a message.",
+        description: "Please type a message.",
         variant: "destructive",
       });
       return;
     }
+     if (!isClient || !userName.trim() || !selectedCompanionId || !selectedLanguage) {
+      toast({
+        title: "Setup Required",
+        description: "Please configure your chat settings on the 'Companion' page first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -160,72 +211,23 @@ export default function ChatPage() {
     }
   };
 
+  if (!isClient) {
+     return (
+      <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading chat...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)]">
-      <Card className="mb-4 flex-shrink-0">
-        <CardHeader>
-          <CardTitle className="text-lg">Setup Your Chat</CardTitle>
-          <CardDescription>Tell us your name, choose your companion, and select your preferred language.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="userName">Your Name</Label>
-            <Input
-              id="userName"
-              type="text"
-              placeholder="E.g., Alex"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              aria-label="Your Name"
-            />
-            <p className="text-xs text-muted-foreground mt-1">This helps your companion get to know you!</p>
-          </div>
-          <div>
-            <Label htmlFor="companionSelect">Choose a Companion</Label>
-            <Select value={selectedCompanionId} onValueChange={setSelectedCompanionId}>
-              <SelectTrigger id="companionSelect" className="w-full" aria-label="Select Companion">
-                <SelectValue placeholder="Select a companion" />
-              </SelectTrigger>
-              <SelectContent>
-                {initialCompanions.map(comp => (
-                  <SelectItem key={comp.id} value={comp.id}>
-                    <div className="flex items-center gap-2">
-                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
-                        <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      {comp.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="languageSelect">Chat Language</Label>
-            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-              <SelectTrigger id="languageSelect" className="w-full" aria-label="Select Language">
-                <Languages className="mr-2 h-4 w-4 text-muted-foreground" />
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languageOptions.map(lang => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-      
       <Card className="flex flex-col flex-grow overflow-hidden">
         <CardHeader>
             <CardTitle className="text-lg">Chat with {selectedCompanion.name}</CardTitle>
         </CardHeader>
         <CardContent className="flex-grow overflow-hidden p-0">
-          <ScrollArea className="h-full p-4 pr-6" ref={scrollAreaRef}>
+          <ScrollArea className="h-full p-4 pr-6">
             <div className="space-y-4">
               {messages.map((msg) => {
                 const companionForMessage = msg.sender === "ai" 
@@ -293,7 +295,7 @@ export default function ChatPage() {
                 }}
                 aria-label={`Your message to ${selectedCompanion.name}`}
                 />
-                <Button type="submit" disabled={isLoading || !userInput.trim() || !userName.trim() || !selectedCompanionId} className="h-full px-4 py-2 aspect-square">
+                <Button type="submit" disabled={isLoading || !userInput.trim()} className="h-full px-4 py-2 aspect-square">
                 {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
@@ -307,3 +309,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+    
