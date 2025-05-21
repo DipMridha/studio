@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, ImageIcon, UserCog, Bot, Sparkles } from 'lucide-react';
+import { MessageCircle, UserCog, Bot, Sparkles, Settings } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -19,26 +19,32 @@ export default function HomePage() {
         </CardHeader>
         <CardContent className="p-6 md:p-8">
           <p className="text-center text-muted-foreground mb-8 md:mb-10 text-base">
-            Begin your journey by chatting with one of our companions, creating unique images, or customizing your experience.
+            Begin your journey with Candi AI.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FeatureCard
               href="/chat"
               icon={<MessageCircle className="h-8 w-8 text-primary" />}
-              title="Start Chatting"
+              title="Start"
               description="Engage in dynamic conversations with your AI companion. Choose a persona and language."
             />
             <FeatureCard
               href="/gallery"
-              icon={<ImageIcon className="h-8 w-8 text-primary" />}
-              title="AI Image Gallery"
+              icon={<Sparkles className="h-8 w-8 text-primary" />}
+              title="AI Generator"
               description="Generate unique images of your companion in various styles and scenes."
             />
             <FeatureCard
               href="/companion"
               icon={<UserCog className="h-8 w-8 text-primary" />}
-              title="Customize Companion"
+              title="Companion"
               description="Personalize your AI companion's appearance and traits (Coming Soon)."
+            />
+            <FeatureCard
+              href="/settings"
+              icon={<Settings className="h-8 w-8 text-primary" />}
+              title="Settings"
+              description="Configure your app preferences and account details (Coming Soon)."
             />
           </div>
         </CardContent>

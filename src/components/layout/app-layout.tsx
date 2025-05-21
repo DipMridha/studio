@@ -17,11 +17,10 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
-  Image as ImageIcon,
   UserCog,
-  CalendarCheck,
-  Home,
   Bot,
+  Sparkles,
+  Settings as SettingsIcon, // Renamed to avoid potential conflicts
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -32,11 +31,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/chat", label: "Chat", icon: MessageCircle },
-  { href: "/gallery", label: "Gallery", icon: ImageIcon },
+  { href: "/chat", label: "Start", icon: MessageCircle },
+  { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
-  { href: "/reminders", label: "Reminders", icon: CalendarCheck },
-  { href: "/space", label: "Virtual Space", icon: Home },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +44,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen>
       <Sidebar>
         <SidebarHeader className="p-4">
-          <Link href="/chat" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Bot className="h-8 w-8 text-primary" />
             <h1 className="text-xl font-semibold text-foreground">Candi AI</h1>
           </Link>
@@ -58,7 +56,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={pathname === item.href || (pathname === '/' && item.href === '/chat')}
                     tooltip={item.label}
                   >
                     <a>
@@ -75,7 +73,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
-          <Link href="/chat" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
              <Bot className="h-7 w-7 text-primary" />
             <span className="text-lg font-semibold text-foreground">Candi AI</span>
           </Link>
