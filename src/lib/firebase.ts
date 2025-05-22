@@ -13,18 +13,39 @@ const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 const measurementId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
 // Check if the essential Firebase config values are present and not placeholders
-if (!apiKey || apiKey === "YOUR_API_KEY" || apiKey.trim() === "") {
+const placeholderApiKey = "YOUR_API_KEY"; // Common placeholder
+const placeholderAuthDomain = "YOUR_AUTH_DOMAIN";
+const placeholderProjectId = "YOUR_PROJECT_ID";
+
+let displayedApiKey = apiKey;
+if (apiKey && apiKey.includes(placeholderApiKey.substring(0,10))) { // Check if it looks like a placeholder
+    displayedApiKey = "YOUR_API_KEY (Placeholder Detected)";
+} else if (!apiKey) {
+    displayedApiKey = "MISSING";
+} else {
+    displayedApiKey = "********" + apiKey.substring(apiKey.length - 4); // Show only last 4 chars for some privacy
+}
+
+
+if (!apiKey || apiKey === placeholderApiKey || apiKey.trim() === "") {
   throw new Error(
-    "Firebase API Key is missing or invalid. " +
-    "Please ensure your Firebase project is correctly linked in Firebase Studio and that environment variables (e.g., NEXT_PUBLIC_FIREBASE_API_KEY) are properly set. " +
-    "If running locally, verify your .env.local file."
+    `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing, a placeholder, or invalid. Received: '${displayedApiKey}'.
+Troubleshooting steps:
+1. Firebase Studio: Ensure your Firebase project is correctly linked and syncing environment variables.
+2. Local Development: Verify your '.env.local' file in the project root. It MUST contain your actual Firebase project credentials:
+   NEXT_PUBLIC_FIREBASE_API_KEY="YOUR_ACTUAL_API_KEY"
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="YOUR_ACTUAL_AUTH_DOMAIN"
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID="YOUR_ACTUAL_PROJECT_ID"
+   (and other NEXT_PUBLIC_FIREBASE_... variables)
+3. IMPORTANT: After creating or editing the '.env.local' file, you MUST restart your Next.js development server for changes to take effect.
+4. Double-check that the values copied from your Firebase console are exact and have no typos.`
   );
 }
-if (!authDomain || authDomain === "YOUR_AUTH_DOMAIN" || authDomain.trim() === "") {
-  throw new Error("Firebase Auth Domain is missing or invalid. Check your Firebase project configuration and environment variables.");
+if (!authDomain || authDomain === placeholderAuthDomain || authDomain.trim() === "") {
+  throw new Error("Firebase Auth Domain (NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) is missing or invalid. Check your Firebase project configuration and environment variables (e.g., .env.local and restart server).");
 }
-if (!projectId || projectId === "YOUR_PROJECT_ID" || projectId.trim() === "") {
-  throw new Error("Firebase Project ID is missing or invalid. Check your Firebase project configuration and environment variables.");
+if (!projectId || projectId === placeholderProjectId || projectId.trim() === "") {
+  throw new Error("Firebase Project ID (NEXT_PUBLIC_FIREBASE_PROJECT_ID) is missing or invalid. Check your Firebase project configuration and environment variables (e.g., .env.local and restart server).");
 }
 
 
