@@ -22,7 +22,7 @@ interface Message {
 interface Companion {
   id: string;
   name: string;
-  avatarImage: string;
+  avatarImage: string; // Default placeholder
   persona: string;
   dataAiHint: string;
 }
@@ -89,6 +89,7 @@ const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface CompanionCustomizations {
   selectedTraits?: string[];
+  customAvatarUrl?: string;
 }
 interface ChatSettings {
   userName: string;
@@ -119,11 +120,13 @@ export default function ChatPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // Web Speech API cleanup
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
         recognitionRef.current = null;
+      }
+      if (typeof window !== 'undefined' && window.speechSynthesis?.speaking) {
+        window.speechSynthesis.cancel();
       }
     };
   }, []);
@@ -158,7 +161,10 @@ export default function ChatPage() {
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
-  const currentSelectedTraits = companionCustomizations[selectedCompanionId]?.selectedTraits || [];
+  
+  const currentCompanionSpecificCustomizations = companionCustomizations[selectedCompanionId] || {};
+  const currentSelectedTraits = currentCompanionSpecificCustomizations.selectedTraits || [];
+  const currentCustomAvatarUrl = currentCompanionSpecificCustomizations.customAvatarUrl;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -197,7 +203,7 @@ export default function ChatPage() {
     try {
       const aiInput: DynamicDialogueInput = {
         userId: "default-user", 
-        message: userMessage.text, // Use userMessage.text which was set before clearing userInput
+        message: userMessage.text,
         userName: userName,
         companionId: selectedCompanion.id,
         companionName: selectedCompanion.name,
@@ -253,12 +259,13 @@ export default function ChatPage() {
     const recognition = new SpeechRecognitionAPI();
     recognitionRef.current = recognition;
 
-    recognition.lang = selectedLanguage; // e.g., "en-US", "hi-IN"
-    recognition.interimResults = false; // We only want final results
-    recognition.continuous = false; // Stop after first utterance
+    recognition.lang = selectedLanguage; 
+    recognition.interimResults = false;
+    recognition.continuous = false;
 
     recognition.onstart = () => {
       setIsListening(true);
+      toast({ title: "Listening...", description: "Speak now.", duration: 3000});
     };
 
     recognition.onresult = (event) => {
@@ -295,30 +302,48 @@ export default function ChatPage() {
   };
 
   const handleReadAloud = (text: string, messageId: string) => {
-    // Placeholder for Text-to-Speech (TTS) logic
-    // User would implement SpeechSynthesisUtterance API here
-    // Example:
-    // if (isSpeakingMessageId === messageId) {
-    //   window.speechSynthesis.cancel();
-    //   setIsSpeakingMessageId(null);
-    //   return;
-    // }
-    // const utterance = new SpeechSynthesisUtterance(text);
-    // const voices = window.speechSynthesis.getVoices();
-    // const targetLang = languageOptions.find(l => l.value === selectedLanguage)?.aiName.split('-')[0] || 'en';
-    // let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang) && voice.name.includes('Female')); // Prioritize female voice if available
-    // if (!selectedVoice) selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang)); // Fallback to any voice for the language
-    // if (selectedVoice) utterance.voice = selectedVoice;
-    // utterance.lang = selectedLanguage;
-    // utterance.onstart = () => setIsSpeakingMessageId(messageId);
-    // utterance.onend = () => setIsSpeakingMessageId(null);
-    // utterance.onerror = (event) => {
-    //  console.error("Speech synthesis error", event.error);
-    //  toast({ title: "Speech Error", description: "Could not read aloud.", variant: "destructive" });
-    //  setIsSpeakingMessageId(null);
-    // };
-    // window.speechSynthesis.speak(utterance);
-     toast({ title: "Read Aloud", description: "Text-to-Speech not yet implemented."});
+    if (!isClient || typeof window === 'undefined' || !window.speechSynthesis) {
+        toast({ title: "Speech Error", description: "Text-to-speech not supported or available.", variant: "destructive" });
+        return;
+    }
+
+    if (isSpeakingMessageId === messageId && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeakingMessageId(null);
+        return;
+    }
+    
+    if (window.speechSynthesis.speaking) { // Cancel any ongoing speech before starting new
+        window.speechSynthesis.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Try to find a voice for the selected language
+    let targetLang = languageOptions.find(l => l.value === selectedLanguage)?.value || 'en';
+    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; // Use base language code e.g. 'en' from 'en-US'
+
+    let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
+    if (!selectedVoice) { // Fallback: Try to find a voice matching the full selectedLanguage code if it has a region
+        selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
+    }
+    if (!selectedVoice && targetLang !== 'en') { // Fallback to English if no specific language voice found
+        selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
+    }
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    utterance.lang = selectedVoice ? selectedVoice.lang : selectedLanguage; // Use voice's lang if available, else selectedLanguage
+
+    utterance.onstart = () => setIsSpeakingMessageId(messageId);
+    utterance.onend = () => setIsSpeakingMessageId(null);
+    utterance.onerror = (event) => {
+     console.error("Speech synthesis error", event.error, event);
+     toast({ title: "Speech Error", description: `Could not read aloud. ${event.error || ''}`, variant: "destructive" });
+     setIsSpeakingMessageId(null);
+    };
+    window.speechSynthesis.speak(utterance);
   };
 
 
@@ -335,7 +360,13 @@ export default function ChatPage() {
     <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)]">
       <Card className="flex flex-col flex-grow overflow-hidden">
         <CardHeader>
-            <CardTitle className="text-lg">Chat with {selectedCompanion.name}</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+               <Avatar className="h-8 w-8">
+                  <AvatarImage src={currentCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint}/>
+                  <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                Chat with {selectedCompanion.name}
+            </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow overflow-hidden p-0">
           <ScrollArea className="h-full p-4 pr-6">
@@ -344,6 +375,10 @@ export default function ChatPage() {
                 const companionForMessage = msg.sender === "ai" 
                   ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion 
                   : selectedCompanion;
+                
+                const avatarForMessage = msg.sender === "ai" 
+                  ? (companionCustomizations[msg.companionId || selectedCompanionId]?.customAvatarUrl || companionForMessage.avatarImage) 
+                  : "";
 
                 return (
                   <div
@@ -354,7 +389,7 @@ export default function ChatPage() {
                   >
                     {msg.sender === "ai" && (
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={companionForMessage.avatarImage} alt={companionForMessage.name} data-ai-hint={companionForMessage.dataAiHint}/>
+                        <AvatarImage src={avatarForMessage} alt={companionForMessage.name} data-ai-hint={companionForMessage.dataAiHint}/>
                         <AvatarFallback>{companionForMessage.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                     )}
@@ -377,18 +412,18 @@ export default function ChatPage() {
                             className="h-6 w-6"
                             onClick={() => handleReadAloud(msg.text, msg.id)}
                             disabled={isSpeakingMessageId === msg.id && typeof window !== 'undefined' && window.speechSynthesis?.speaking} 
-                            aria-label="Read message aloud"
+                            aria-label={isSpeakingMessageId === msg.id ? "Stop reading" : "Read message aloud"}
                           >
-                            <Volume2 className="h-4 w-4" />
+                            <Volume2 className={`h-4 w-4 ${isSpeakingMessageId === msg.id ? 'text-primary' : ''}`} />
                           </Button>
                         )}
                       </div>
                     </div>
                     {msg.sender === "user" && (
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          <User />
-                        </AvatarFallback>
+                         <AvatarFallback>
+                           <User />
+                         </AvatarFallback>
                       </Avatar>
                     )}
                   </div>
@@ -422,11 +457,11 @@ export default function ChatPage() {
                 />
                 <Button 
                   type="button" 
-                  variant="outline" 
+                  variant={isListening ? "destructive" : "outline"} 
                   onClick={handleVoiceInput} 
                   disabled={isLoading}
                   className="h-full px-4 py-2 aspect-square"
-                  aria-label={isListening ? "Stop voice input" : "Send message with voice"}
+                  aria-label={isListening ? "Stop voice input" : "Start voice input"}
                 >
                     {isListening ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mic className="h-5 w-5" />}
                     <span className="sr-only">{isListening ? "Stop Voice Input" : "Use Voice Input"}</span>
@@ -445,5 +480,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-    

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, CheckSquare, Square } from "lucide-react";
+import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface Companion {
   id: string;
   name: string;
-  avatarImage: string;
+  avatarImage: string; // This will be the default/placeholder
   persona: string;
   dataAiHint: string;
 }
@@ -48,21 +48,21 @@ const initialCompanions: Companion[] = [
     id: "priya",
     name: "Priya",
     avatarImage: "https://placehold.co/100x100.png?text=P",
-    dataAiHint: "woman intelligent kind",
+    dataAiHint: "woman indian intelligent",
     persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
   },
   {
     id: "aisha",
     name: "Aisha",
     avatarImage: "https://placehold.co/100x100.png?text=A",
-    dataAiHint: "woman artistic creative",
+    dataAiHint: "woman indian artistic",
     persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
   },
   {
     id: "meera",
     name: "Meera",
     avatarImage: "https://placehold.co/100x100.png?text=M",
-    dataAiHint: "woman energetic optimistic",
+    dataAiHint: "woman indian energetic",
     persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
   }
 ];
@@ -86,6 +86,7 @@ const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface CompanionCustomizations {
   selectedTraits?: string[];
+  customAvatarUrl?: string;
 }
 
 interface ChatSettings {
@@ -107,8 +108,9 @@ export default function CompanionPage() {
   const [isClient, setIsClient] = useState(false);
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
-  const currentSelectedTraits = companionCustomizations[selectedCompanionId]?.selectedTraits || [];
-
+  const currentCustomizations = companionCustomizations[selectedCompanionId] || {};
+  const currentSelectedTraits = currentCustomizations.selectedTraits || [];
+  const currentCustomAvatarUrl = currentCustomizations.customAvatarUrl;
 
   useEffect(() => {
     setIsClient(true);
@@ -168,8 +170,6 @@ export default function CompanionPage() {
       });
       return;
     }
-    // Settings are saved automatically by the useEffect hook. 
-    // This button can provide user feedback.
     toast({
       title: "Settings Updated!",
       description: "Your chat and companion preferences have been updated.",
@@ -178,14 +178,14 @@ export default function CompanionPage() {
 
   const handleTraitToggle = (trait: string) => {
     setCompanionCustomizations(prevCustomizations => {
-      const currentTraits = prevCustomizations[selectedCompanionId]?.selectedTraits || [];
-      const newTraits = currentTraits.includes(trait)
-        ? currentTraits.filter(t => t !== trait)
-        : [...currentTraits, trait];
+      const currentCompanionTraits = prevCustomizations[selectedCompanionId]?.selectedTraits || [];
+      const newTraits = currentCompanionTraits.includes(trait)
+        ? currentCompanionTraits.filter(t => t !== trait)
+        : [...currentCompanionTraits, trait];
       return {
         ...prevCustomizations,
         [selectedCompanionId]: {
-          ...prevCustomizations[selectedCompanionId],
+          ...(prevCustomizations[selectedCompanionId] || {}),
           selectedTraits: newTraits,
         },
       };
@@ -250,17 +250,20 @@ export default function CompanionPage() {
                   <SelectValue placeholder="Select a companion" />
                 </SelectTrigger>
                 <SelectContent>
-                  {initialCompanions.map(comp => (
-                    <SelectItem key={comp.id} value={comp.id}>
-                      <div className="flex items-center gap-2">
-                         <Avatar className="h-6 w-6">
-                          <AvatarImage src={comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
-                          <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        {comp.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {initialCompanions.map(comp => {
+                    const customAvatar = companionCustomizations[comp.id]?.customAvatarUrl;
+                    return (
+                      <SelectItem key={comp.id} value={comp.id}>
+                        <div className="flex items-center gap-2">
+                           <Avatar className="h-6 w-6">
+                            <AvatarImage src={customAvatar || comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
+                            <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          {comp.name}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -310,36 +313,42 @@ export default function CompanionPage() {
                 ))}
             </div>
         </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImageIcon className="h-6 w-6 text-primary" />
+            Customize {selectedCompanion.name}'s Appearance
+          </CardTitle>
+          <CardDescription>
+            Personalize your AI companion's avatar using the AI Generator page. You can set a generated image as their avatar there. More advanced appearance customization tools are coming soon!
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg">
+            {currentCustomAvatarUrl ? (
+               <Avatar className="h-24 w-24 mb-4">
+                  <AvatarImage src={currentCustomAvatarUrl} alt={`${selectedCompanion.name}'s custom avatar`} data-ai-hint={selectedCompanion.dataAiHint} />
+                  <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+            ) : (
+              <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
+            )}
+            <p className="text-muted-foreground text-center">
+              {currentCustomAvatarUrl ? `${selectedCompanion.name}'s current avatar is shown above.` : `Set a custom avatar for ${selectedCompanion.name} on the "AI Generator" page.`}
+            </p>
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              More detailed appearance settings will be available here in the future.
+            </p>
+          </div>
+        </CardContent>
          <CardFooter>
              <Button onClick={handleSaveSettings} className="mt-4">
                 Save All Preferences
             </Button>
          </CardFooter>
       </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCog className="h-6 w-6 text-primary" />
-            Customize Companion Appearance
-          </CardTitle>
-          <CardDescription>
-            Personalize your AI companion's visual style and more. This feature is coming soon!
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg">
-            <UserCog className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground text-center">
-              Advanced companion customization tools will be available here.
-            </p>
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              Stay tuned for updates!
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
-
