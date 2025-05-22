@@ -45,7 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="https://placehold.co/32x32.png" alt="Chat AI Logo" width={32} height={32} data-ai-hint="saree woman" className="rounded-sm" />
+            <Image src="https://placehold.co/32x32.png" alt="Chat AI Logo" width={32} height={32} data-ai-hint="pink candy" className="rounded-sm" />
             <h1 className="text-xl font-semibold text-foreground">Chat AI</h1>
           </Link>
         </SidebarHeader>
@@ -74,7 +74,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
           <Link href="/" className="flex items-center gap-2">
-             <Image src="https://placehold.co/28x28.png" alt="Chat AI Logo" width={28} height={28} data-ai-hint="saree woman" className="rounded-sm" />
+             <Image src="https://placehold.co/28x28.png" alt="Chat AI Logo" width={28} height={28} data-ai-hint="pink candy" className="rounded-sm" />
             <span className="text-lg font-semibold text-foreground">Chat AI</span>
           </Link>
         </header>

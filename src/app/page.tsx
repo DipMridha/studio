@@ -11,7 +11,7 @@ export default function HomePage() {
       <Card className="shadow-lg overflow-hidden">
         <CardHeader className="text-center bg-card p-6 md:p-10">
           <div className="flex justify-center mb-4">
-            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="saree woman" className="rounded-md animate-pulse" />
+            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="pink candy" className="rounded-md animate-pulse" />
           </div>
           <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
