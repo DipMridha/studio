@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   SidebarProvider,
@@ -18,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
   UserCog,
-  Bot,
   Sparkles,
   Settings as SettingsIcon, // Renamed to avoid potential conflicts
 } from "lucide-react";
@@ -45,7 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Bot className="h-8 w-8 text-primary" />
+            <Image src="https://placehold.co/32x32.png" alt="Chat AI Logo" width={32} height={32} data-ai-hint="indian woman" className="rounded-sm" />
             <h1 className="text-xl font-semibold text-foreground">Chat AI</h1>
           </Link>
         </SidebarHeader>
@@ -74,7 +74,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
           <Link href="/" className="flex items-center gap-2">
-             <Bot className="h-7 w-7 text-primary" />
+             <Image src="https://placehold.co/28x28.png" alt="Chat AI Logo" width={28} height={28} data-ai-hint="indian woman" className="rounded-sm" />
             <span className="text-lg font-semibold text-foreground">Chat AI</span>
           </Link>
         </header>

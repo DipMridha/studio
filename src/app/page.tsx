@@ -1,8 +1,9 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Bot, Sparkles, Settings } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -10,7 +11,7 @@ export default function HomePage() {
       <Card className="shadow-lg overflow-hidden">
         <CardHeader className="text-center bg-card p-6 md:p-10">
           <div className="flex justify-center mb-4">
-            <Bot className="h-16 w-16 text-primary animate-pulse" />
+            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="indian woman" className="rounded-md animate-pulse" />
           </div>
           <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
@@ -38,7 +39,7 @@ export default function HomePage() {
               href="/companion"
               icon={<UserCog className="h-8 w-8 text-primary" />}
               title="Companion"
-              description="Personalize your AI companion's appearance and traits (Coming Soon)."
+              description="Personalize your AI companion's appearance and traits."
             />
             <FeatureCard
               href="/settings"
