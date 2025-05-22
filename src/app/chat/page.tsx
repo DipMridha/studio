@@ -53,21 +53,21 @@ const initialCompanions: Companion[] = [
     id: "priya",
     name: "Priya",
     avatarImage: "https://placehold.co/100x100.png?text=P",
-    dataAiHint: "woman intelligent kind",
+    dataAiHint: "woman indian intelligent",
     persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
   },
   {
     id: "aisha",
     name: "Aisha",
     avatarImage: "https://placehold.co/100x100.png?text=A",
-    dataAiHint: "woman artistic creative",
+    dataAiHint: "woman indian artistic",
     persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
   },
   {
     id: "meera",
     name: "Meera",
     avatarImage: "https://placehold.co/100x100.png?text=M",
-    dataAiHint: "woman energetic optimistic",
+    dataAiHint: "woman indian energetic",
     persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
   }
 ];
@@ -107,7 +107,6 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
 
-  // State for settings loaded from localStorage
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
@@ -115,12 +114,20 @@ export default function ChatPage() {
 
   const [isListening, setIsListening] = useState(false);
   const [isSpeakingMessageId, setIsSpeakingMessageId] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
 
   useEffect(() => {
     setIsClient(true);
+    // Web Speech API cleanup
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+    };
   }, []);
 
-  // Load settings from localStorage
   useEffect(() => {
     if (isClient) {
       try {
@@ -190,7 +197,7 @@ export default function ChatPage() {
     try {
       const aiInput: DynamicDialogueInput = {
         userId: "default-user", 
-        message: userInput,
+        message: userMessage.text, // Use userMessage.text which was set before clearing userInput
         userName: userName,
         companionId: selectedCompanion.id,
         companionName: selectedCompanion.name,
@@ -222,29 +229,69 @@ export default function ChatPage() {
   };
   
   const handleVoiceInput = () => {
-    // Placeholder for Speech-to-Text (STT) logic
-    // User would implement SpeechRecognition API here
-    // Example:
-    // if (!isListening) {
-    //   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    //   recognition.lang = selectedLanguage; // Use selected language for STT
-    //   recognition.onstart = () => setIsListening(true);
-    //   recognition.onresult = (event) => {
-    //     const transcript = event.results[0][0].transcript;
-    //     setUserInput(prev => prev + transcript);
-    //   };
-    //   recognition.onerror = (event) => {
-    //     console.error("Speech recognition error", event.error);
-    //     toast({ title: "Voice Error", description: `Could not understand: ${event.error}`, variant: "destructive" });
-    //     setIsListening(false);
-    //   };
-    //   recognition.onend = () => setIsListening(false);
-    //   recognition.start();
-    // } else {
-    //   // If a recognition instance is stored, call recognition.stop();
-    //   setIsListening(false);
-    // }
-    toast({ title: "Voice Input", description: "Speech-to-Text not yet implemented."});
+    if (!isClient) return;
+
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) {
+      toast({
+        title: "Voice Input Not Supported",
+        description: "Your browser does not support voice recognition.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognitionRef.current = recognition;
+
+    recognition.lang = selectedLanguage; // e.g., "en-US", "hi-IN"
+    recognition.interimResults = false; // We only want final results
+    recognition.continuous = false; // Stop after first utterance
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setUserInput((prevUserInput) => prevUserInput + transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      let errorMessage = "Could not understand audio.";
+      if (event.error === 'no-speech') {
+        errorMessage = "No speech was detected. Please try again.";
+      } else if (event.error === 'audio-capture') {
+        errorMessage = "No microphone was found. Ensure that a microphone is installed and that microphone access is allowed.";
+      } else if (event.error === 'not-allowed') {
+        errorMessage = "Microphone access was denied. Please allow access in your browser settings.";
+      }
+      toast({ title: "Voice Error", description: errorMessage, variant: "destructive" });
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null; 
+    };
+
+    try {
+      recognition.start();
+    } catch (error) {
+        console.error("Error starting speech recognition:", error);
+        toast({ title: "Voice Error", description: "Failed to start voice recognition.", variant: "destructive" });
+        setIsListening(false);
+        recognitionRef.current = null;
+    }
   };
 
   const handleReadAloud = (text: string, messageId: string) => {
@@ -329,7 +376,7 @@ export default function ChatPage() {
                             size="icon"
                             className="h-6 w-6"
                             onClick={() => handleReadAloud(msg.text, msg.id)}
-                            disabled={isSpeakingMessageId === msg.id && window.speechSynthesis.speaking} // Disable if this message is being spoken
+                            disabled={isSpeakingMessageId === msg.id && typeof window !== 'undefined' && window.speechSynthesis?.speaking} 
                             aria-label="Read message aloud"
                           >
                             <Volume2 className="h-4 w-4" />
@@ -377,12 +424,12 @@ export default function ChatPage() {
                   type="button" 
                   variant="outline" 
                   onClick={handleVoiceInput} 
-                  disabled={isLoading} // STT logic to be implemented by user
+                  disabled={isLoading}
                   className="h-full px-4 py-2 aspect-square"
-                  aria-label="Send message with voice"
+                  aria-label={isListening ? "Stop voice input" : "Send message with voice"}
                 >
                     {isListening ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mic className="h-5 w-5" />}
-                    <span className="sr-only">Use Voice Input</span>
+                    <span className="sr-only">{isListening ? "Stop Voice Input" : "Use Voice Input"}</span>
                 </Button>
                 <Button type="submit" disabled={isLoading || !userInput.trim()} className="h-full px-4 py-2 aspect-square">
                 {isLoading ? (
@@ -398,3 +445,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+    
