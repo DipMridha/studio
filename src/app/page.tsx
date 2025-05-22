@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, Moon } from 'lucide-react'; // Added Moon
 
 export default function HomePage() {
   return (
@@ -52,6 +52,12 @@ export default function HomePage() {
               icon={<BookOpen className="h-8 w-8 text-primary" />}
               title="Story Mode"
               description="Engage in interactive story chapters where your choices influence relationship growth."
+            />
+            <FeatureCard
+              href="/dream"
+              icon={<Moon className="h-8 w-8 text-primary" />}
+              title="Dream Mode"
+              description="Enter a special night-time mood for dream-sharing and soft conversations."
             />
             <FeatureCard
               href="/settings"

@@ -23,6 +23,7 @@ import {
   Settings as SettingsIcon,
   CalendarCheck,
   BookOpen,
+  Moon, // Added Moon icon
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
+  { href: "/dream", label: "Dream Mode", icon: Moon }, // Added Dream Mode
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
