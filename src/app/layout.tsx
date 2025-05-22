@@ -1,12 +1,14 @@
+
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+// import { GeistMono } from "geist/font/mono"; // Keep commented or remove if not fixed/used
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/context/auth-context"; // Import AuthProvider
 
 const geistSans = GeistSans;
-const geistMono = GeistMono;
+// const geistMono = GeistMono; // Keep commented or remove if not fixed/used
 
 export const metadata: Metadata = {
   title: "Chat AI",
@@ -21,10 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+        // className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`} // GeistMono removed
+        className={`${geistSans.variable} font-sans antialiased`}
       >
-        <AppLayout>{children}</AppLayout>
-        <Toaster />
+        <AuthProvider> {/* Wrap with AuthProvider */}
+          <AppLayout>{children}</AppLayout>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

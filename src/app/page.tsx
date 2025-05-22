@@ -1,11 +1,16 @@
 
+"use client"; // Add "use client" for potential client-side hooks if needed in future
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View } from 'lucide-react'; // Added View
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, LogIn } from 'lucide-react';
+// import { useAuth } from '@/context/auth-context'; // Can be used to conditionally show login button if needed
 
 export default function HomePage() {
+  // const { user } = useAuth(); // Example: if you wanted to change UI based on auth state here
+
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
       <Card className="shadow-lg overflow-hidden">
@@ -26,7 +31,7 @@ export default function HomePage() {
             <FeatureCard
               href="/chat"
               icon={<MessageCircle className="h-8 w-8 text-primary" />}
-              title="Start"
+              title="Start Chat"
               description="Engage in dynamic conversations with your AI companion. Choose a persona and language."
             />
             <FeatureCard
@@ -38,8 +43,8 @@ export default function HomePage() {
             <FeatureCard
               href="/companion"
               icon={<UserCog className="h-8 w-8 text-primary" />}
-              title="Companion"
-              description="Personalize your AI companion's appearance and traits."
+              title="Companion Hub"
+              description="Personalize your AI companion's appearance, traits, and chat settings."
             />
             <FeatureCard
               href="/reminders"
@@ -62,12 +67,14 @@ export default function HomePage() {
             <FeatureCard
               href="/settings"
               icon={<Settings className="h-8 w-8 text-primary" />}
-              title="Settings"
+              title="App Settings"
               description="Configure your app preferences and account details. (Coming Soon)"
             />
           </div>
         </CardContent>
         <CardContent className="p-6 md:p-8 border-t text-center">
+           {/* This button might be redundant if login is enforced by AppLayout */}
+           {/* You could show different content here if user is not logged in vs logged in */}
            <Link href="/chat" passHref>
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-shadow">
                 <Sparkles className="mr-2 h-5 w-5" />

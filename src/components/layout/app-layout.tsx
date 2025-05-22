@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
+  SidebarFooter, // Import SidebarFooter
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +24,13 @@ import {
   Settings as SettingsIcon,
   CalendarCheck,
   BookOpen,
-  View, // Added View icon
+  View,
+  LogOut, // Import LogOut icon
+  Loader2, // Import Loader2 for loading state
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useAuth } from "@/context/auth-context"; // Import useAuth
+import { LoginForm } from "@/components/auth/login-form"; // Import LoginForm
 
 interface NavItem {
   href: string;
@@ -39,13 +44,31 @@ const navItems: NavItem[] = [
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
-  { href: "/ar", label: "AR Mode", icon: View }, // Added AR Mode
+  { href: "/ar", label: "AR Mode", icon: View },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user, loading, signOut: handleSignOut } = useAuth();
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
+        <LoginForm />
+      </div>
+    );
+  }
+
+  // User is authenticated, render the main app layout
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -75,6 +98,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
+        <SidebarFooter className="p-2">
+          {user && (
+             <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
+              {user.email || user.displayName || 'Authenticated User'}
+            </p>
+          )}
+          <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
