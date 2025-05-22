@@ -12,14 +12,14 @@ export default function HomePage() {
           <div className="flex justify-center mb-4">
             <Bot className="h-16 w-16 text-primary animate-pulse" />
           </div>
-          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Candi AI</CardTitle>
+          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
-            Your personal AI companion awaits. Explore the features below to get started and connect with Candi AI.
+            Your personal AI companion awaits. Explore the features below to get started and connect with Chat AI.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8">
           <p className="text-center text-muted-foreground mb-8 md:mb-10 text-base">
-            Begin your journey with Candi AI.
+            Begin your journey with Chat AI.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FeatureCard

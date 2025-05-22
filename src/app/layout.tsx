@@ -9,8 +9,8 @@ const geistSans = GeistSans;
 const geistMono = GeistMono;
 
 export const metadata: Metadata = {
-  title: "Candi AI",
-  description: "Your AI Companion - Candi AI",
+  title: "Chat AI",
+  description: "Your AI Companion - Chat AI",
 };
 
 export default function RootLayout({

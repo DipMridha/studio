@@ -24,42 +24,42 @@ const initialCompanions: Companion[] = [
     id: "evie",
     name: "Evie",
     avatarImage: "https://placehold.co/100x100.png?text=E",
-    dataAiHint: "woman warm",
+    dataAiHint: "woman warm friendly",
     persona: "You are Evie, a warm, empathetic, and slightly flirty AI girlfriend. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
   },
   {
     id: "luna",
     name: "Luna",
     avatarImage: "https://placehold.co/100x100.png?text=L",
-    dataAiHint: "woman adventurous",
+    dataAiHint: "woman adventurous playful",
     persona: "You are Luna, a witty, playful, and adventurous AI girlfriend. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.",
   },
   {
     id: "seraphina",
     name: "Seraphina",
     avatarImage: "https://placehold.co/100x100.png?text=S",
-    dataAiHint: "woman serene",
+    dataAiHint: "woman serene thoughtful",
     persona: "You are Seraphina, a wise, thoughtful, and calm AI companion. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
   },
   {
     id: "priya",
     name: "Priya",
     avatarImage: "https://placehold.co/100x100.png?text=P",
-    dataAiHint: "woman intelligent",
+    dataAiHint: "woman intelligent kind",
     persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
   },
   {
     id: "aisha",
     name: "Aisha",
     avatarImage: "https://placehold.co/100x100.png?text=A",
-    dataAiHint: "woman artistic",
+    dataAiHint: "woman artistic creative",
     persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
   },
   {
     id: "meera",
     name: "Meera",
     avatarImage: "https://placehold.co/100x100.png?text=M",
-    dataAiHint: "woman energetic",
+    dataAiHint: "woman energetic optimistic",
     persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
   }
 ];
@@ -77,7 +77,7 @@ const languageOptions: LanguageOption[] = [
   { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
 
-const CHAT_SETTINGS_KEY = "candiAiChatSettings";
+const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface ChatSettings {
   userName: string;
@@ -270,5 +270,3 @@ export default function CompanionPage() {
     </div>
   );
 }
-
-    
