@@ -21,6 +21,7 @@ import {
   UserCog,
   Sparkles,
   Settings as SettingsIcon, // Renamed to avoid potential conflicts
+  CalendarCheck, // Added for Reminders
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { href: "/chat", label: "Start", icon: MessageCircle },
   { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
+  { href: "/reminders", label: "Reminders", icon: CalendarCheck }, // Added Reminders
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 

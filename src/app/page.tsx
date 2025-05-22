@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -22,7 +22,7 @@ export default function HomePage() {
           <p className="text-center text-muted-foreground mb-8 md:mb-10 text-base">
             Begin your journey with Chat AI.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FeatureCard
               href="/chat"
               icon={<MessageCircle className="h-8 w-8 text-primary" />}
@@ -42,10 +42,16 @@ export default function HomePage() {
               description="Personalize your AI companion's appearance and traits."
             />
             <FeatureCard
+              href="/reminders"
+              icon={<CalendarCheck className="h-8 w-8 text-primary" />}
+              title="Reminders"
+              description="Simulated daily calls, check-ins, and reminders. (Coming Soon)"
+            />
+            <FeatureCard
               href="/settings"
               icon={<Settings className="h-8 w-8 text-primary" />}
               title="Settings"
-              description="Configure your app preferences and account details (Coming Soon)."
+              description="Configure your app preferences and account details. (Coming Soon)"
             />
           </div>
         </CardContent>

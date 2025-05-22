@@ -12,17 +12,17 @@ export default function RemindersPage() {
             Daily Connections & Reminders
           </CardTitle>
           <CardDescription>
-            Receive supportive messages and set reminders with your AI companion. This feature is under development.
+            Receive supportive messages, engage in simulated daily calls with unique dialogues, and set reminders with your AI companion. This feature is under development.
           </CardDescription>
         </CardHeader>
         <CardContent>
            <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg">
             <CalendarCheck className="h-16 w-16 text-muted-foreground mb-4" />
             <p className="text-muted-foreground text-center">
-              Manage daily check-ins and reminders from your AI companion here.
+              Imagine receiving daily check-in calls or setting up reminders with your AI companion here.
             </p>
              <p className="text-sm text-muted-foreground text-center mt-2">
-              This section is coming soon!
+              This section is coming soon! Video avatar animation for calls is a more advanced feature planned for later.
             </p>
           </div>
         </CardContent>
