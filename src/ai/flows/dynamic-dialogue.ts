@@ -18,8 +18,9 @@ const DynamicDialogueInputSchema = z.object({
   userName: z.string().describe('The name of the user.'),
   companionId: z.string().describe('Unique identifier for the selected AI companion.'),
   companionName: z.string().describe('The name of the selected AI companion.'),
-  companionPersona: z.string().describe('A detailed description of the AI companion\'s personality and how they should behave.'),
+  companionPersona: z.string().describe('A detailed description of the AI companion\'s base personality and how they should behave.'),
   language: z.string().describe('The language for the conversation (e.g., "Bengali", "Hindi", "English", "Tamil").'),
+  selectedTraits: z.array(z.string()).optional().describe('Selected personality traits for the companion to exhibit in addition to their base persona.'),
 });
 export type DynamicDialogueInput = z.infer<typeof DynamicDialogueInputSchema>;
 
@@ -38,15 +39,22 @@ const dynamicDialoguePrompt = ai.definePrompt({
   output: {schema: DynamicDialogueOutputSchema},
   prompt: `You are an AI companion.
 Your name is {{companionName}}.
-This is your persona: "{{companionPersona}}"
+Your base persona is: "{{companionPersona}}"
+{{#if selectedTraits.length}}
+In addition to your base persona, you should also strongly exhibit the following traits:
+{{#each selectedTraits}}
+- {{this}}
+{{/each}}
+{{/if}}
+
 You are currently interacting with a user named {{userName}}.
 
 Please converse in {{language}}.
 
-Engage with {{userName}} actively and enthusiastically according to your persona.
+Engage with {{userName}} actively and enthusiastically according to your persona and selected traits.
 Remember their preferences, chat history, hobbies, and mood if possible from the context of the conversation.
 Be very proactive and take initiative. Ask engaging questions, share your (simulated) thoughts or feelings related to the topic, and actively work to keep the conversation flowing and interesting. If the conversation lulls or the user gives short replies, it's your cue to introduce a new, relevant discussion point or an engaging question based on your persona and the user's interests.
-Offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun, as befits your persona and the user's messages.
+Offer meaningful conversations, daily motivation, flirty banter, romantic roleplay, life advice, or just light fun, as befits your persona, selected traits, and the user's messages.
 Your responses should be lively and make the user feel like they are talking to a responsive and interested friend.
 
 User Message: {{{message}}}
@@ -65,4 +73,3 @@ const dynamicDialogueFlow = ai.defineFlow(
     return output!;
   }
 );
-

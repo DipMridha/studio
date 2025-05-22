@@ -2,14 +2,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, User, Languages, Settings2 } from "lucide-react"; // Added Settings2
+import { UserCog, Languages, Settings2, CheckSquare, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+
 
 interface Companion {
   id: string;
@@ -77,20 +80,35 @@ const languageOptions: LanguageOption[] = [
   { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
 
+const personalityTraitsOptions = ['Shy', 'Bold', 'Funny', 'Caring', 'Gamer', 'Intellectual', 'Artistic', 'Adventurous', 'Mysterious', 'Optimistic', 'Sarcastic', 'Flirty'];
+
 const CHAT_SETTINGS_KEY = "chatAiChatSettings";
+
+interface CompanionCustomizations {
+  selectedTraits?: string[];
+}
 
 interface ChatSettings {
   userName: string;
   selectedCompanionId: string;
   selectedLanguage: string;
+  companionCustomizations?: {
+    [companionId: string]: CompanionCustomizations;
+  };
 }
 
 export default function CompanionPage() {
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
+  const [companionCustomizations, setCompanionCustomizations] = useState<{ [companionId: string]: CompanionCustomizations }>({});
+  
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+
+  const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
+  const currentSelectedTraits = companionCustomizations[selectedCompanionId]?.selectedTraits || [];
+
 
   useEffect(() => {
     setIsClient(true);
@@ -106,6 +124,7 @@ export default function CompanionPage() {
           setUserName(parsedSettings.userName || "User");
           setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
+          setCompanionCustomizations(parsedSettings.companionCustomizations || {});
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
@@ -122,7 +141,12 @@ export default function CompanionPage() {
   useEffect(() => {
     if (isClient) {
       try {
-        const settings: ChatSettings = { userName, selectedCompanionId, selectedLanguage };
+        const settings: ChatSettings = { 
+            userName, 
+            selectedCompanionId, 
+            selectedLanguage,
+            companionCustomizations 
+        };
         localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settings));
       } catch (error) {
         console.error("Failed to save chat settings to localStorage:", error);
@@ -133,7 +157,7 @@ export default function CompanionPage() {
         });
       }
     }
-  }, [userName, selectedCompanionId, selectedLanguage, isClient, toast]);
+  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, isClient, toast]);
   
   const handleSaveSettings = () => {
     if (!userName.trim()) {
@@ -144,9 +168,27 @@ export default function CompanionPage() {
       });
       return;
     }
+    // Settings are saved automatically by the useEffect hook. 
+    // This button can provide user feedback.
     toast({
-      title: "Settings Saved!",
-      description: "Your chat preferences have been updated.",
+      title: "Settings Updated!",
+      description: "Your chat and companion preferences have been updated.",
+    });
+  };
+
+  const handleTraitToggle = (trait: string) => {
+    setCompanionCustomizations(prevCustomizations => {
+      const currentTraits = prevCustomizations[selectedCompanionId]?.selectedTraits || [];
+      const newTraits = currentTraits.includes(trait)
+        ? currentTraits.filter(t => t !== trait)
+        : [...currentTraits, trait];
+      return {
+        ...prevCustomizations,
+        [selectedCompanionId]: {
+          ...prevCustomizations[selectedCompanionId],
+          selectedTraits: newTraits,
+        },
+      };
     });
   };
 
@@ -184,7 +226,7 @@ export default function CompanionPage() {
             Configure Your Chat
           </CardTitle>
           <CardDescription>
-            Set your name, choose your AI companion, and select your preferred chat language. These settings will be used for your conversations.
+            Set your name, choose your AI companion, and select your preferred chat language.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -239,12 +281,42 @@ export default function CompanionPage() {
               </Select>
             </div>
           </div>
-           <Button onClick={handleSaveSettings}>
-            Save Chat Preferences
-          </Button>
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserCog className="h-6 w-6 text-primary" />
+            Customize {selectedCompanion.name}'s Personality
+          </CardTitle>
+          <CardDescription>
+            Select traits to further define how {selectedCompanion.name} interacts with you. Changes are saved automatically.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {personalityTraitsOptions.map(trait => (
+                    <div key={trait} className="flex items-center space-x-2">
+                        <Checkbox
+                            id={`trait-${trait}`}
+                            checked={currentSelectedTraits.includes(trait)}
+                            onCheckedChange={() => handleTraitToggle(trait)}
+                        />
+                        <Label htmlFor={`trait-${trait}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            {trait}
+                        </Label>
+                    </div>
+                ))}
+            </div>
+        </CardContent>
+         <CardFooter>
+             <Button onClick={handleSaveSettings} className="mt-4">
+                Save All Preferences
+            </Button>
+         </CardFooter>
+      </Card>
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -270,3 +342,4 @@ export default function CompanionPage() {
     </div>
   );
 }
+

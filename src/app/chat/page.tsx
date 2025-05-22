@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Loader2, Mic, Volume2 } from "lucide-react"; // Added Mic and Volume2
+import { Send, User, Loader2, Mic, Volume2 } from "lucide-react";
 
 interface Message {
   id: string;
@@ -27,7 +27,6 @@ interface Companion {
   dataAiHint: string;
 }
 
-// This data needs to be available here for rendering chat messages and for AI calls
 const initialCompanions: Companion[] = [
   {
     id: "evie",
@@ -79,7 +78,6 @@ interface LanguageOption {
   aiName: string;
 }
 
-// This data also needs to be available for AI calls
 const languageOptions: LanguageOption[] = [
   { value: "en", label: "English", aiName: "English" },
   { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
@@ -89,10 +87,16 @@ const languageOptions: LanguageOption[] = [
 
 const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
+interface CompanionCustomizations {
+  selectedTraits?: string[];
+}
 interface ChatSettings {
   userName: string;
   selectedCompanionId: string;
   selectedLanguage: string;
+  companionCustomizations?: {
+    [companionId: string]: CompanionCustomizations;
+  };
 }
 
 export default function ChatPage() {
@@ -107,11 +111,10 @@ export default function ChatPage() {
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
+  const [companionCustomizations, setCompanionCustomizations] = useState<{ [companionId: string]: CompanionCustomizations }>({});
 
-  // Placeholder states for voice features - actual logic TBD by user
   const [isListening, setIsListening] = useState(false);
   const [isSpeakingMessageId, setIsSpeakingMessageId] = useState<string | null>(null);
-
 
   useEffect(() => {
     setIsClient(true);
@@ -127,6 +130,7 @@ export default function ChatPage() {
           setUserName(parsedSettings.userName || "User");
           setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
+          setCompanionCustomizations(parsedSettings.companionCustomizations || {});
         } else {
           toast({
             title: "Welcome!",
@@ -147,6 +151,7 @@ export default function ChatPage() {
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
+  const currentSelectedTraits = companionCustomizations[selectedCompanionId]?.selectedTraits || [];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -191,6 +196,7 @@ export default function ChatPage() {
         companionName: selectedCompanion.name,
         companionPersona: selectedCompanion.persona,
         language: currentLanguageAiName,
+        selectedTraits: currentSelectedTraits.length > 0 ? currentSelectedTraits : undefined,
       };
       const aiResponse = await dynamicDialogue(aiInput);
       const aiMessage: Message = {
@@ -215,27 +221,55 @@ export default function ChatPage() {
     }
   };
   
-  // Placeholder function for STT - to be implemented by user
   const handleVoiceInput = () => {
-    // User would implement SpeechRecognition here
-    // For example:
+    // Placeholder for Speech-to-Text (STT) logic
+    // User would implement SpeechRecognition API here
+    // Example:
     // if (!isListening) {
-    //   startListening(); // Function to initialize and start SpeechRecognition
-    //   setIsListening(true);
+    //   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    //   recognition.lang = selectedLanguage; // Use selected language for STT
+    //   recognition.onstart = () => setIsListening(true);
+    //   recognition.onresult = (event) => {
+    //     const transcript = event.results[0][0].transcript;
+    //     setUserInput(prev => prev + transcript);
+    //   };
+    //   recognition.onerror = (event) => {
+    //     console.error("Speech recognition error", event.error);
+    //     toast({ title: "Voice Error", description: `Could not understand: ${event.error}`, variant: "destructive" });
+    //     setIsListening(false);
+    //   };
+    //   recognition.onend = () => setIsListening(false);
+    //   recognition.start();
     // } else {
-    //   stopListening(); // Function to stop SpeechRecognition
+    //   // If a recognition instance is stored, call recognition.stop();
     //   setIsListening(false);
     // }
     toast({ title: "Voice Input", description: "Speech-to-Text not yet implemented."});
   };
 
-  // Placeholder function for TTS - to be implemented by user
   const handleReadAloud = (text: string, messageId: string) => {
-    // User would implement SpeechSynthesisUtterance here
-    // For example:
+    // Placeholder for Text-to-Speech (TTS) logic
+    // User would implement SpeechSynthesisUtterance API here
+    // Example:
+    // if (isSpeakingMessageId === messageId) {
+    //   window.speechSynthesis.cancel();
+    //   setIsSpeakingMessageId(null);
+    //   return;
+    // }
     // const utterance = new SpeechSynthesisUtterance(text);
+    // const voices = window.speechSynthesis.getVoices();
+    // const targetLang = languageOptions.find(l => l.value === selectedLanguage)?.aiName.split('-')[0] || 'en';
+    // let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang) && voice.name.includes('Female')); // Prioritize female voice if available
+    // if (!selectedVoice) selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang)); // Fallback to any voice for the language
+    // if (selectedVoice) utterance.voice = selectedVoice;
+    // utterance.lang = selectedLanguage;
     // utterance.onstart = () => setIsSpeakingMessageId(messageId);
     // utterance.onend = () => setIsSpeakingMessageId(null);
+    // utterance.onerror = (event) => {
+    //  console.error("Speech synthesis error", event.error);
+    //  toast({ title: "Speech Error", description: "Could not read aloud.", variant: "destructive" });
+    //  setIsSpeakingMessageId(null);
+    // };
     // window.speechSynthesis.speak(utterance);
      toast({ title: "Read Aloud", description: "Text-to-Speech not yet implemented."});
   };
@@ -295,7 +329,7 @@ export default function ChatPage() {
                             size="icon"
                             className="h-6 w-6"
                             onClick={() => handleReadAloud(msg.text, msg.id)}
-                            disabled={isSpeakingMessageId === msg.id} // Example: disable if this message is being spoken
+                            disabled={isSpeakingMessageId === msg.id && window.speechSynthesis.speaking} // Disable if this message is being spoken
                             aria-label="Read message aloud"
                           >
                             <Volume2 className="h-4 w-4" />
@@ -343,7 +377,7 @@ export default function ChatPage() {
                   type="button" 
                   variant="outline" 
                   onClick={handleVoiceInput} 
-                  disabled // STT logic to be implemented by user
+                  disabled={isLoading} // STT logic to be implemented by user
                   className="h-full px-4 py-2 aspect-square"
                   aria-label="Send message with voice"
                 >
@@ -364,6 +398,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-
-    
