@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, Gamepad2 } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, Gamepad2, BookOpen } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -52,6 +52,12 @@ export default function HomePage() {
               icon={<Gamepad2 className="h-8 w-8 text-primary" />}
               title="Mini-Games"
               description="Play fun games like trivia with your AI companion. (Coming Soon)"
+            />
+            <FeatureCard
+              href="/story"
+              icon={<BookOpen className="h-8 w-8 text-primary" />}
+              title="Story Mode"
+              description="Engage in interactive story chapters where your choices influence relationship growth."
             />
             <FeatureCard
               href="/settings"

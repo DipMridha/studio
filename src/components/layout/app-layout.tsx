@@ -22,7 +22,8 @@ import {
   Sparkles,
   Settings as SettingsIcon,
   CalendarCheck,
-  Gamepad2, // Added for Mini-Games
+  Gamepad2,
+  BookOpen, // Added for Story Mode
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -37,7 +38,8 @@ const navItems: NavItem[] = [
   { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
-  { href: "/minigames", label: "Mini-Games", icon: Gamepad2 }, // Added Mini-Games
+  { href: "/minigames", label: "Mini-Games", icon: Gamepad2 },
+  { href: "/story", label: "Story Mode", icon: BookOpen }, // Added Story Mode
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
