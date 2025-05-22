@@ -4,11 +4,15 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { generateAiImage, type GenerateAiImageInput } from "@/ai/flows/generate-ai-image";
+import { ComplimentPhotoInput, complimentPhoto } from "@/ai/flows/compliment-photo-flow";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ImageIcon, Loader2, Sparkles, UserCircle2 } from "lucide-react";
+import { ImageIcon, Loader2, Sparkles, UserCircle2, MessageSquareText } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
@@ -20,14 +24,21 @@ interface Companion {
   dataAiHint: string;
 }
 
-// Minimal companion data needed for gallery context
-const initialCompanions: Pick<Companion, 'id' | 'name' | 'persona'>[] = [
-  { id: "evie", name: "Evie", persona: "a warm, empathetic AI" },
-  { id: "luna", name: "Luna", persona: "a witty, playful AI" },
-  { id: "seraphina", name: "Seraphina", persona: "a wise, thoughtful AI" },
-  { id: "priya", name: "Priya", persona: "a friendly, intelligent AI from India" },
-  { id: "aisha", name: "Aisha", persona: "a warm, artistic AI from India" },
-  { id: "meera", name: "Meera", persona: "an energetic, optimistic AI from India" },
+// Updated to include persona for compliment flow
+const initialCompanions: Pick<Companion, 'id' | 'name' | 'persona' | 'avatarImage' | 'dataAiHint'>[] = [
+  { id: "evie", name: "Evie", persona: "You are Evie, a warm, empathetic, and slightly flirty AI girlfriend. You are supportive and enjoy light-hearted banter as well as deeper conversations.", avatarImage: "https://placehold.co/100x100.png?text=E", dataAiHint: "woman warm friendly" },
+  { id: "luna", name: "Luna", persona: "You are Luna, a witty, playful, and adventurous AI girlfriend. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.", avatarImage: "https://placehold.co/100x100.png?text=L", dataAiHint: "woman adventurous playful" },
+  { id: "seraphina", name: "Seraphina", persona: "You are Seraphina, a wise, thoughtful, and calm AI companion. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.", avatarImage: "https://placehold.co/100x100.png?text=S", dataAiHint: "woman serene thoughtful" },
+  { id: "priya", name: "Priya", persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.", avatarImage: "https://placehold.co/100x100.png?text=P", dataAiHint: "woman indian intelligent" },
+  { id: "aisha", name: "Aisha", persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.", avatarImage: "https://placehold.co/100x100.png?text=A", dataAiHint: "woman indian artistic" },
+  { id: "meera", name: "Meera", persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.", avatarImage: "https://placehold.co/100x100.png?text=M", dataAiHint: "woman indian energetic" },
+];
+
+const languageOptions: Array<{ value: string; label: string; aiName: string;}> = [
+  { value: "en", label: "English", aiName: "English" },
+  { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
+  { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
+  { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
 
 interface CompanionCustomizations {
@@ -49,8 +60,17 @@ export default function GalleryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  
+  const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string | null>(null);
   const [currentCompanion, setCurrentCompanion] = useState<Pick<Companion, 'id' | 'name' | 'persona'> | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [currentLanguageAiName, setCurrentLanguageAiName] = useState("English");
+
+  const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
+  const [uploadedImageDataUri, setUploadedImageDataUri] = useState<string | null>(null);
+  const [compliment, setCompliment] = useState<string | null>(null);
+  const [isComplimentLoading, setIsComplimentLoading] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -59,24 +79,33 @@ export default function GalleryPage() {
         const storedSettings = localStorage.getItem(CHAT_SETTINGS_KEY);
         if (storedSettings) {
           const parsedSettings: ChatSettings = JSON.parse(storedSettings);
-          if (parsedSettings.selectedCompanionId) {
-            setSelectedCompanionId(parsedSettings.selectedCompanionId);
-            const companion = initialCompanions.find(c => c.id === parsedSettings.selectedCompanionId);
-            if (companion) {
-              setCurrentCompanion(companion);
-              setPrompt(`A beautiful portrait of ${companion.name}, ${companion.persona.substring(0, 50)}..., anime style`);
-            } else {
-               setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
-            }
+          setUserName(parsedSettings.userName || "User");
+
+          const compId = parsedSettings.selectedCompanionId || initialCompanions[0].id;
+          setSelectedCompanionId(compId);
+          const companion = initialCompanions.find(c => c.id === compId);
+          if (companion) {
+            setCurrentCompanion(companion);
+            setPrompt(`A beautiful portrait of ${companion.name}, ${companion.persona.substring(0, 50)}..., anime style`);
           } else {
              setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
           }
+          
+          const langValue = parsedSettings.selectedLanguage || "en";
+          const langOption = languageOptions.find(l => l.value === langValue);
+          setSelectedLanguage(langValue);
+          setCurrentLanguageAiName(langOption?.aiName || "English");
+
         } else {
             setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
+            setCurrentCompanion(initialCompanions[0]); // Default companion if no settings
+            setSelectedCompanionId(initialCompanions[0].id);
         }
       } catch (error) {
          console.error("Failed to load settings for gallery:", error);
          setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
+         setCurrentCompanion(initialCompanions[0]);
+         setSelectedCompanionId(initialCompanions[0].id);
       }
     }
   }, [isClient]);
@@ -151,6 +180,60 @@ export default function GalleryPage() {
         description: "Could not save the new avatar. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        setUploadedImageFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setUploadedImageDataUri(reader.result as string);
+            setCompliment(null); 
+        };
+        reader.readAsDataURL(file);
+    } else {
+        setUploadedImageFile(null);
+        setUploadedImageDataUri(null);
+    }
+  };
+
+  const handleGetCompliment = async () => {
+    if (!uploadedImageDataUri || !currentCompanion) {
+        toast({
+            title: "Photo and Companion Required",
+            description: "Please upload a photo and ensure a companion is selected (refresh if needed).",
+            variant: "destructive",
+        });
+        return;
+    }
+    setIsComplimentLoading(true);
+    setCompliment(null);
+
+    try {
+        const input: ComplimentPhotoInput = {
+            photoDataUri: uploadedImageDataUri,
+            userName: userName,
+            companionName: currentCompanion.name,
+            companionPersona: currentCompanion.persona,
+            language: currentLanguageAiName,
+        };
+        const result = await complimentPhoto(input);
+        setCompliment(result.compliment);
+        toast({
+            title: "Compliment Received!",
+            description: `${currentCompanion.name} shared their thoughts.`,
+        });
+    } catch (error) {
+        console.error("Error getting compliment:", error);
+        toast({
+            title: "Error",
+            description: `Failed to get compliment. ${error instanceof Error ? error.message : 'Please try again.'}`,
+            variant: "destructive",
+        });
+    } finally {
+        setIsComplimentLoading(false);
     }
   };
 
@@ -230,7 +313,7 @@ export default function GalleryPage() {
           </CardFooter>
         </Card>
       )}
-
+      
       {!imageUrl && !isLoading && isClient && ( 
         <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
            <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
@@ -238,12 +321,70 @@ export default function GalleryPage() {
         </Card>
       )}
       
-      {!isClient && !isLoading && ( // Placeholder for SSR/initial load before client takes over
+      {!isClient && !isLoading && ( 
         <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
            <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Loading image generator...</p>
         </Card>
       )}
+
+      {/* Compliment Feature Card */}
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <MessageSquareText className="h-6 w-6 text-primary" />
+                Get a Compliment on Your Photo
+            </CardTitle>
+            <CardDescription>
+                Upload your photo and let {currentCompanion ? currentCompanion.name : "your companion"} share a kind thought!
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div>
+                <Label htmlFor="photoUpload">Upload Your Photo</Label>
+                <Input id="photoUpload" type="file" accept="image/*" onChange={handleFileChange} className="mt-1" />
+            </div>
+
+            {uploadedImageDataUri && (
+                <div className="mt-4 space-y-4">
+                    <p className="text-sm font-medium">Your Uploaded Photo:</p>
+                    <div className="relative aspect-video w-full max-w-md mx-auto overflow-hidden rounded-lg shadow-lg border">
+                        <Image
+                            src={uploadedImageDataUri}
+                            alt="User uploaded photo"
+                            layout="fill"
+                            objectFit="contain"
+                            data-ai-hint="user photo"
+                        />
+                    </div>
+                    <Button onClick={handleGetCompliment} disabled={isComplimentLoading || !currentCompanion} className="w-full md:w-auto">
+                        {isComplimentLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                           <Sparkles className="mr-2 h-4 w-4" />
+                        )}
+                        Ask {currentCompanion ? currentCompanion.name : "Companion"} for a Compliment
+                    </Button>
+                </div>
+            )}
+
+            {isComplimentLoading && (
+                <div className="flex items-center justify-center p-6 min-h-[100px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+                    <p className="text-muted-foreground">{currentCompanion ? currentCompanion.name : "Companion"} is thinking...</p>
+                </div>
+            )}
+
+            {compliment && !isComplimentLoading && (
+                <Alert className="mt-4">
+                     <Sparkles className="h-4 w-4" /> {/* Using Sparkles icon for AlertTitle consistency */}
+                    <AlertTitle>{currentCompanion ? currentCompanion.name : "Companion"} says:</AlertTitle>
+                    <AlertDescription className="whitespace-pre-wrap">{compliment}</AlertDescription>
+                </Alert>
+            )}
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
