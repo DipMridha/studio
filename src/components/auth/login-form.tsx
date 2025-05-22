@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/auth-context";
 import { Loader2, Mail } from "lucide-react"; // Mail icon for email login
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
 // Inline SVG for Google Icon
 const GoogleIcon = () => (
@@ -41,7 +42,8 @@ const FacebookIcon = () => (
 
 
 export function LoginForm() {
-  const { signInWithGoogle, signInWithFacebook, signInWithEmail, loading: authLoading } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, loading: authLoading } = useAuth();
+  const { toast } = useToast(); // Get toast function
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,20 +51,40 @@ export function LoginForm() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-        alert("Please enter email and password."); // Replace with toast
+        toast({ title: "Input Required", description: "Please enter email and password.", variant: "destructive"});
         return;
     }
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
       // Auth context will handle redirect or user state change
+      // toast({ title: "Sign In Successful", description: "Welcome back!"}); // Handled by onAuthStateChanged or specific logic in context
     } catch (error) {
       console.error("Login form error:", error);
-      alert("Failed to sign in."); // Replace with toast
+      toast({ title: "Sign In Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive"});
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handleSignUp = async () => {
+    // Basic validation, can be expanded with a proper form/dialog for sign up
+    if (!email || !password) {
+        toast({ title: "Input Required for Sign Up", description: "Please enter email and password to sign up.", variant: "destructive"});
+        return;
+    }
+    setIsSubmitting(true);
+    try {
+      await signUpWithEmail(email, password);
+      // toast({ title: "Sign Up Successful!", description: "Welcome! You are now signed in."}); // Handled by onAuthStateChanged
+    } catch (error) {
+      console.error("Sign up form error:", error);
+      toast({ title: "Sign Up Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive"});
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   const currentLoading = authLoading || isSubmitting;
 
@@ -70,15 +92,15 @@ export function LoginForm() {
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Welcome to Chat AI</CardTitle>
-        <CardDescription>Sign in to continue to your AI companion.</CardDescription>
+        <CardDescription>Sign in or sign up to continue.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button variant="outline" className="w-full" onClick={signInWithGoogle} disabled={currentLoading}>
-          {currentLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+          {currentLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
           Sign in with Google
         </Button>
         <Button variant="outline" className="w-full bg-[#1877F2] text-white hover:bg-[#1877F2]/90" onClick={signInWithFacebook} disabled={currentLoading}>
-          {currentLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FacebookIcon />}
+          {currentLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FacebookIcon />}
           Sign in with Facebook
         </Button>
 
@@ -119,18 +141,20 @@ export function LoginForm() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={currentLoading}>
-            {currentLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+            {currentLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
             Sign In with Email
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center text-center">
+      <CardFooter className="flex flex-col items-center text-center space-y-2">
         <p className="text-xs text-muted-foreground">
-          {/* TODO: Add Sign Up link/functionality */}
-          Don't have an account? <Button variant="link" className="p-0 h-auto text-xs" onClick={() => alert("Sign Up: Implement Firebase logic.")} disabled={currentLoading}>Sign Up</Button>
+          Don't have an account? <Button variant="link" className="p-0 h-auto text-xs" onClick={handleSignUp} disabled={currentLoading}>Sign Up with Email</Button>
+        </p>
+        <p className="text-xs text-muted-foreground">
+          (Uses the email/password fields above for sign up)
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          By signing in, you agree to our Terms of Service.
+          By signing in or signing up, you agree to our Terms of Service.
         </p>
       </CardFooter>
     </Card>

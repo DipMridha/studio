@@ -2,12 +2,18 @@
 "use client";
 
 import type { User as FirebaseUser } from "firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
+import { 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  FacebookAuthProvider, 
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  // signOut as firebaseSignOut // Renamed to avoid conflict
+} from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase"; // Your Firebase auth instance
 
-// Define the shape of your user object if you want to customize it
-// For now, we'll use FirebaseUser directly or null
 type User = FirebaseUser | null;
 
 interface AuthContextType {
@@ -16,7 +22,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
-  // signUpWithEmail: (email: string, pass: string) => Promise<void>; // Add if needed
+  signUpWithEmail: (email: string, pass: string) => Promise<void>; 
   signOut: () => Promise<void>;
 }
 
@@ -31,71 +37,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(firebaseUser);
       setLoading(false);
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  // Placeholder sign-in functions
-  // TODO: Implement actual Firebase sign-in logic here
   const signInWithGoogle = async () => {
     setLoading(true);
-    console.log("Attempting Google Sign-In (Placeholder)...");
-    // Example:
-    // try {
-    //   const provider = new GoogleAuthProvider();
-    //   await signInWithPopup(auth, provider);
-    // } catch (error) {
-    //   console.error("Google Sign-In Error:", error);
-    // } finally {
-    //   // setLoading(false); // onAuthStateChanged will handle this
-    // }
-    alert("Google Sign-In: Implement Firebase logic.");
-    setLoading(false); // Simulate end of loading if no onAuthStateChanged trigger
+    try {
+      const provider = new GoogleAuthProvider();
+      // TODO: Uncomment and complete Firebase integration
+      // await signInWithPopup(auth, provider);
+      // On successful sign-in, onAuthStateChanged will update user state
+      alert("Google Sign-In: Firebase signInWithPopup logic needs to be implemented here."); 
+      console.log("Attempting Google Sign-In (Placeholder)... Call signInWithPopup here.");
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      alert(`Google Sign-In Error: ${error instanceof Error ? error.message : String(error)}`);
+      setLoading(false); // Reset loading on error if not handled by onAuthStateChanged
+    }
+    // setLoading(false) is typically handled by onAuthStateChanged,
+    // but ensure it's reset if the process fails before triggering onAuthStateChanged.
   };
 
   const signInWithFacebook = async () => {
     setLoading(true);
-    console.log("Attempting Facebook Sign-In (Placeholder)...");
-    // Example:
-    // try {
-    //   const provider = new FacebookAuthProvider();
-    //   await signInWithPopup(auth, provider);
-    // } catch (error) {
-    //   console.error("Facebook Sign-In Error:", error);
-    // } finally {
-    //   // setLoading(false);
-    // }
-    alert("Facebook Sign-In: Implement Firebase logic.");
-    setLoading(false);
+    try {
+      const provider = new FacebookAuthProvider();
+      // TODO: Uncomment and complete Firebase integration
+      // await signInWithPopup(auth, provider);
+      // On successful sign-in, onAuthStateChanged will update user state
+      alert("Facebook Sign-In: Firebase signInWithPopup logic needs to be implemented here.");
+      console.log("Attempting Facebook Sign-In (Placeholder)... Call signInWithPopup here.");
+    } catch (error) {
+      console.error("Facebook Sign-In Error:", error);
+      alert(`Facebook Sign-In Error: ${error instanceof Error ? error.message : String(error)}`);
+      setLoading(false);
+    }
   };
   
   const signInWithEmail = async (email: string, pass: string) => {
     setLoading(true);
-    console.log(`Attempting Email Sign-In for ${email} (Placeholder)...`);
-    // Example:
-    // try {
-    //    await signInWithEmailAndPassword(auth, email, pass);
-    // } catch (error) {
-    //   console.error("Email Sign-In Error:", error);
-    // } finally {
-    //  // setLoading(false);
-    // }
-    alert("Email Sign-In: Implement Firebase logic.");
-    setLoading(false);
+    try {
+      // TODO: Uncomment and complete Firebase integration
+      // await signInWithEmailAndPassword(auth, email, pass);
+      // On successful sign-in, onAuthStateChanged will update user state
+      alert("Email Sign-In: Firebase signInWithEmailAndPassword logic needs to be implemented here.");
+      console.log(`Attempting Email Sign-In for ${email} (Placeholder)... Call signInWithEmailAndPassword here.`);
+    } catch (error) {
+      console.error("Email Sign-In Error:", error);
+      alert(`Email Sign-In Error: ${error instanceof Error ? error.message : String(error)}`);
+      setLoading(false);
+    }
   };
 
+  const signUpWithEmail = async (email: string, pass: string) => {
+    setLoading(true);
+    try {
+      // TODO: Uncomment and complete Firebase integration
+      // await createUserWithEmailAndPassword(auth, email, pass);
+      // On successful sign-up, onAuthStateChanged will update user state (typically auto-signs in)
+      alert("Email Sign-Up: Firebase createUserWithEmailAndPassword logic needs to be implemented here.");
+      console.log(`Attempting Email Sign-Up for ${email} (Placeholder)... Call createUserWithEmailAndPassword here.`);
+    } catch (error) {
+      console.error("Email Sign-Up Error:", error);
+      alert(`Email Sign-Up Error: ${error instanceof Error ? error.message : String(error)}`);
+      setLoading(false);
+    }
+  };
 
   const signOut = async () => {
     setLoading(true);
     try {
-      await auth.signOut();
+      await auth.signOut(); // auth.signOut() is correct
       // setUser(null) will be handled by onAuthStateChanged
     } catch (error) {
       console.error("Sign Out Error:", error);
-      setLoading(false); // Ensure loading state is reset on error
+      alert(`Sign Out Error: ${error instanceof Error ? error.message : String(error)}`);
+      setLoading(false); 
     }
-    // setLoading(false) will be handled by onAuthStateChanged
   };
 
   const value = {
@@ -104,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithGoogle,
     signInWithFacebook,
     signInWithEmail,
+    signUpWithEmail,
     signOut,
   };
 
