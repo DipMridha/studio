@@ -20,8 +20,9 @@ import {
   MessageCircle,
   UserCog,
   Sparkles,
-  Settings as SettingsIcon, // Renamed to avoid potential conflicts
-  CalendarCheck, // Added for Reminders
+  Settings as SettingsIcon,
+  CalendarCheck,
+  Gamepad2, // Added for Mini-Games
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -35,7 +36,8 @@ const navItems: NavItem[] = [
   { href: "/chat", label: "Start", icon: MessageCircle },
   { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
-  { href: "/reminders", label: "Reminders", icon: CalendarCheck }, // Added Reminders
+  { href: "/reminders", label: "Reminders", icon: CalendarCheck },
+  { href: "/minigames", label: "Mini-Games", icon: Gamepad2 }, // Added Mini-Games
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
