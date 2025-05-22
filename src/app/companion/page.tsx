@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon, Heart } from "lucide-react";
+import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon, Heart, Palette, UserCircle } from "lucide-react"; // Added Palette, UserCircle
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 interface Companion {
   id: string;
   name: string;
-  avatarImage: string; // This will be the default/placeholder
+  avatarImage: string; 
   persona: string;
   dataAiHint: string;
 }
@@ -88,7 +88,7 @@ const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 interface CompanionCustomizations {
   selectedTraits?: string[];
   customAvatarUrl?: string;
-  affectionLevel?: number; // Placeholder for affection level
+  affectionLevel?: number; 
 }
 
 interface ChatSettings {
@@ -108,7 +108,7 @@ export default function CompanionPage() {
   
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [affectionProgress, setAffectionProgress] = useState(20); // Example static progress
+  const [affectionProgress, setAffectionProgress] = useState(20); 
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentCustomizations = companionCustomizations[selectedCompanionId] || {};
@@ -119,7 +119,6 @@ export default function CompanionPage() {
     setIsClient(true);
   }, []);
 
-  // Load settings from localStorage on mount
   useEffect(() => {
     if (isClient) {
       try {
@@ -130,15 +129,38 @@ export default function CompanionPage() {
           setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
           setCompanionCustomizations(parsedSettings.companionCustomizations || {});
-          // In a real scenario, you'd load the affection level for the selected companion here
-          // For now, we use a static example or one loaded from settings if available.
+          
           const currentCompanionAffection = parsedSettings.companionCustomizations?.[selectedCompanionId]?.affectionLevel;
           if (currentCompanionAffection !== undefined) {
             setAffectionProgress(currentCompanionAffection);
           } else {
-            setAffectionProgress(20); // Default if not found
+            // If affectionLevel is not in localStorage for this companion, initialize it
+            // and also update the companionCustomizations state to reflect this default for saving
+            const defaultAffection = 20;
+            setAffectionProgress(defaultAffection);
+            setCompanionCustomizations(prev => {
+                const updatedCustoms = {
+                    ...prev,
+                    [selectedCompanionId]: {
+                        ...(prev[selectedCompanionId] || {}),
+                        affectionLevel: defaultAffection,
+                    }
+                };
+                 // Avoid immediate save here; let the main save effect handle it
+                return updatedCustoms;
+            });
           }
-
+        } else {
+           // No settings found, initialize default affection for the default selected companion
+            const defaultAffection = 20;
+            setAffectionProgress(defaultAffection);
+            setCompanionCustomizations(prev => ({
+                ...prev,
+                [initialCompanions[0].id]: { // Assuming selectedCompanionId is still the default
+                    ...(prev[initialCompanions[0].id] || {}),
+                    affectionLevel: defaultAffection,
+                }
+            }));
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
@@ -147,32 +169,26 @@ export default function CompanionPage() {
           description: "Could not load your saved settings. Using defaults.",
           variant: "destructive",
         });
+        setAffectionProgress(20); // Default on error
       }
     }
-  }, [isClient, toast, selectedCompanionId]); // Added selectedCompanionId dependency
+  }, [isClient, toast, selectedCompanionId]); // Added selectedCompanionId dependency to reload affection level when companion changes
 
-  // Save settings to localStorage whenever they change
   useEffect(() => {
     if (isClient) {
       try {
-        // Simulate updating affection level if it were dynamic
-        const currentCompanionAffection = companionCustomizations[selectedCompanionId]?.affectionLevel;
-        if (currentCompanionAffection === undefined) {
-            // Initialize if not present, this is illustrative
-             setCompanionCustomizations(prev => ({
-                ...prev,
-                [selectedCompanionId]: {
-                    ...(prev[selectedCompanionId] || {}),
-                    affectionLevel: affectionProgress, 
-                }
-            }));
-        }
-
         const settings: ChatSettings = { 
             userName, 
             selectedCompanionId, 
             selectedLanguage,
-            companionCustomizations 
+            // Ensure affection level for the current companion is part of the save
+            companionCustomizations: {
+                ...companionCustomizations,
+                [selectedCompanionId]: {
+                    ...(companionCustomizations[selectedCompanionId] || {}),
+                    affectionLevel: affectionProgress, 
+                }
+            }
         };
         localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settings));
       } catch (error) {
@@ -195,42 +211,43 @@ export default function CompanionPage() {
       });
       return;
     }
+    // Affection level is saved automatically by the useEffect, so we just need to ensure other customizations are captured.
+     setCompanionCustomizations(prev => ({
+        ...prev,
+        [selectedCompanionId]: {
+            ...(prev[selectedCompanionId] || {}),
+            selectedTraits: currentSelectedTraits, // ensure current traits are part of the object
+            customAvatarUrl: currentCustomAvatarUrl, // ensure current avatar is part of the object
+            affectionLevel: affectionProgress // ensure current affection is part of the object
+        }
+    }));
+
     toast({
-      title: "Settings Updated!",
+      title: "Preferences Updated!",
       description: "Your chat and companion preferences have been updated.",
     });
   };
 
   const handleTraitToggle = (trait: string) => {
     setCompanionCustomizations(prevCustomizations => {
-      const currentCompanionTraits = prevCustomizations[selectedCompanionId]?.selectedTraits || [];
-      const newTraits = currentCompanionTraits.includes(trait)
-        ? currentCompanionTraits.filter(t => t !== trait)
-        : [...currentCompanionTraits, trait];
+      const currentCompanionData = prevCustomizations[selectedCompanionId] || {};
+      const currentTraits = currentCompanionData.selectedTraits || [];
+      const newTraits = currentTraits.includes(trait)
+        ? currentTraits.filter(t => t !== trait)
+        : [...currentTraits, trait];
       return {
         ...prevCustomizations,
         [selectedCompanionId]: {
-          ...(prevCustomizations[selectedCompanionId] || {}),
+          ...currentCompanionData,
           selectedTraits: newTraits,
         },
       };
     });
   };
 
-  // Illustrative: Simulate affection increase, in a real app this would be tied to interactions
   const simulateAffectionIncrease = () => {
-    setAffectionProgress(prev => {
-        const newAffection = Math.min(prev + 10, 100);
-        setCompanionCustomizations(currentCustoms => ({
-            ...currentCustoms,
-            [selectedCompanionId]: {
-                ...(currentCustoms[selectedCompanionId] || {}),
-                affectionLevel: newAffection,
-            }
-        }));
-        return newAffection;
-    });
-     toast({ title: "Affection Increased!", description: `Your bond with ${selectedCompanion.name} is growing!` });
+    setAffectionProgress(prev => Math.min(prev + 10, 100));
+    toast({ title: "Affection Increased!", description: `Your bond with ${selectedCompanion.name} is growing!` });
   };
 
 
@@ -249,7 +266,7 @@ export default function CompanionPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center p-10 min-h-[200px]">
-              <UserCog className="h-16 w-16 text-muted-foreground mb-4 animate-spin" />
+              <Settings2 className="h-16 w-16 text-muted-foreground mb-4 animate-spin" />
             </div>
           </CardContent>
         </Card>
@@ -264,16 +281,16 @@ export default function CompanionPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings2 className="h-6 w-6 text-primary" />
-            Configure Your Chat
+            Your Preferences
           </CardTitle>
           <CardDescription>
-            Set your name, choose your AI companion, and select your preferred chat language.
+            Set your name, choose your AI companion, and select your preferred chat language. These settings are saved automatically.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid md:grid-cols-3 gap-6">
             <div>
-              <Label htmlFor="userName">Your Name</Label>
+              <Label htmlFor="userName" className="flex items-center gap-1 mb-1"><UserCircle className="h-4 w-4 text-muted-foreground" />Your Name</Label>
               <Input
                 id="userName"
                 type="text"
@@ -282,10 +299,10 @@ export default function CompanionPage() {
                 onChange={(e) => setUserName(e.target.value)}
                 aria-label="Your Name"
               />
-              <p className="text-xs text-muted-foreground mt-1">This helps your companion get to know you!</p>
+              <p className="text-xs text-muted-foreground mt-1">This name will be used by your companion.</p>
             </div>
             <div>
-              <Label htmlFor="companionSelect">Choose a Companion</Label>
+              <Label htmlFor="companionSelect" className="flex items-center gap-1 mb-1"><Heart className="h-4 w-4 text-muted-foreground" />Choose a Companion</Label>
               <Select value={selectedCompanionId} onValueChange={setSelectedCompanionId}>
                 <SelectTrigger id="companionSelect" className="w-full" aria-label="Select Companion">
                   <SelectValue placeholder="Select a companion" />
@@ -309,10 +326,9 @@ export default function CompanionPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="languageSelect">Chat Language</Label>
+              <Label htmlFor="languageSelect" className="flex items-center gap-1 mb-1"><Languages className="h-4 w-4 text-muted-foreground" />Chat Language</Label>
               <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                 <SelectTrigger id="languageSelect" className="w-full" aria-label="Select Language">
-                  <Languages className="mr-2 h-4 w-4 text-muted-foreground" />
                   <SelectValue placeholder="Select language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,28 +375,28 @@ export default function CompanionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ImageIcon className="h-6 w-6 text-primary" />
+            <Palette className="h-6 w-6 text-primary" /> {/* Changed icon to Palette */}
             Customize {selectedCompanion.name}'s Appearance
           </CardTitle>
           <CardDescription>
-            Personalize your AI companion's avatar using the AI Generator page. You can set a generated image as their avatar there. More advanced appearance customization tools are coming soon!
+            You can set a custom avatar for {selectedCompanion.name} by generating an image on the "AI Generator" page. More advanced appearance customization tools, including style and voice selection, are coming soon!
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg">
+          <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg bg-muted/20">
             {currentCustomAvatarUrl ? (
-               <Avatar className="h-24 w-24 mb-4">
+               <Avatar className="h-24 w-24 mb-4 ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg">
                   <AvatarImage src={currentCustomAvatarUrl} alt={`${selectedCompanion.name}'s custom avatar`} data-ai-hint={selectedCompanion.dataAiHint} />
-                  <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="text-3xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
                 </Avatar>
             ) : (
               <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
             )}
             <p className="text-muted-foreground text-center">
-              {currentCustomAvatarUrl ? `${selectedCompanion.name}'s current avatar is shown above.` : `Set a custom avatar for ${selectedCompanion.name} on the "AI Generator" page.`}
+              {currentCustomAvatarUrl ? `${selectedCompanion.name}'s custom avatar is shown above.` : `To set a custom avatar, go to the "AI Generator" page, create an image, and use the "Set as Avatar" option.`}
             </p>
             <p className="text-sm text-muted-foreground text-center mt-2">
-              More detailed appearance settings will be available here in the future.
+              Future updates will bring more ways to customize appearance and voice here.
             </p>
           </div>
         </CardContent>
@@ -404,15 +420,13 @@ export default function CompanionPage() {
             <p className="text-xs text-muted-foreground text-center">
                 This feature is currently illustrative. Dynamic updates and unlocks are coming soon.
             </p>
-            {/* Illustrative button to simulate affection increase */}
             <Button onClick={simulateAffectionIncrease} variant="outline" size="sm" className="mx-auto block">
                 Simulate Interaction (Increase Affection)
             </Button>
         </CardContent>
       </Card>
 
-
-       <CardFooter className="flex justify-start pt-6 border-t">
+       <CardFooter className="flex justify-start pt-6 border-t mt-6">
            <Button onClick={handleSaveSettings}>
               Save All Preferences
           </Button>
@@ -420,6 +434,3 @@ export default function CompanionPage() {
     </div>
   );
 }
-
-
-    
