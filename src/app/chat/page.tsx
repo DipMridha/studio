@@ -22,7 +22,7 @@ interface Message {
 interface Companion {
   id: string;
   name: string;
-  avatarImage: string; // Default placeholder
+  avatarImage: string; 
   persona: string;
   dataAiHint: string;
 }
@@ -273,17 +273,41 @@ export default function ChatPage() {
       setUserInput((prevUserInput) => prevUserInput + transcript);
     };
 
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error", event.error);
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error("Speech recognition error event:", event); // Log the full event
       let errorMessage = "Could not understand audio.";
-      if (event.error === 'no-speech') {
-        errorMessage = "No speech was detected. Please try again.";
-      } else if (event.error === 'audio-capture') {
-        errorMessage = "No microphone was found. Ensure that a microphone is installed and that microphone access is allowed.";
-      } else if (event.error === 'not-allowed') {
-        errorMessage = "Microphone access was denied. Please allow access in your browser settings.";
+      if (event.error) {
+        switch (event.error) {
+          case 'no-speech':
+            errorMessage = "No speech was detected. Please try again.";
+            break;
+          case 'audio-capture':
+            errorMessage = "No microphone was found. Ensure that a microphone is installed and that microphone access is allowed in your operating system and browser settings.";
+            break;
+          case 'not-allowed':
+            errorMessage = "Microphone access was denied. Please allow access in your browser's site settings and ensure your operating system permits microphone access for this browser.";
+            break;
+          case 'network':
+            errorMessage = "A network error occurred during speech recognition. Please check your internet connection.";
+            break;
+          case 'aborted':
+            errorMessage = "Voice input was interrupted. Please try again.";
+            break;
+          case 'service-not-allowed':
+             errorMessage = "Speech recognition service is not allowed. This might be due to browser policy or an extension. Please check your browser settings."
+             break;
+          case 'language-not-supported':
+            errorMessage = `The selected language (${selectedLanguage}) is not supported for voice input by your browser.`;
+            break;
+          default:
+            errorMessage = `An unexpected voice error occurred: ${event.error}.`;
+        }
       }
       toast({ title: "Voice Error", description: errorMessage, variant: "destructive" });
+      setIsListening(false); // Ensure UI state is reset
+      if (recognitionRef.current) {
+        // recognitionRef.current = null; // Let onend handle final cleanup
+      }
     };
 
     recognition.onend = () => {
@@ -297,7 +321,9 @@ export default function ChatPage() {
         console.error("Error starting speech recognition:", error);
         toast({ title: "Voice Error", description: "Failed to start voice recognition.", variant: "destructive" });
         setIsListening(false);
-        recognitionRef.current = null;
+        if (recognitionRef.current) {
+           recognitionRef.current = null;
+        }
     }
   };
 
@@ -320,21 +346,20 @@ export default function ChatPage() {
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
     
-    // Try to find a voice for the selected language
     let targetLang = languageOptions.find(l => l.value === selectedLanguage)?.value || 'en';
-    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; // Use base language code e.g. 'en' from 'en-US'
+    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; 
 
     let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
-    if (!selectedVoice) { // Fallback: Try to find a voice matching the full selectedLanguage code if it has a region
+    if (!selectedVoice) { 
         selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
     }
-    if (!selectedVoice && targetLang !== 'en') { // Fallback to English if no specific language voice found
+    if (!selectedVoice && targetLang !== 'en') { 
         selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
     }
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     }
-    utterance.lang = selectedVoice ? selectedVoice.lang : selectedLanguage; // Use voice's lang if available, else selectedLanguage
+    utterance.lang = selectedVoice ? selectedVoice.lang : selectedLanguage; 
 
     utterance.onstart = () => setIsSpeakingMessageId(messageId);
     utterance.onend = () => setIsSpeakingMessageId(null);
