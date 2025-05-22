@@ -146,20 +146,20 @@ export default function ARModePage() {
           </div>
         </CardHeader>
         <CardContent>
-           <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg">
+           <div className="flex flex-col items-center justify-center p-10 min-h-[300px] border-2 border-dashed border-border rounded-lg bg-muted/20">
             {companionCustomAvatarUrl || selectedCompanion.avatarImage ? (
-                <Avatar className="h-24 w-24 mb-6 ring-2 ring-primary ring-offset-2 ring-offset-background">
+                <Avatar className="h-32 w-32 mb-6 ring-4 ring-primary ring-offset-4 ring-offset-background shadow-xl">
                     <AvatarImage src={companionCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint}/>
-                    <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback className="text-4xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
                 </Avatar>
             ) : (
-                <View className="h-16 w-16 text-muted-foreground mb-4" />
+                <View className="h-24 w-24 text-muted-foreground mb-6" />
             )}
-            <p className="text-muted-foreground text-center">
-              Experience {selectedCompanion.name} in your real world through AR.
+            <p className="text-lg text-foreground text-center font-medium">
+              See {selectedCompanion.name} in Your World!
             </p>
-             <p className="text-sm text-muted-foreground text-center mt-2">
-              This advanced feature is part of our future vision using technologies like Snap AR Kit or WebAR! Stay tuned for updates.
+             <p className="text-sm text-muted-foreground text-center mt-2 max-w-md">
+              This is a conceptual preview. The full AR experience using technologies like Snap AR Kit or WebAR is part of our future vision. Stay tuned for updates!
             </p>
           </div>
         </CardContent>
