@@ -5,7 +5,6 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/context/auth-context"; // Import AuthProvider
 
 const geistSans = GeistSans;
 // const geistMono = GeistMono; // Keep commented or remove if not fixed/used
@@ -26,10 +25,8 @@ export default function RootLayout({
         // className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`} // GeistMono removed
         className={`${geistSans.variable} font-sans antialiased`}
       >
-        <AuthProvider> {/* Wrap with AuthProvider */}
-          <AppLayout>{children}</AppLayout>
-          <Toaster />
-        </AuthProvider>
+        <AppLayout>{children}</AppLayout>
+        <Toaster />
       </body>
     </html>
   );

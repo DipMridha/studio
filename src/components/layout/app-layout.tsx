@@ -14,9 +14,8 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
-  SidebarFooter, // Import SidebarFooter
+  SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
   UserCog,
@@ -25,12 +24,12 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  LogOut, // Import LogOut icon
-  Loader2, // Import Loader2 for loading state
+  // LogOut, // No longer needed
+  // Loader2, // No longer needed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useAuth } from "@/context/auth-context"; // Import useAuth
-import { LoginForm } from "@/components/auth/login-form"; // Import LoginForm
+// import { useAuth } from "@/context/auth-context"; // No longer needed
+// import { LoginForm } from "@/components/auth/login-form"; // No longer needed
 
 interface NavItem {
   href: string;
@@ -50,25 +49,25 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, loading, signOut: handleSignOut } = useAuth();
+  // const { user, loading, signOut: handleSignOut } = useAuth(); // No longer needed
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // if (loading) { // No longer needed
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-background">
+  //       <Loader2 className="h-16 w-16 animate-spin text-primary" />
+  //     </div>
+  //   );
+  // }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-        <LoginForm />
-      </div>
-    );
-  }
+  // if (!user) { // No longer needed
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
+  //       <LoginForm />
+  //     </div>
+  //   );
+  // }
 
-  // User is authenticated, render the main app layout
+  // User is authenticated, render the main app layout - Now always render
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -99,15 +98,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2">
-          {user && (
-             <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
-              {user.email || user.displayName || 'Authenticated User'}
+          {/* Removed user email and Sign Out button */}
+           <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
+              Welcome to Chat AI!
             </p>
-          )}
-          <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
