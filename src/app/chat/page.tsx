@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Loader2 } from "lucide-react";
+import { Send, User, Loader2, Mic, Volume2 } from "lucide-react"; // Added Mic and Volume2
 
 interface Message {
   id: string;
@@ -108,6 +108,11 @@ export default function ChatPage() {
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
 
+  // Placeholder states for voice features - actual logic TBD by user
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeakingMessageId, setIsSpeakingMessageId] = useState<string | null>(null);
+
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -123,7 +128,6 @@ export default function ChatPage() {
           setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
         } else {
-          // Set defaults if no settings found, and perhaps inform the user
           toast({
             title: "Welcome!",
             description: "Chat settings use defaults. You can change them on the Companion page.",
@@ -210,6 +214,32 @@ export default function ChatPage() {
       setIsLoading(false);
     }
   };
+  
+  // Placeholder function for STT - to be implemented by user
+  const handleVoiceInput = () => {
+    // User would implement SpeechRecognition here
+    // For example:
+    // if (!isListening) {
+    //   startListening(); // Function to initialize and start SpeechRecognition
+    //   setIsListening(true);
+    // } else {
+    //   stopListening(); // Function to stop SpeechRecognition
+    //   setIsListening(false);
+    // }
+    toast({ title: "Voice Input", description: "Speech-to-Text not yet implemented."});
+  };
+
+  // Placeholder function for TTS - to be implemented by user
+  const handleReadAloud = (text: string, messageId: string) => {
+    // User would implement SpeechSynthesisUtterance here
+    // For example:
+    // const utterance = new SpeechSynthesisUtterance(text);
+    // utterance.onstart = () => setIsSpeakingMessageId(messageId);
+    // utterance.onend = () => setIsSpeakingMessageId(null);
+    // window.speechSynthesis.speak(utterance);
+     toast({ title: "Read Aloud", description: "Text-to-Speech not yet implemented."});
+  };
+
 
   if (!isClient) {
      return (
@@ -255,9 +285,23 @@ export default function ChatPage() {
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                      <p className="mt-1 text-xs opacity-70 text-right">
-                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs opacity-70">
+                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        {msg.sender === "ai" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => handleReadAloud(msg.text, msg.id)}
+                            disabled={isSpeakingMessageId === msg.id} // Example: disable if this message is being spoken
+                            aria-label="Read message aloud"
+                          >
+                            <Volume2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     {msg.sender === "user" && (
                       <Avatar className="h-8 w-8">
@@ -284,7 +328,7 @@ export default function ChatPage() {
                 <Textarea
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
-                placeholder={`Type your message to ${selectedCompanion.name}...`}
+                placeholder={`Type or say your message to ${selectedCompanion.name}...`}
                 className="flex-grow resize-none"
                 rows={2}
                 onKeyDown={(e) => {
@@ -295,6 +339,17 @@ export default function ChatPage() {
                 }}
                 aria-label={`Your message to ${selectedCompanion.name}`}
                 />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleVoiceInput} 
+                  disabled // STT logic to be implemented by user
+                  className="h-full px-4 py-2 aspect-square"
+                  aria-label="Send message with voice"
+                >
+                    {isListening ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mic className="h-5 w-5" />}
+                    <span className="sr-only">Use Voice Input</span>
+                </Button>
                 <Button type="submit" disabled={isLoading || !userInput.trim()} className="h-full px-4 py-2 aspect-square">
                 {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -309,3 +364,6 @@ export default function ChatPage() {
     </div>
   );
 }
+
+
+    
