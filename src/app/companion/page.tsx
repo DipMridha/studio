@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon } from "lucide-react";
+import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 
 
 interface Companion {
@@ -87,6 +88,7 @@ const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 interface CompanionCustomizations {
   selectedTraits?: string[];
   customAvatarUrl?: string;
+  affectionLevel?: number; // Placeholder for affection level
 }
 
 interface ChatSettings {
@@ -106,6 +108,7 @@ export default function CompanionPage() {
   
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  const [affectionProgress, setAffectionProgress] = useState(20); // Example static progress
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentCustomizations = companionCustomizations[selectedCompanionId] || {};
@@ -127,6 +130,15 @@ export default function CompanionPage() {
           setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
           setCompanionCustomizations(parsedSettings.companionCustomizations || {});
+          // In a real scenario, you'd load the affection level for the selected companion here
+          // For now, we use a static example or one loaded from settings if available.
+          const currentCompanionAffection = parsedSettings.companionCustomizations?.[selectedCompanionId]?.affectionLevel;
+          if (currentCompanionAffection !== undefined) {
+            setAffectionProgress(currentCompanionAffection);
+          } else {
+            setAffectionProgress(20); // Default if not found
+          }
+
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
@@ -137,12 +149,25 @@ export default function CompanionPage() {
         });
       }
     }
-  }, [isClient, toast]);
+  }, [isClient, toast, selectedCompanionId]); // Added selectedCompanionId dependency
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
     if (isClient) {
       try {
+        // Simulate updating affection level if it were dynamic
+        const currentCompanionAffection = companionCustomizations[selectedCompanionId]?.affectionLevel;
+        if (currentCompanionAffection === undefined) {
+            // Initialize if not present, this is illustrative
+             setCompanionCustomizations(prev => ({
+                ...prev,
+                [selectedCompanionId]: {
+                    ...(prev[selectedCompanionId] || {}),
+                    affectionLevel: affectionProgress, 
+                }
+            }));
+        }
+
         const settings: ChatSettings = { 
             userName, 
             selectedCompanionId, 
@@ -159,7 +184,7 @@ export default function CompanionPage() {
         });
       }
     }
-  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, isClient, toast]);
+  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, isClient, toast, affectionProgress]);
   
   const handleSaveSettings = () => {
     if (!userName.trim()) {
@@ -190,6 +215,22 @@ export default function CompanionPage() {
         },
       };
     });
+  };
+
+  // Illustrative: Simulate affection increase, in a real app this would be tied to interactions
+  const simulateAffectionIncrease = () => {
+    setAffectionProgress(prev => {
+        const newAffection = Math.min(prev + 10, 100);
+        setCompanionCustomizations(currentCustoms => ({
+            ...currentCustoms,
+            [selectedCompanionId]: {
+                ...(currentCustoms[selectedCompanionId] || {}),
+                affectionLevel: newAffection,
+            }
+        }));
+        return newAffection;
+    });
+     toast({ title: "Affection Increased!", description: `Your bond with ${selectedCompanion.name} is growing!` });
   };
 
 
@@ -343,12 +384,42 @@ export default function CompanionPage() {
             </p>
           </div>
         </CardContent>
-         <CardFooter>
-             <Button onClick={handleSaveSettings} className="mt-4">
-                Save All Preferences
-            </Button>
-         </CardFooter>
       </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <Heart className="h-6 w-6 text-primary" />
+                Affection Level with {selectedCompanion.name}
+            </CardTitle>
+            <CardDescription>
+                Your bond with {selectedCompanion.name} grows with positive interactions. Higher affection levels may unlock special dialogues or features in the future!
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <Progress value={affectionProgress} className="w-full" />
+            <p className="text-sm text-muted-foreground text-center">
+                Current Affection: {affectionProgress}%
+            </p>
+            <p className="text-xs text-muted-foreground text-center">
+                This feature is currently illustrative. Dynamic updates and unlocks are coming soon.
+            </p>
+            {/* Illustrative button to simulate affection increase */}
+            <Button onClick={simulateAffectionIncrease} variant="outline" size="sm" className="mx-auto block">
+                Simulate Interaction (Increase Affection)
+            </Button>
+        </CardContent>
+      </Card>
+
+
+       <CardFooter className="flex justify-start pt-6 border-t">
+           <Button onClick={handleSaveSettings}>
+              Save All Preferences
+          </Button>
+       </CardFooter>
     </div>
   );
 }
+
+
+    
