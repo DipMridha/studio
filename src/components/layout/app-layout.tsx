@@ -23,7 +23,7 @@ import {
   Settings as SettingsIcon,
   CalendarCheck,
   BookOpen,
-  // Moon, // Removed Moon icon
+  View, // Added View icon
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
-  // { href: "/dream", label: "Dream Mode", icon: Moon }, // Removed Dream Mode
+  { href: "/ar", label: "AR Mode", icon: View }, // Added AR Mode
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View } from 'lucide-react'; // Added View
 
 export default function HomePage() {
   return (
@@ -53,7 +53,12 @@ export default function HomePage() {
               title="Story Mode"
               description="Engage in interactive story chapters where your choices influence relationship growth."
             />
-            {/* Dream Mode Card Removed */}
+            <FeatureCard
+              href="/ar"
+              icon={<View className="h-8 w-8 text-primary" />}
+              title="AR Mode"
+              description="Experience your AI companion in your world with Augmented Reality. (Future Scope)"
+            />
             <FeatureCard
               href="/settings"
               icon={<Settings className="h-8 w-8 text-primary" />}
