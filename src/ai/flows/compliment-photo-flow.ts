@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const ComplimentPhotoInputSchema = z.object({
+const ComplimentPhotoInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
@@ -24,7 +24,7 @@ export const ComplimentPhotoInputSchema = z.object({
 });
 export type ComplimentPhotoInput = z.infer<typeof ComplimentPhotoInputSchema>;
 
-export const ComplimentPhotoOutputSchema = z.object({
+const ComplimentPhotoOutputSchema = z.object({
   compliment: z.string().describe('A kind and respectful compliment from the AI companion about the photo.'),
 });
 export type ComplimentPhotoOutput = z.infer<typeof ComplimentPhotoOutputSchema>;
@@ -86,7 +86,7 @@ const complimentPhotoFlow = ai.defineFlow(
         } else if (input.language.toLowerCase().startsWith("hi")) { // Hindi
              fallbackComplimentText = `${input.companionName} कहती हैं: यह एक प्यारी तस्वीर है, ${input.userName}!`;
         } else if (input.language.toLowerCase().startsWith("ta")) { // Tamil
-             fallbackComplimentText = `${input.companionName} சொல்கிறார்: இது ஒரு அருமையான புகைப்படம், ${input.userName}!`;
+             fallbackComplimentText = `${input.companionName} சொல்கிறார்: ఇది ఒక அருமையான புகைப்படம், ${input.userName}!`;
         }
         return { compliment: fallbackComplimentText };
     }
