@@ -25,11 +25,8 @@ import {
   BookOpen,
   View,
   CreditCard,
-  // Loader2, // No longer needed for auth loading
-  // LogOut, // No longer needed for sign out
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-// import { Button } from "@/components/ui/button"; // No longer needed for sign out button
 
 interface NavItem {
   href: string;
@@ -38,7 +35,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/chat", label: "Start", icon: MessageCircle },
+  { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
@@ -50,9 +47,6 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
-  // No more authentication checks or login form rendering here
-  // The app content is rendered directly.
 
   return (
     <SidebarProvider defaultOpen>
@@ -84,7 +78,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2 space-y-2">
-           {/* Sign Out button removed */}
+           {/* Sign Out button removed if auth is not active */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
