@@ -125,7 +125,6 @@ const languageOptions: LanguageOption[] = [
   { value: "en", label: "English", aiName: "English" },
   { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
   { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
-  { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
 
 interface CompanionCustomizations {

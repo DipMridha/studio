@@ -20,7 +20,7 @@ const ComplimentPhotoInputSchema = z.object({
   userName: z.string().describe('The name of the user.'),
   companionName: z.string().describe('The name of the AI companion giving the compliment.'),
   companionPersona: z.string().describe("The AI companion's base personality."),
-  language: z.string().describe('The language for the compliment (e.g., "Bengali", "Hindi", "English", "Tamil").'),
+  language: z.string().describe('The language for the compliment (e.g., "Bengali", "Hindi", "English").'),
 });
 export type ComplimentPhotoInput = z.infer<typeof ComplimentPhotoInputSchema>;
 
@@ -85,11 +85,10 @@ const complimentPhotoFlow = ai.defineFlow(
              fallbackComplimentText = `${input.companionName} বলছে: এটি একটি চমৎকার ছবি, ${input.userName}!`;
         } else if (input.language.toLowerCase().startsWith("hi")) { // Hindi
              fallbackComplimentText = `${input.companionName} कहती हैं: यह एक प्यारी तस्वीर है, ${input.userName}!`;
-        } else if (input.language.toLowerCase().startsWith("ta")) { // Tamil
-             fallbackComplimentText = `${input.companionName} சொல்கிறார்: ఇది ఒక அருமையான புகைப்படம், ${input.userName}!`;
         }
         return { compliment: fallbackComplimentText };
     }
     return output;
   }
 );
+
