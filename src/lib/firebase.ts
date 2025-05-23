@@ -12,8 +12,41 @@ const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
 const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 const measurementId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
-// Simplified config - will rely on environment variables being correctly set.
-// If they are not, Firebase SDK will throw its own errors if a service requiring them is used.
+const commonApiKeyPlaceholderPattern = "YOUR_API_KEY"; // A common placeholder pattern
+const commonAuthDomainPlaceholderPattern = "YOUR_AUTH_DOMAIN";
+const commonProjectIdPlaceholderPattern = "YOUR_PROJECT_ID";
+
+
+let displayedApiKey = apiKey ? `'${apiKey}'` : "'Not Set (Missing NEXT_PUBLIC_FIREBASE_API_KEY)'";
+if (apiKey && apiKey.includes(commonApiKeyPlaceholderPattern)) {
+  displayedApiKey = `'${apiKey}' (Common placeholder pattern '${commonApiKeyPlaceholderPattern}' detected)`;
+}
+
+// Check if the essential Firebase config values are present and not placeholders
+if (!apiKey || apiKey.trim() === "" || apiKey.includes(commonApiKeyPlaceholderPattern)) {
+  throw new Error(
+    `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing, a placeholder, or invalid. Received: ${displayedApiKey}.\n` +
+    `Troubleshooting steps:\n` +
+    `1. Firebase Studio: Ensure your Firebase project is correctly linked and syncing environment variables with their ACTUAL values.\n` +
+    `2. Local Development: Verify your '.env.local' file in the project root. It MUST contain your actual Firebase project credentials. Example:\n` +
+    `   NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSy............" (This must be your real key from Firebase Console)\n` +
+    `   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project-id.firebaseapp.com"\n` +
+    `   NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"\n` +
+    `   (and other NEXT_PUBLIC_FIREBASE_... variables. Ensure they are ACTUAL values from your Firebase console and NOT placeholders like "YOUR_PROJECT_ID" or "your-project-id" if that's not your real project ID.)\n` +
+    `3. IMPORTANT: After creating or editing the '.env.local' file, you MUST restart your Next.js development server for changes to take effect.\n` +
+    `4. Double-check that the values copied from your Firebase console are exact and have no typos or extra characters (like quotes unless they are part of the key itself, which is rare for API keys).`
+  );
+}
+
+if (!authDomain || authDomain.trim() === "" || authDomain.includes(commonAuthDomainPlaceholderPattern) || !authDomain.includes(".firebaseapp.com")) {
+    throw new Error(`Firebase Auth Domain (NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) is missing, a placeholder, or invalid. Received: '${authDomain || 'Not Set'}'. It should be in the format 'your-project-id.firebaseapp.com'.`);
+}
+
+if (!projectId || projectId.trim() === "" || projectId.includes(commonProjectIdPlaceholderPattern)) {
+    throw new Error(`Firebase Project ID (NEXT_PUBLIC_FIREBASE_PROJECT_ID) is missing, a placeholder, or invalid. Received: '${projectId || 'Not Set'}'.`);
+}
+
+
 const firebaseConfig = {
   apiKey: apiKey,
   authDomain: authDomain,
@@ -27,34 +60,11 @@ const firebaseConfig = {
 // Initialize Firebase
 let app: FirebaseApp;
 if (!getApps().length) {
-  // Only initialize if essential config is somewhat present to avoid immediate crashes
-  // if environment variables are completely missing. Specific services might still fail.
-  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    console.warn("Firebase configuration is missing or incomplete. Firebase services may not work.");
-    // Create a dummy app object or handle as appropriate if no config
-    // This part might need adjustment based on how critical Firebase is post-auth removal
-    app = {} as FirebaseApp; // Placeholder to avoid crashes if 'app' is expected
-  }
+  app = initializeApp(firebaseConfig);
 } else {
   app = getApp();
 }
 
-// Get Auth instance, it might not be used if auth features are fully removed
-// but other parts of the app might still expect it.
-// If Firebase is not initialized properly, getAuth might throw an error.
-let auth: Auth;
-try {
-  auth = getAuth(app);
-} catch (e) {
-  console.warn("Failed to initialize Firebase Auth. If you're not using authentication, this might be fine. Error:", e);
-  auth = {} as Auth; // Placeholder
-}
-
-
-// You can also export other Firebase services here if needed
-// export const db = getFirestore(app);
-// export const storage = getStorage(app);
+const auth: Auth = getAuth(app);
 
 export { app, auth };

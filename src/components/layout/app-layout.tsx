@@ -24,12 +24,14 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  // LogOut, // No longer needed
-  // Loader2, // No longer needed
+  LogOut,
+  Loader2,
+  UserCircle2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-// import { useAuth } from "@/context/auth-context"; // No longer needed
-// import { LoginForm } from "@/components/auth/login-form"; // No longer needed
+import { useAuth } from "@/context/auth-context";
+import { LoginForm } from "@/components/auth/login-form";
+import { Button } from "@/components/ui/button";
 
 interface NavItem {
   href: string;
@@ -49,32 +51,32 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // const { user, loading, signOut: handleSignOut } = useAuth(); // No longer needed
+  const { user, loading, isGuest, signOut: handleSignOut } = useAuth();
 
-  // if (loading) { // No longer needed
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen bg-background">
-  //       <Loader2 className="h-16 w-16 animate-spin text-primary" />
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-  // if (!user) { // No longer needed
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-  //       <LoginForm />
-  //     </div>
-  //   );
-  // }
+  if (!user && !isGuest) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
+        <LoginForm />
+      </div>
+    );
+  }
 
-  // User is authenticated, render the main app layout - Now always render
+  // User is authenticated or is a guest
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Image src="https://placehold.co/32x32.png" alt="Chat AI Logo" width={32} height={32} data-ai-hint="pink candy" className="rounded-sm" />
-            <h1 className="text-xl font-semibold text-foreground">Chat AI</h1>
+            <h1 className="text-xl font-semibold text-sidebar-foreground">Chat AI</h1>
           </Link>
         </SidebarHeader>
         <SidebarContent>
@@ -97,11 +99,26 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-2">
-          {/* Removed user email and Sign Out button */}
-           <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
-              Welcome to Chat AI!
+        <SidebarFooter className="p-2 space-y-2">
+           {user && (
+             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-2">
+                <UserCircle2 className="h-4 w-4 shrink-0" />
+                {user.email || user.phoneNumber || "Authenticated User"}
+            </div>
+           )}
+           {isGuest && !user && (
+             <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
+                Browsing as Guest
             </p>
+           )}
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={handleSignOut}
+          >
+            <LogOut />
+            <span>{user ? "Sign Out" : "Exit Guest Mode"}</span>
+          </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

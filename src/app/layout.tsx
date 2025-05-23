@@ -1,14 +1,14 @@
 
-"use client"; // Needs to be client component for useEffect
+"use client"; 
 
-import type { Metadata } from "next";
+import type { Metadata } from "next"; // Keep for potential future use if part becomes server component
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
 import { THEME_KEY } from "@/lib/constants";
-
+import { AuthProvider } from "@/context/auth-context"; // Import AuthProvider
 
 // export const metadata: Metadata = { // Metadata should be defined in a server component or page.tsx
 //   title: "Chat AI",
@@ -37,11 +37,10 @@ export default function RootLayout({
 
     applyTheme();
 
-    // Listen for changes in system preference if 'system' is effectively chosen
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
        const storedTheme = localStorage.getItem(THEME_KEY);
-       if (storedTheme === 'system' || storedTheme === null) { // Re-apply if system or default
+       if (storedTheme === 'system' || storedTheme === null) { 
         applyTheme();
        }
     };
@@ -55,8 +54,10 @@ export default function RootLayout({
       <body
         className={`font-sans antialiased`}
       >
-        <AppLayout>{children}</AppLayout>
-        <Toaster />
+        <AuthProvider> {/* Wrap with AuthProvider */}
+          <AppLayout>{children}</AppLayout>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
