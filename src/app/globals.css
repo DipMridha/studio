@@ -8,51 +8,51 @@ body {
 
 @layer base {
   :root {
-    --background: 240 8% 96%; /* Very light gray #F5F5F5 */
-    --foreground: 240 10% 3.9%; /* Dark gray for text */
+    --background: 330 70% 97%; /* Very light pink */
+    --foreground: 330 25% 25%; /* Darker pink-ish grey for text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 330 60% 99%; /* Almost white with a hint of pink */
+    --card-foreground: 330 25% 20%; /* Darker pink-ish grey for card text */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: 330 60% 99%;
+    --popover-foreground: 330 25% 20%;
 
-    --primary: 270 38% 79%; /* Soft lavender #D0B4DE */
-    --primary-foreground: 270 38% 20%; /* Darker lavender/gray for text on primary */
+    --primary: 330 80% 78%; /* Main light pink */
+    --primary-foreground: 330 60% 15%; /* Darker pink for text on primary */
 
-    --secondary: 240 5% 93%; /* Slightly different shade of gray */
-    --secondary-foreground: 240 5% 20%;
+    --secondary: 330 60% 93%; /* Lighter, softer pink */
+    --secondary-foreground: 330 40% 30%;
 
-    --muted: 240 5% 93%;
-    --muted-foreground: 240 4% 45%;
+    --muted: 330 40% 95%; /* Very subtle pink/grey */
+    --muted-foreground: 330 15% 45%;
 
-    --accent: 195 43% 77%; /* Light sky blue #A9D5DE */
-    --accent-foreground: 195 43% 20%; /* Darker blue/gray for text on accent */
+    --accent: 330 75% 85%; /* A slightly different light pink for accents */
+    --accent-foreground: 330 50% 20%; /* Darker pink for text on accent */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 195 43% 77%; /* Accent color for rings */
+    --border: 330 60% 90%; /* Soft pink border */
+    --input: 330 60% 92%; /* Soft pink input background */
+    --ring: 330 80% 80%; /* Pink for focus rings, slightly more saturated primary */
 
     --radius: 0.5rem;
 
     /* Sidebar specific colors for light mode */
-    --sidebar-background: 270 30% 92%; /* Muted lavender */
-    --sidebar-foreground: 270 25% 30%; 
-    --sidebar-primary: 270 38% 79%; /* Soft lavender */
-    --sidebar-primary-foreground: 270 38% 20%;
-    --sidebar-accent: 270 30% 88%; /* Lighter/hover state for sidebar items */
-    --sidebar-accent-foreground: 270 25% 25%;
-    --sidebar-border: 270 20% 85%;
-    --sidebar-ring: 195 43% 77%; /* Accent color for rings */
+    --sidebar-background: 330 65% 94%; /* Slightly distinct light pink for sidebar */
+    --sidebar-foreground: 330 25% 28%; 
+    --sidebar-primary: 330 80% 78%; /* Main light pink for active items */
+    --sidebar-primary-foreground: 330 60% 15%;
+    --sidebar-accent: 330 70% 90%; /* Hover state for sidebar items - lighter pink */
+    --sidebar-accent-foreground: 330 40% 28%;
+    --sidebar-border: 330 50% 88%;
+    --sidebar-ring: 330 80% 80%;
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 330 70% 60%;
+    --chart-2: 340 70% 65%;
+    --chart-3: 320 70% 55%;
+    --chart-4: 350 70% 70%;
+    --chart-5: 310 65% 60%;
   }
 
   .dark {
@@ -62,19 +62,19 @@ body {
     --card-foreground: 240 8% 96%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 240 8% 96%;
-    --primary: 270 38% 79%; 
-    --primary-foreground: 270 38% 15%; 
+    --primary: 330 80% 78%; /* Using light pink from light theme as dark theme primary */
+    --primary-foreground: 330 60% 15%; /* Darker pink for text on primary */
     --secondary: 240 4% 15%;
     --secondary-foreground: 240 8% 96%;
     --muted: 240 4% 15%;
     --muted-foreground: 240 5% 63%;
-    --accent: 195 43% 77%; 
-    --accent-foreground: 195 43% 15%;
+    --accent: 330 75% 85%; /* Using light pink accent from light theme */
+    --accent-foreground: 330 50% 20%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 4% 15%;
     --input: 240 4% 15%;
-    --ring: 195 43% 60%; 
+    --ring: 330 80% 80%; 
 
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -83,14 +83,14 @@ body {
     --chart-5: 340 75% 55%;
 
     /* Sidebar specific colors for dark mode */
-    --sidebar-background: 270 15% 18%;
+    --sidebar-background: 270 15% 18%; /* Keeping dark sidebar distinct */
     --sidebar-foreground: 270 20% 85%;
-    --sidebar-primary: 270 38% 79%;
-    --sidebar-primary-foreground: 270 38% 15%;
+    --sidebar-primary: 330 80% 78%; /* Pink primary for dark sidebar */
+    --sidebar-primary-foreground: 330 60% 15%;
     --sidebar-accent: 270 15% 25%;
     --sidebar-accent-foreground: 270 20% 90%;
     --sidebar-border: 270 10% 22%;
-    --sidebar-ring: 195 43% 60%;
+    --sidebar-ring: 330 80% 80%;
   }
 }
 
