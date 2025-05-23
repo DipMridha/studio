@@ -24,15 +24,15 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  LogOut,
-  Loader2,
-  UserCircle2,
-  Users,
+  // LogOut, // Removed as auth is removed
+  // Loader2, // Removed as auth is removed
+  // UserCircle2, // Removed as auth is removed
+  // Users, // Removed as auth is removed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useAuth } from "@/context/auth-context";
-import { LoginForm } from "@/components/auth/login-form"; 
-import { Button } from "../ui/button";
+// import { useAuth } from "@/context/auth-context"; // Removed
+// import { LoginForm } from "@/components/auth/login-form";  // Removed
+// import { Button } from "../ui/button"; // Removed if only used for sign out
 
 
 interface NavItem {
@@ -53,19 +53,19 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, isGuest, loading, signOut } = useAuth();
+  // const { user, isGuest, loading, signOut } = useAuth(); // Removed
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // if (loading) { // Removed loading state for auth
+  //   return (
+  //     <div className="flex h-screen items-center justify-center bg-background">
+  //       <Loader2 className="h-12 w-12 animate-spin text-primary" />
+  //     </div>
+  //   );
+  // }
 
-  if (!user && !isGuest) {
-    return <LoginForm />;
-  }
+  // if (!user && !isGuest) { // Removed login form display logic
+  //   return <LoginForm />;
+  // }
 
   return (
     <SidebarProvider defaultOpen>
@@ -97,22 +97,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2 space-y-2">
-           {user && (
-             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-1">
-               <UserCircle2 className="h-4 w-4 shrink-0" /> {user.phoneNumber || user.email || "Authenticated User"}
-             </div>
-           )}
-           {isGuest && !user && (
-             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-1">
-               <Users className="h-4 w-4 shrink-0" /> Guest Mode
-             </div>
-           )}
-           {(user || isGuest) && (
-            <Button variant="ghost" size="sm" className="w-full justify-start text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" onClick={signOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-           )}
+           {/* Authentication specific footer content removed */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
