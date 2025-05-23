@@ -24,11 +24,7 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  CreditCard, 
-  // LogOut, // Removed as auth is removed
-  // Loader2, // Removed as auth is removed
-  // UserCircle2, // Removed as auth is removed
-  // Users, // Removed as auth is removed
+  CreditCard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
