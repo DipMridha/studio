@@ -1,16 +1,20 @@
 
-"use client"; // Add "use client" for potential client-side hooks if needed in future
+// Make this a Server Component to export metadata
+// "use client"; // Removed if present, or ensure it's not needed for HomePage
 
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, LogIn } from 'lucide-react';
-// import { useAuth } from '@/context/auth-context'; // Can be used to conditionally show login button if needed
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, LogIn, CreditCard } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Chat AI - Welcome',
+  description: 'Your personal AI companion awaits. Explore the features below to get started and connect with Chat AI.',
+};
 
 export default function HomePage() {
-  // const { user } = useAuth(); // Example: if you wanted to change UI based on auth state here
-
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
       <Card className="shadow-lg overflow-hidden">
@@ -68,13 +72,17 @@ export default function HomePage() {
               href="/settings"
               icon={<Settings className="h-8 w-8 text-primary" />}
               title="App Settings"
-              description="Configure your app preferences and account details. (Coming Soon)"
+              description="Configure your app preferences and account details."
+            />
+             <FeatureCard
+              href="/subscription"
+              icon={<CreditCard className="h-8 w-8 text-primary" />}
+              title="Subscription"
+              description="Manage your Chat AI subscription plan and features."
             />
           </div>
         </CardContent>
         <CardContent className="p-6 md:p-8 border-t text-center">
-           {/* This button might be redundant if login is enforced by AppLayout */}
-           {/* You could show different content here if user is not logged in vs logged in */}
            <Link href="/chat" passHref>
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-shadow">
                 <Sparkles className="mr-2 h-5 w-5" />

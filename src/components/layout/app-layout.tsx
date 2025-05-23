@@ -24,16 +24,13 @@ import {
   CalendarCheck,
   BookOpen,
   View,
+  CreditCard, 
   // LogOut, // Removed as auth is removed
   // Loader2, // Removed as auth is removed
   // UserCircle2, // Removed as auth is removed
   // Users, // Removed as auth is removed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-// import { useAuth } from "@/context/auth-context"; // Removed
-// import { LoginForm } from "@/components/auth/login-form";  // Removed
-// import { Button } from "../ui/button"; // Removed if only used for sign out
-
 
 interface NavItem {
   href: string;
@@ -48,24 +45,12 @@ const navItems: NavItem[] = [
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
   { href: "/ar", label: "AR Mode", icon: View },
+  { href: "/subscription", label: "Subscription", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // const { user, isGuest, loading, signOut } = useAuth(); // Removed
-
-  // if (loading) { // Removed loading state for auth
-  //   return (
-  //     <div className="flex h-screen items-center justify-center bg-background">
-  //       <Loader2 className="h-12 w-12 animate-spin text-primary" />
-  //     </div>
-  //   );
-  // }
-
-  // if (!user && !isGuest) { // Removed login form display logic
-  //   return <LoginForm />;
-  // }
 
   return (
     <SidebarProvider defaultOpen>
