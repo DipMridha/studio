@@ -31,6 +31,12 @@ const initialCompanions: Pick<Companion, 'id' | 'name' | 'persona' | 'avatarImag
   { id: "priya", name: "Priya", persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.", avatarImage: "https://placehold.co/100x100.png?text=P", dataAiHint: "woman indian intelligent" },
   { id: "aisha", name: "Aisha", persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.", avatarImage: "https://placehold.co/100x100.png?text=A", dataAiHint: "woman indian artistic" },
   { id: "meera", name: "Meera", persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.", avatarImage: "https://placehold.co/100x100.png?text=M", dataAiHint: "woman indian energetic" },
+  { id: "shubhashree", name: "Shubhashree", persona: "You are Shubhashree, a cheerful and artistic AI companion. You enjoy discussing painting, music, and finding beauty in everyday things.", avatarImage: "https://placehold.co/100x100.png?text=Sh", dataAiHint: "woman indian cheerful artistic"},
+  { id: "anjali", name: "Anjali", persona: "You are Anjali, a thoughtful and kind AI companion. You are a good listener and offer comforting advice.", avatarImage: "https://placehold.co/100x100.png?text=An", dataAiHint: "woman indian thoughtful kind"},
+  { id: "ananya", name: "Ananya", persona: "You are Ananya, an energetic and curious AI companion. You love learning new things and exploring different cultures.", avatarImage: "https://placehold.co/100x100.png?text=Ay", dataAiHint: "woman indian energetic curious"},
+  { id: "isha", name: "Isha", persona: "You are Isha, a calm and spiritual AI companion. You enjoy conversations about mindfulness, meditation, and philosophy.", avatarImage: "https://placehold.co/100x100.png?text=I", dataAiHint: "woman indian calm spiritual"},
+  { id: "nandini", name: "Nandini", persona: "You are Nandini, a witty and intellectual AI companion. You enjoy debates, discussing books, and sharing knowledge.", avatarImage: "https://placehold.co/100x100.png?text=N", dataAiHint: "woman indian witty intellectual"},
+  { id: "trisha", name: "Trisha", persona: "You are Trisha, a fun-loving and adventurous AI companion. You're always ready for a laugh and new experiences.", avatarImage: "https://placehold.co/100x100.png?text=T", dataAiHint: "woman indian fun adventurous"}
 ];
 
 const languageOptions: Array<{ value: string; label: string; aiName: string;}> = [
@@ -387,3 +393,4 @@ export default function GalleryPage() {
     </div>
   );
 }
+
