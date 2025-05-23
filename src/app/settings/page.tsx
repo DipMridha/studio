@@ -1,8 +1,9 @@
 
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings as SettingsIcon, UserCircle, Palette, Trash2, LogOut } from "lucide-react";
+import { Settings as SettingsIcon, UserCircle, Palette, Trash2, LogOut, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { CHAT_SETTINGS_KEY, THEME_KEY } from "@/lib/constants";
@@ -41,13 +42,6 @@ export default function SettingsPage() {
     toast({
       title: "Theme Updated",
       description: `Theme set to ${theme.charAt(0).toUpperCase() + theme.slice(1)}.`,
-    });
-  };
-
-  const handleComingSoon = () => {
-    toast({
-      title: "Feature Coming Soon",
-      description: "This setting is currently under development.",
     });
   };
   
@@ -101,9 +95,12 @@ export default function SettingsPage() {
                   Your display name is managed on the "Companion" page.
                 </p>
               </div>
-              <Button variant="outline" onClick={handleComingSoon} disabled>
-                Manage Subscription (Coming Soon)
-              </Button>
+              <Link href="/subscription" passHref>
+                <Button variant="outline">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Manage Subscription
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
