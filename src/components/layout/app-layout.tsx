@@ -25,8 +25,11 @@ import {
   BookOpen,
   View,
   CreditCard,
+  // Loader2, // No longer needed for auth loading
+  // LogOut, // No longer needed for sign out
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+// import { Button } from "@/components/ui/button"; // No longer needed for sign out button
 
 interface NavItem {
   href: string;
@@ -47,6 +50,9 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // No more authentication checks or login form rendering here
+  // The app content is rendered directly.
 
   return (
     <SidebarProvider defaultOpen>
@@ -78,7 +84,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2 space-y-2">
-           {/* Authentication specific footer content removed */}
+           {/* Sign Out button removed */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

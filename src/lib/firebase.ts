@@ -7,6 +7,7 @@ import { getAuth, type Auth } from "firebase/auth";
 const placeholderApiKey = "YOUR_API_KEY"; // Common placeholder string
 const placeholderAuthDomain = "YOUR_AUTH_DOMAIN";
 const placeholderProjectId = "YOUR_PROJECT_ID";
+const commonApiKeyPlaceholderPattern = "YOUR_API_KEY"; // Used to detect common placeholder strings
 
 // Attempt to read Firebase config from environment variables
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
@@ -17,74 +18,38 @@ const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
 const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 const measurementId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
-const commonApiKeyPlaceholderPattern = "YOUR_API_KEY"; // Used to detect common placeholder strings
-
-// Since authentication features are removed, we won't throw hard errors
-// if the keys are missing or placeholders. Other Firebase services (like Genkit)
-// might still function if they have their own config or don't rely on these client-side vars.
-// However, if you re-add Firebase services that *do* need these, they must be correctly set.
-
-let displayedApiKey = apiKey ? `'${apiKey}'` : "'Not Set (Missing NEXT_PUBLIC_FIREBASE_API_KEY)'";
-if (apiKey && apiKey.includes(commonApiKeyPlaceholderPattern)) {
-  displayedApiKey = `'${apiKey}' (Common placeholder pattern '${commonApiKeyPlaceholderPattern}' detected)`;
-}
-
-// console.log(`Firebase attempting to initialize with API Key: ${displayedApiKey}`);
-// console.log(`Auth Domain: ${authDomain || 'Not Set'}`);
-// console.log(`Project ID: ${projectId || 'Not Set'}`);
-
-// if (!apiKey || apiKey.trim() === "" || apiKey.includes(commonApiKeyPlaceholderPattern)) {
-//   console.warn(
-//     `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing, a placeholder, or invalid. Received: ${displayedApiKey}.\n` +
-//     `Authentication features (if re-enabled) will not work. Other Firebase services might also be affected if they rely on this client-side config.\n` +
-//     `Troubleshooting steps:\n` +
-//     `1. Firebase Studio: Ensure your Firebase project is correctly linked and syncing environment variables with their ACTUAL values.\n` +
-//     `2. Local Development: Verify your '.env.local' file in the project root. It MUST contain your actual Firebase project credentials. Example:\n` +
-//     `   NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSy............" (This must be your real key from Firebase Console)\n` +
-//     `   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project-id.firebaseapp.com"\n` +
-//     `   NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"\n` +
-//     `   (and other NEXT_PUBLIC_FIREBASE_... variables. Ensure they are ACTUAL values from your Firebase console and NOT placeholders like "YOUR_PROJECT_ID" or "your-project-id" if that's not your real project ID.)\n` +
-//     `3. IMPORTANT: After creating or editing the '.env.local' file, you MUST restart your Next.js development server for changes to take effect.\n` +
-//     `4. Double-check that the values copied from your Firebase console are exact and have no typos or extra characters (like quotes unless they are part of the key itself, which is rare for API keys).`
-//   );
-// }
+// Since authentication is removed, strict checks for auth-related keys are relaxed.
+// However, if other Firebase services (like Genkit for AI) are used,
+// their respective keys (e.g., GOOGLE_API_KEY for Genkit) would still need to be set.
 
 const firebaseConfig = {
-  apiKey: apiKey, // Will be undefined or placeholder if not properly set
-  authDomain: authDomain,
-  projectId: projectId,
+  apiKey: apiKey || undefined, // Use undefined if not set
+  authDomain: authDomain || undefined,
+  projectId: projectId || undefined,
   storageBucket: storageBucket || (projectId ? `${projectId}.appspot.com` : undefined),
-  messagingSenderId: messagingSenderId,
-  appId: appId,
-  measurementId: measurementId
+  messagingSenderId: messagingSenderId || undefined,
+  appId: appId || undefined,
+  measurementId: measurementId || undefined
 };
 
-let app: FirebaseApp;
-let auth: Auth | null = null; // Auth can be null if not properly configured or not needed
+let app: FirebaseApp | null = null; // Initialize as null
+let auth: Auth | null = null; // Initialize as null
 
-if (!getApps().length) {
-  try {
-    // Only initialize if essential config is present to avoid Firebase errors on init
-    if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
-        app = initializeApp(firebaseConfig);
-        // auth = getAuth(app); // Authentication specific, so commenting out since auth feature is removed
+try {
+  if (!getApps().length) {
+    if (firebaseConfig.apiKey && firebaseConfig.projectId) { // Only initialize if core config is somewhat present
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
     } else {
-        console.warn("Firebase app not fully initialized due to missing core configuration (API Key, Auth Domain, or Project ID). Some Firebase services may not work.");
-        // @ts-ignore - app might not be initialized here, handle consumers carefully
-        app = {} as FirebaseApp; // Provide a dummy app object to prevent crashes in consumers expecting `app`
+      console.warn("Firebase core configuration (API Key or Project ID) is missing. Firebase SDK not initialized. Some features like Genkit AI might not work if they depend on a GOOGLE_API_KEY.");
     }
-  } catch (error) {
-    console.error("Failed to initialize Firebase app:", error);
-    // @ts-ignore
-    app = {} as FirebaseApp; // Provide a dummy app object
+  } else {
+    app = getApp();
+    auth = getAuth(app);
   }
-} else {
-  app = getApp();
-  // if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
-  //    auth = getAuth(app);
-  // } else {
-  //     console.warn("Firebase Authentication not initialized for existing app due to missing configuration (API Key, Auth Domain, or Project ID).");
-  // }
+} catch (error) {
+  console.error("Error initializing Firebase:", error);
+  // Prevent app crash if Firebase init fails for any reason when auth is not the primary concern.
 }
 
 export { app, auth };

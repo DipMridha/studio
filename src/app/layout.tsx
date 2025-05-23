@@ -1,7 +1,7 @@
 
-"use client"; 
+"use client";
 
-import type { Metadata } from "next";
+import type { Metadata } from "next"; // Keep for potential future use by child server components
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
@@ -9,7 +9,8 @@ import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
 import { THEME_KEY } from "@/lib/constants";
 
-// export const metadata: Metadata = { // Metadata should be defined in a server component or page.tsx
+// Metadata should be defined in a server component or page.tsx if this remains a client component
+// export const metadata: Metadata = {
 //   title: "Chat AI",
 //   description: "Your AI Companion - Chat AI",
 // };
@@ -25,7 +26,7 @@ export default function RootLayout({
       const storedTheme = localStorage.getItem(THEME_KEY);
       if (
         storedTheme === 'dark' ||
-        (storedTheme === null && 
+        (storedTheme === null &&
           window.matchMedia('(prefers-color-scheme: dark)').matches)
       ) {
         document.documentElement.classList.add('dark');
@@ -39,7 +40,7 @@ export default function RootLayout({
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
        const storedTheme = localStorage.getItem(THEME_KEY);
-       if (storedTheme === 'system' || storedTheme === null) { 
+       if (storedTheme === 'system' || storedTheme === null) {
         applyTheme();
        }
     };
