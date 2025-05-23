@@ -1,13 +1,11 @@
 
 // Make this a Server Component to export metadata
-// "use client"; // Removed if present, or ensure it's not needed for HomePage
-
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard, Home } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chat AI - Welcome',
@@ -20,7 +18,7 @@ export default function HomePage() {
       <Card className="shadow-lg overflow-hidden">
         <CardHeader className="text-center bg-card p-6 md:p-10">
           <div className="flex justify-center mb-4">
-            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="abstract ai" className="rounded-md animate-pulse" />
+            <Image src="/app-logo.png" alt="Chat AI Logo" width={64} height={64} className="rounded-md" />
           </div>
           <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
@@ -67,6 +65,12 @@ export default function HomePage() {
               icon={<View className="h-8 w-8 text-primary" />}
               title="AR Mode"
               description="Experience your AI companion in your world with Augmented Reality. (Future Scope)"
+            />
+            <FeatureCard
+              href="/space"
+              icon={<Home className="h-8 w-8 text-primary" />}
+              title="Virtual Space"
+              description="Design and interact in a virtual environment with your AI companion. (Coming Soon)"
             />
             <FeatureCard
               href="/settings"

@@ -14,7 +14,6 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
-  // SidebarFooter, // Removed as Sign Out is not active
 } from "@/components/ui/sidebar";
 import {
   MessageCircle,
@@ -25,7 +24,7 @@ import {
   BookOpen,
   View,
   CreditCard,
-  // LogOut, // Removed as Sign Out is not active
+  Home, // Assuming Home icon for Story Mode as per recent PRD, BookOpen is used there
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -42,6 +41,7 @@ const navItems: NavItem[] = [
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
   { href: "/ar", label: "AR Mode", icon: View },
+  { href: "/space", label: "Virtual Space", icon: Home },
   { href: "/subscription", label: "Subscription", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
@@ -54,7 +54,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="https://placehold.co/32x32.png" alt="Chat AI Logo" width={32} height={32} data-ai-hint="abstract ai" className="rounded-sm" />
+            <Image src="/app-logo.png" alt="Chat AI Logo" width={32} height={32} className="rounded-sm" />
             <h1 className="text-xl font-semibold text-sidebar-foreground">Chat AI</h1>
           </Link>
         </SidebarHeader>
@@ -78,15 +78,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        {/* <SidebarFooter className="p-2 space-y-2">
-           Sign Out button was here, removed as auth is not active 
-        </SidebarFooter> */}
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
           <Link href="/" className="flex items-center gap-2">
-             <Image src="https://placehold.co/28x28.png" alt="Chat AI Logo" width={28} height={28} data-ai-hint="abstract ai" className="rounded-sm" />
+             <Image src="/app-logo.png" alt="Chat AI Logo" width={28} height={28} className="rounded-sm" />
             <span className="text-lg font-semibold text-foreground">Chat AI</span>
           </Link>
         </header>
