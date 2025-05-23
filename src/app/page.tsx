@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, LogIn, CreditCard } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chat AI - Welcome',
@@ -20,7 +20,7 @@ export default function HomePage() {
       <Card className="shadow-lg overflow-hidden">
         <CardHeader className="text-center bg-card p-6 md:p-10">
           <div className="flex justify-center mb-4">
-            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="pink candy" className="rounded-md animate-pulse" />
+            <Image src="https://placehold.co/64x64.png" alt="Chat AI Logo" width={64} height={64} data-ai-hint="abstract ai" className="rounded-md animate-pulse" />
           </div>
           <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
@@ -35,7 +35,7 @@ export default function HomePage() {
             <FeatureCard
               href="/chat"
               icon={<MessageCircle className="h-8 w-8 text-primary" />}
-              title="Start Chat"
+              title="Chat"
               description="Engage in dynamic conversations with your AI companion. Choose a persona and language."
             />
             <FeatureCard
