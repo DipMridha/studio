@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Loader2, PlayCircle } from "lucide-react";
+import { BookOpen, Loader2, PlayCircle, ArrowLeft } from "lucide-react";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 
 interface Companion {
@@ -79,7 +79,9 @@ interface StoryChapter {
   id: string;
   title: string;
   description: string;
-  isLocked?: boolean; // Future: for unlocking based on affection level
+  isLocked?: boolean; 
+  sceneImageUrl?: string; // Optional image for the chapter scene
+  dataAiHintScene?: string;
 }
 
 const storyChapters: StoryChapter[] = [
@@ -87,18 +89,24 @@ const storyChapters: StoryChapter[] = [
     id: "chapter1",
     title: "Chapter 1: First Encounter",
     description: "A chance meeting that sparks a new connection. Discover how your journey with your companion begins.",
+    sceneImageUrl: "https://placehold.co/600x400.png",
+    dataAiHintScene: "cafe serendipity"
   },
   {
     id: "chapter2",
     title: "Chapter 2: A Shared Secret",
     description: "Trust deepens as you and your companion share something personal. What will you reveal?",
     isLocked: true,
+    sceneImageUrl: "https://placehold.co/600x400.png",
+    dataAiHintScene: "park bench sunset"
   },
   {
     id: "chapter3",
     title: "Chapter 3: Navigating Challenges",
     description: "Every relationship has its tests. Face a challenge together and see how your bond strengthens.",
     isLocked: true,
+    sceneImageUrl: "https://placehold.co/600x400.png",
+    dataAiHintScene: "stormy city"
   },
 ];
 
@@ -107,6 +115,9 @@ export default function StoryModePage() {
   const [selectedCompanion, setSelectedCompanion] = useState<Companion | null>(null);
   const [companionCustomAvatarUrl, setCompanionCustomAvatarUrl] = useState<string | undefined>(undefined);
   const { toast } = useToast();
+
+  const [currentChapter, setCurrentChapter] = useState<StoryChapter | null>(null);
+  const [isViewingChapter, setIsViewingChapter] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -150,11 +161,17 @@ export default function StoryModePage() {
       });
       return;
     }
+    setCurrentChapter(chapter);
+    setIsViewingChapter(true);
     toast({
       title: `Starting: ${chapter.title}`,
-      description: `Get ready for an adventure with ${selectedCompanion.name}! (Full story interaction coming soon).`,
+      description: `Get ready for an adventure with ${selectedCompanion.name}!`,
     });
-    // Future: Navigate to actual story content or trigger story flow
+  };
+
+  const handleBackToChapters = () => {
+    setIsViewingChapter(false);
+    setCurrentChapter(null);
   };
 
   if (!isClient || !selectedCompanion) {
@@ -181,37 +198,78 @@ export default function StoryModePage() {
                 Story Mode with {selectedCompanion.name}
               </CardTitle>
               <CardDescription>
-                Embark on a journey with {selectedCompanion.name} through different story chapters. Your choices will shape the path and growth of your relationship. Full interactive story chapters are coming soon!
+                {isViewingChapter && currentChapter 
+                  ? `Playing: ${currentChapter.title}`
+                  : `Embark on a journey with ${selectedCompanion.name} through different story chapters. Your choices will shape the path and growth of your relationship.`
+                }
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground">Select a chapter to begin your story:</p>
-          {storyChapters.map((chapter) => (
-            <Card key={chapter.id} className={`bg-card/50 p-4 shadow-inner hover:shadow-md transition-shadow ${chapter.isLocked ? 'opacity-70' : ''}`}>
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-primary">{chapter.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{chapter.description}</p>
-                </div>
-                <Button
-                  onClick={() => handleStartChapter(chapter)}
-                  disabled={chapter.isLocked}
-                  variant={chapter.isLocked ? "outline" : "default"}
-                  className="w-full md:w-auto"
-                >
-                  <PlayCircle className="mr-2 h-5 w-5" />
-                  {chapter.isLocked ? "Locked" : "Start Chapter"}
-                </Button>
+          {isViewingChapter && currentChapter ? (
+            <div>
+              {/* Current Chapter View */}
+              {currentChapter.sceneImageUrl && (
+                 <div className="mb-6 rounded-lg overflow-hidden shadow-lg aspect-video relative border border-primary/30">
+                    <img 
+                        src={currentChapter.sceneImageUrl} 
+                        alt={`Scene from ${currentChapter.title}`} 
+                        className="w-full h-full object-cover"
+                        data-ai-hint={currentChapter.dataAiHintScene || "story scene"}
+                    />
+                 </div>
+              )}
+              <h2 className="text-2xl font-semibold text-primary mb-2">{currentChapter.title}</h2>
+              <p className="text-muted-foreground mb-4">
+                The story of "{currentChapter.title}" with {selectedCompanion.name} begins here... 
+                Imagine the scene: {currentChapter.description}
+              </p>
+              <div className="p-6 border-2 border-dashed border-border rounded-lg min-h-[150px] flex flex-col items-center justify-center">
+                <p className="text-muted-foreground text-center">
+                  Interactive story content and your choices will appear here.
+                </p>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  (Full interactive dialogue and choices coming soon!)
+                </p>
               </div>
-            </Card>
-          ))}
-          <p className="text-xs text-muted-foreground text-center pt-4">
-            More chapters and interactive choices will be added soon. Your affection level with {selectedCompanion.name} may unlock new story paths in the future!
-          </p>
+              <Button onClick={handleBackToChapters} variant="outline" className="mt-6">
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Back to Chapters
+              </Button>
+            </div>
+          ) : (
+            <div>
+              {/* Chapter List View */}
+              <p className="text-muted-foreground">Select a chapter to begin your story:</p>
+              {storyChapters.map((chapter) => (
+                <Card key={chapter.id} className={`bg-card/50 p-4 shadow-inner hover:shadow-md transition-shadow mt-4 ${chapter.isLocked ? 'opacity-70' : ''}`}>
+                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-primary">{chapter.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{chapter.description}</p>
+                    </div>
+                    <Button
+                      onClick={() => handleStartChapter(chapter)}
+                      disabled={chapter.isLocked}
+                      variant={chapter.isLocked ? "outline" : "default"}
+                      className="w-full md:w-auto"
+                    >
+                      <PlayCircle className="mr-2 h-5 w-5" />
+                      {chapter.isLocked ? "Locked" : "Start Chapter"}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+              <p className="text-xs text-muted-foreground text-center pt-6">
+                More chapters and interactive choices will be added soon. Your affection level with {selectedCompanion.name} may unlock new story paths in the future!
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    
