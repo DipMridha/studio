@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, CheckSquare, Square, ImageIcon, Heart, Palette, UserCircle } from "lucide-react"; // Added Palette, UserCircle
+import { UserCog, Languages, Settings2, Heart, Palette, UserCircle, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 
@@ -105,102 +104,128 @@ export default function CompanionPage() {
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
   const [companionCustomizations, setCompanionCustomizations] = useState<{ [companionId: string]: CompanionCustomizations }>({});
+  const [affectionProgress, setAffectionProgress] = useState(20); 
   
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [affectionProgress, setAffectionProgress] = useState(20); 
-
-  const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
-  const currentCustomizations = companionCustomizations[selectedCompanionId] || {};
-  const currentSelectedTraits = currentCustomizations.selectedTraits || [];
-  const currentCustomAvatarUrl = currentCustomizations.customAvatarUrl;
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  // Effect 1: Initial load from localStorage (runs once after isClient is true)
   useEffect(() => {
     if (isClient) {
       try {
         const storedSettings = localStorage.getItem(CHAT_SETTINGS_KEY);
         if (storedSettings) {
           const parsedSettings: ChatSettings = JSON.parse(storedSettings);
-          setUserName(parsedSettings.userName || "User");
-          setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
-          setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
-          setCompanionCustomizations(parsedSettings.companionCustomizations || {});
           
-          const currentCompanionAffection = parsedSettings.companionCustomizations?.[selectedCompanionId]?.affectionLevel;
-          if (currentCompanionAffection !== undefined) {
-            setAffectionProgress(currentCompanionAffection);
+          setUserName(parsedSettings.userName || "User");
+          setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
+          
+          const loadedCustoms = parsedSettings.companionCustomizations || {};
+          setCompanionCustomizations(loadedCustoms);
+
+          const loadedCompId = parsedSettings.selectedCompanionId || initialCompanions[0].id;
+          setSelectedCompanionId(loadedCompId); 
+          
+          // Set affectionProgress based on the initially loaded companion and their stored affection
+          const affectionForLoadedComp = loadedCustoms[loadedCompId]?.affectionLevel;
+          if (affectionForLoadedComp !== undefined) {
+            setAffectionProgress(affectionForLoadedComp);
           } else {
-            // If affectionLevel is not in localStorage for this companion, initialize it
-            // and also update the companionCustomizations state to reflect this default for saving
-            const defaultAffection = 20;
-            setAffectionProgress(defaultAffection);
-            setCompanionCustomizations(prev => {
-                const updatedCustoms = {
-                    ...prev,
-                    [selectedCompanionId]: {
-                        ...(prev[selectedCompanionId] || {}),
-                        affectionLevel: defaultAffection,
-                    }
-                };
-                 // Avoid immediate save here; let the main save effect handle it
-                return updatedCustoms;
-            });
+            setAffectionProgress(20); // Default if not found for this specific companion
+             // If affection was not in customs for this companion, update customs to include it.
+             // This will be picked up by the save effect.
+            setCompanionCustomizations(prevCustoms => ({
+              ...prevCustoms,
+              [loadedCompId]: { 
+                ...(prevCustoms[loadedCompId] || { selectedTraits: [], customAvatarUrl: undefined }), // preserve other customs
+                affectionLevel: 20 
+              }
+            }));
           }
         } else {
-           // No settings found, initialize default affection for the default selected companion
-            const defaultAffection = 20;
-            setAffectionProgress(defaultAffection);
-            setCompanionCustomizations(prev => ({
-                ...prev,
-                [initialCompanions[0].id]: { // Assuming selectedCompanionId is still the default
-                    ...(prev[initialCompanions[0].id] || {}),
-                    affectionLevel: defaultAffection,
-                }
-            }));
+          // No settings stored, initialize with defaults
+          // userName, selectedLanguage, selectedCompanionId, affectionProgress already have client-side defaults.
+          // Ensure companionCustomizations has an entry for the default companion.
+          setCompanionCustomizations({
+            [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }
+          });
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
-        toast({
-          title: "Error",
-          description: "Could not load your saved settings. Using defaults.",
-          variant: "destructive",
-        });
-        setAffectionProgress(20); // Default on error
+        setUserName("User");
+        setSelectedCompanionId(initialCompanions[0].id);
+        setSelectedLanguage(languageOptions[0].value);
+        setCompanionCustomizations({ [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }});
+        setAffectionProgress(20);
+        toast({ title: "Error", description: "Could not load settings. Using defaults.", variant: "destructive" });
       }
     }
-  }, [isClient, toast, selectedCompanionId]); // Added selectedCompanionId dependency to reload affection level when companion changes
+  }, [isClient, toast]);
 
+  // Effect 2: Update affectionProgress and companionCustomizations when selectedCompanionId changes (due to user selection)
+  useEffect(() => {
+    if (!isClient) return; // Don't run on server or before initial load has completed
+
+    const affectionLevelForSelected = companionCustomizations[selectedCompanionId]?.affectionLevel;
+
+    if (affectionLevelForSelected !== undefined) {
+      // Companion has an affection level stored, update the progress bar UI
+      if (affectionProgress !== affectionLevelForSelected) {
+        setAffectionProgress(affectionLevelForSelected);
+      }
+    } else {
+      // No affection level stored for this newly selected companion. Initialize it.
+      const defaultAffection = 20;
+      setAffectionProgress(defaultAffection); // Update UI progress bar
+
+      // Update companionCustomizations to include this new companion's default affection.
+      // This will subsequently trigger the save effect.
+      setCompanionCustomizations(prev => ({
+        ...prev,
+        [selectedCompanionId]: {
+          ...(prev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }), // Preserve other potential customizations
+          affectionLevel: defaultAffection,
+        }
+      }));
+    }
+  }, [selectedCompanionId, isClient]); // Only re-run if selectedCompanionId changes or isClient becomes true.
+                                     // We read companionCustomizations but it's not a direct dependency for *this specific logic's trigger*
+                                     // to prevent loops if this effect itself updates companionCustomizations.
+
+  // Effect 3: Save all settings to localStorage whenever relevant states change
   useEffect(() => {
     if (isClient) {
+      // Ensure that companionCustomizations includes the current affectionProgress for the selectedCompanionId before saving
+      const finalCustomizations = {
+        ...companionCustomizations,
+        [selectedCompanionId]: {
+          ...(companionCustomizations[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
+          affectionLevel: affectionProgress, 
+        }
+      };
+
+      const settingsToSave: ChatSettings = {
+        userName,
+        selectedCompanionId,
+        selectedLanguage,
+        companionCustomizations: finalCustomizations
+      };
       try {
-        const settings: ChatSettings = { 
-            userName, 
-            selectedCompanionId, 
-            selectedLanguage,
-            // Ensure affection level for the current companion is part of the save
-            companionCustomizations: {
-                ...companionCustomizations,
-                [selectedCompanionId]: {
-                    ...(companionCustomizations[selectedCompanionId] || {}),
-                    affectionLevel: affectionProgress, 
-                }
-            }
-        };
-        localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settings));
+        localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settingsToSave));
       } catch (error) {
         console.error("Failed to save chat settings to localStorage:", error);
-         toast({
+        toast({
           title: "Error",
           description: "Could not save your settings. Changes might not persist.",
           variant: "destructive",
         });
       }
     }
-  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, isClient, toast, affectionProgress]);
+  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, affectionProgress, isClient, toast]);
   
   const handleSaveSettings = () => {
     if (!userName.trim()) {
@@ -211,26 +236,28 @@ export default function CompanionPage() {
       });
       return;
     }
-    // Affection level is saved automatically by the useEffect, so we just need to ensure other customizations are captured.
-     setCompanionCustomizations(prev => ({
+    // The save useEffect already handles persisting data, so this button is more of a "confirm" action for the user.
+    // We can force an update to companionCustomizations to ensure the latest traits/avatar are included if not already captured
+    // by their respective state setters triggering the save effect.
+    setCompanionCustomizations(prev => ({
         ...prev,
         [selectedCompanionId]: {
             ...(prev[selectedCompanionId] || {}),
-            selectedTraits: currentSelectedTraits, // ensure current traits are part of the object
-            customAvatarUrl: currentCustomAvatarUrl, // ensure current avatar is part of the object
-            affectionLevel: affectionProgress // ensure current affection is part of the object
+            selectedTraits: currentSelectedTraits, 
+            customAvatarUrl: currentCustomAvatarUrl, 
+            affectionLevel: affectionProgress 
         }
     }));
 
     toast({
       title: "Preferences Updated!",
-      description: "Your chat and companion preferences have been updated.",
+      description: "Your chat and companion preferences have been updated and saved.",
     });
   };
 
   const handleTraitToggle = (trait: string) => {
     setCompanionCustomizations(prevCustomizations => {
-      const currentCompanionData = prevCustomizations[selectedCompanionId] || {};
+      const currentCompanionData = prevCustomizations[selectedCompanionId] || { affectionLevel: affectionProgress, selectedTraits: [], customAvatarUrl: undefined };
       const currentTraits = currentCompanionData.selectedTraits || [];
       const newTraits = currentTraits.includes(trait)
         ? currentTraits.filter(t => t !== trait)
@@ -246,9 +273,25 @@ export default function CompanionPage() {
   };
 
   const simulateAffectionIncrease = () => {
-    setAffectionProgress(prev => Math.min(prev + 10, 100));
+    setAffectionProgress(prev => {
+        const newAffection = Math.min(prev + 10, 100);
+        // Also update companionCustomizations directly so save effect picks it up
+        setCompanionCustomizations(customsPrev => ({
+            ...customsPrev,
+            [selectedCompanionId]: {
+                ...(customsPrev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
+                affectionLevel: newAffection,
+            }
+        }));
+        return newAffection;
+    });
     toast({ title: "Affection Increased!", description: `Your bond with ${selectedCompanion.name} is growing!` });
   };
+
+  const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
+  const currentCustomizationsForSelectedCompanion = companionCustomizations[selectedCompanionId] || {};
+  const currentSelectedTraits = currentCustomizationsForSelectedCompanion.selectedTraits || [];
+  const currentCustomAvatarUrl = currentCustomizationsForSelectedCompanion.customAvatarUrl;
 
 
   if (!isClient) {
@@ -273,7 +316,6 @@ export default function CompanionPage() {
       </div>
     );
   }
-
 
   return (
     <div className="space-y-6">
@@ -309,12 +351,12 @@ export default function CompanionPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {initialCompanions.map(comp => {
-                    const customAvatar = companionCustomizations[comp.id]?.customAvatarUrl;
+                    const customAvatarForDropdown = companionCustomizations[comp.id]?.customAvatarUrl;
                     return (
                       <SelectItem key={comp.id} value={comp.id}>
                         <div className="flex items-center gap-2">
                            <Avatar className="h-6 w-6">
-                            <AvatarImage src={customAvatar || comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
+                            <AvatarImage src={customAvatarForDropdown || comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
                             <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           {comp.name}
@@ -375,7 +417,7 @@ export default function CompanionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="h-6 w-6 text-primary" /> {/* Changed icon to Palette */}
+            <Palette className="h-6 w-6 text-primary" /> 
             Customize {selectedCompanion.name}'s Appearance
           </CardTitle>
           <CardDescription>
@@ -434,3 +476,5 @@ export default function CompanionPage() {
     </div>
   );
 }
+
+    
