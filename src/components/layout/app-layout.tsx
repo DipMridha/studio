@@ -24,14 +24,10 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  LogOut,
-  Loader2,
-  UserCircle2,
+  // LogOut, Loader2, UserCircle2 removed as auth is removed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useAuth } from "@/context/auth-context";
-import { LoginForm } from "@/components/auth/login-form";
-import { Button } from "@/components/ui/button";
+// useAuth and LoginForm removed
 
 interface NavItem {
   href: string;
@@ -51,25 +47,9 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, loading, isGuest, signOut: handleSignOut } = useAuth();
+  // Removed useAuth, loading, isGuest, signOut
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user && !isGuest) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-        <LoginForm />
-      </div>
-    );
-  }
-
-  // User is authenticated or is a guest
+  // No more loading or login form logic
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -100,25 +80,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2 space-y-2">
-           {user && (
-             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-2">
-                <UserCircle2 className="h-4 w-4 shrink-0" />
-                {user.email || user.phoneNumber || "Authenticated User"}
-            </div>
-           )}
-           {isGuest && !user && (
-             <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
-                Browsing as Guest
-            </p>
-           )}
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            onClick={handleSignOut}
-          >
-            <LogOut />
-            <span>{user ? "Sign Out" : "Exit Guest Mode"}</span>
-          </Button>
+           {/* Removed user/guest display and sign-out button */}
+           <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
+              Welcome to Chat AI!
+           </p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
