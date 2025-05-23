@@ -1,9 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { View, Loader2 } from "lucide-react";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
@@ -16,8 +17,6 @@ interface Companion {
   dataAiHint: string;
 }
 
-// Duplicating initialCompanions and CHAT_SETTINGS_KEY as done in other similar pages
-// In a larger app, these would ideally be centralized.
 const initialCompanions: Companion[] = [
   {
     id: "evie",
@@ -82,6 +81,9 @@ export default function ARModePage() {
   const [selectedCompanion, setSelectedCompanion] = useState<Companion | null>(null);
   const [companionCustomAvatarUrl, setCompanionCustomAvatarUrl] = useState<string | undefined>(undefined);
   const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -115,6 +117,48 @@ export default function ARModePage() {
     }
   }, [isClient, toast]);
 
+  useEffect(() => {
+    if (!isClient) return;
+
+    const getCameraPermission = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        console.error('getUserMedia not supported on this browser');
+        setHasCameraPermission(false);
+        toast({
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setHasCameraPermission(true);
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [isClient, toast]);
+
+
   if (!isClient || !selectedCompanion) {
     return (
       <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)] items-center justify-center">
@@ -139,28 +183,48 @@ export default function ARModePage() {
                 Augmented Reality (AR) with {selectedCompanion.name}
               </CardTitle>
               <CardDescription>
-                Imagine bringing {selectedCompanion.name} into your world! This feature, planned for the future, aims to use Augmented Reality to let you see and interact with your companion in your real environment.
+                See a conceptual preview of {selectedCompanion.name} in your world using your device's camera. Full AR interactivity is a future goal.
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-           <div className="flex flex-col items-center justify-center p-10 min-h-[300px] border-2 border-dashed border-border rounded-lg bg-muted/20">
-            {companionCustomAvatarUrl || selectedCompanion.avatarImage ? (
-                <Avatar className="h-32 w-32 mb-6 ring-4 ring-primary ring-offset-4 ring-offset-background shadow-xl">
-                    <AvatarImage src={companionCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint}/>
-                    <AvatarFallback className="text-4xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-            ) : (
-                <View className="h-24 w-24 text-muted-foreground mb-6" />
+        <CardContent className="flex flex-col items-center">
+           <div className="relative w-full max-w-2xl mx-auto aspect-[4/3] rounded-lg overflow-hidden shadow-lg border-2 border-primary bg-black">
+            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+
+            {/* Status/Error Overlay */}
+            {hasCameraPermission === null && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20">
+                <Loader2 className="h-10 w-10 animate-spin text-white mb-3" />
+                <p className="text-white">Accessing camera...</p>
+              </div>
             )}
-            <p className="text-lg text-foreground text-center font-medium">
-              See {selectedCompanion.name} in Your World!
-            </p>
-             <p className="text-sm text-muted-foreground text-center mt-2 max-w-md">
-              This is a conceptual preview. The full AR experience using technologies like Snap AR Kit or WebAR is part of our future vision. Stay tuned for updates!
-            </p>
+            {hasCameraPermission === false && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/75 z-20 p-4">
+                <Alert variant="destructive" className="max-w-sm">
+                  <AlertTitle>Camera Access Denied</AlertTitle>
+                  <AlertDescription>
+                    Please enable camera permissions in your browser settings to use this AR preview. You may need to refresh the page after granting permission.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            {/* Companion Info Overlay - only if permission is granted */}
+            {hasCameraPermission && selectedCompanion && (
+              <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-center text-center p-3 bg-black/50 backdrop-blur-sm rounded-md text-white shadow-xl">
+                <Avatar className="h-16 w-16 mb-2 ring-2 ring-primary/80 ring-offset-2 ring-offset-black/30">
+                  <AvatarImage src={companionCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint} />
+                  <AvatarFallback className="text-xl bg-muted text-muted-foreground">{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <p className="font-semibold text-lg">{selectedCompanion.name}</p>
+                <p className="text-xs text-gray-200 mt-0.5">Conceptual AR Preview</p>
+              </div>
+            )}
           </div>
+          <p className="text-sm text-muted-foreground text-center mt-6 max-w-md">
+            This feature demonstrates a basic camera preview. True Augmented Reality to see and interact with {selectedCompanion.name} in your environment is a complex feature planned for the future using technologies like WebAR.
+          </p>
         </CardContent>
       </Card>
     </div>
