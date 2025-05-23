@@ -182,7 +182,6 @@ export default function ChatPage() {
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
           setCompanionCustomizations(parsedSettings.companionCustomizations || {});
         } else {
-          // If no settings, set some defaults and inform the user
            toast({
             title: "Welcome!",
             description: "Chat settings use defaults. You can change them on the Companion page.",
@@ -243,7 +242,7 @@ export default function ChatPage() {
 
     try {
       const aiInput: DynamicDialogueInput = {
-        userId: "default-user", // Replace with actual user ID if auth is implemented
+        userId: "default-user", 
         message: userMessage.text,
         userName: userName,
         companionId: selectedCompanion.id,
@@ -268,7 +267,6 @@ export default function ChatPage() {
         description: "Failed to get a response from AI. Please try again.",
         variant: "destructive",
       });
-       // Optionally, revert the user message if AI call fails
        setMessages(prev => prev.slice(0, -1)); 
        setUserInput(userMessage.text); 
     } finally {
@@ -294,17 +292,15 @@ export default function ChatPage() {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      // onend will set isListening to false
       return;
     }
 
     const recognition = new SpeechRecognitionAPI();
     recognitionRef.current = recognition;
 
-    // Use the 'value' from languageOptions (e.g., "en", "bn", "hi") for speech recognition lang
     recognition.lang = selectedLanguage; 
     recognition.interimResults = false;
-    recognition.continuous = false; // Set to false for single recognition attempts
+    recognition.continuous = false;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -317,7 +313,7 @@ export default function ChatPage() {
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("Speech recognition error event:", event); // Log the full event
+      console.error("Speech recognition error event:", event); 
       let errorMessage = "Could not understand audio.";
       if (event.error) {
         switch (event.error) {
@@ -334,12 +330,10 @@ export default function ChatPage() {
             errorMessage = "A network error occurred during speech recognition. Please check your internet connection.";
             break;
           case 'aborted':
-            // This can happen if stop() is called, or if speech is very short.
-            // Avoid showing an error if we manually stopped it.
-            if (isListening) { // Check if it was an unexpected abort
+            if (isListening) { 
                  errorMessage = "Voice input was interrupted. Please try again.";
             } else {
-                return; // If !isListening, it was likely a manual stop, so no error toast.
+                return; 
             }
             break;
           case 'service-not-allowed':
@@ -352,24 +346,20 @@ export default function ChatPage() {
             errorMessage = `An unexpected voice error occurred: ${event.error}.`;
         }
       }
-      if (errorMessage) { // Only show toast if there's an actual error message to display
+      if (errorMessage) { 
         toast({ title: "Voice Error", description: errorMessage, variant: "destructive" });
       }
-      setIsListening(false); // Ensure UI state is reset
-      if (recognitionRef.current) {
-        // recognitionRef.current = null; // Let onend handle final cleanup
-      }
+      setIsListening(false); 
     };
 
     recognition.onend = () => {
       setIsListening(false);
-      recognitionRef.current = null; // Clean up the ref
+      recognitionRef.current = null; 
     };
 
     try {
       recognition.start();
     } catch (error) {
-        // This catch is for errors during the .start() call itself
         console.error("Error starting speech recognition:", error);
         toast({ title: "Voice Error", description: "Failed to start voice recognition.", variant: "destructive" });
         setIsListening(false);
@@ -385,57 +375,46 @@ export default function ChatPage() {
         return;
     }
 
-    // If this message is already speaking, cancel it
     if (isSpeakingMessageId === messageId && window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         setIsSpeakingMessageId(null);
         return;
     }
     
-    // If another message is speaking, cancel that first
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
-        // setIsSpeakingMessageId(null); // Reset if another was speaking and is now cancelled
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
     
-    // Try to find a voice matching the selected language code (e.g., 'en', 'bn', 'hi')
     let targetLang = languageOptions.find(l => l.value === selectedLanguage)?.value || 'en';
-    // Some voice lang codes are more specific (e.g., en-US), so we'll try a startsWith match
-    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; // Use 'en' from 'en-US'
+    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; 
 
     let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
     
-    // If no direct match, try matching the full language code if it was specific
     if (!selectedVoice) { 
         selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
     }
 
-    // Fallback to a default English voice if no specific language voice found
     if (!selectedVoice && targetLang !== 'en') { 
         selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
     }
-     // If still no voice after fallbacks, and target is English, take any English voice
     if(!selectedVoice && targetLang === 'en'){
         selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
     }
 
-
     if (selectedVoice) {
       utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang; // Use the exact lang of the chosen voice
+      utterance.lang = selectedVoice.lang; 
     } else {
-       // If no voice is found at all (even default English), set lang on utterance to targetLang
-       // The browser will then attempt its default for that language
        utterance.lang = targetLang; 
     }
 
     utterance.onstart = () => setIsSpeakingMessageId(messageId);
     utterance.onend = () => setIsSpeakingMessageId(null);
     utterance.onerror = (event) => {
-     console.error("Speech synthesis error", event.error, event); // Log full event
+     console.error("Speech synthesis error", event.error, event); 
      toast({ title: "Speech Error", description: `Could not read aloud. ${event.error || 'Unknown error.'}`, variant: "destructive" });
      setIsSpeakingMessageId(null);
     };
@@ -490,7 +469,7 @@ export default function ChatPage() {
                       </Avatar>
                     )}
                     <div
-                      className={`max-w-[70%] rounded-xl px-4 py-3 shadow-md ${
+                      className={`max-w-[70%] rounded-xl px-4 py-3 ${
                         msg.sender === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-card text-card-foreground border"
@@ -555,7 +534,7 @@ export default function ChatPage() {
                   type="button" 
                   variant={isListening ? "destructive" : "outline"} 
                   onClick={handleVoiceInput} 
-                  disabled={isLoading} // Keep disabled during AI response loading
+                  disabled={isLoading} 
                   className="h-full px-4 py-2 aspect-square"
                   aria-label={isListening ? "Stop voice input" : "Start voice input"}
                 >
@@ -576,5 +555,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-
