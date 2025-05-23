@@ -24,10 +24,16 @@ import {
   CalendarCheck,
   BookOpen,
   View,
-  // LogOut, Loader2, UserCircle2 removed as auth is removed
+  LogOut,
+  Loader2,
+  UserCircle2,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-// useAuth and LoginForm removed
+import { useAuth } from "@/context/auth-context";
+import { LoginForm } from "@/components/auth/login-form"; 
+import { Button } from "../ui/button";
+
 
 interface NavItem {
   href: string;
@@ -47,9 +53,20 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // Removed useAuth, loading, isGuest, signOut
+  const { user, isGuest, loading, signOut } = useAuth();
 
-  // No more loading or login form logic
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user && !isGuest) {
+    return <LoginForm />;
+  }
+
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -80,10 +97,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-2 space-y-2">
-           {/* Removed user/guest display and sign-out button */}
-           <p className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate">
-              Welcome to Chat AI!
-           </p>
+           {user && (
+             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-1">
+               <UserCircle2 className="h-4 w-4 shrink-0" /> {user.phoneNumber || user.email || "Authenticated User"}
+             </div>
+           )}
+           {isGuest && !user && (
+             <div className="px-2 py-1 text-xs text-sidebar-foreground/70 truncate flex items-center gap-1">
+               <Users className="h-4 w-4 shrink-0" /> Guest Mode
+             </div>
+           )}
+           {(user || isGuest) && (
+            <Button variant="ghost" size="sm" className="w-full justify-start text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" onClick={signOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+           )}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

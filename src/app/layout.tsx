@@ -1,14 +1,15 @@
 
 "use client"; 
 
-import type { Metadata } from "next"; // Keep for potential future use if part becomes server component
+import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
 import { THEME_KEY } from "@/lib/constants";
-// AuthProvider is removed
+import { AuthProvider } from "@/context/auth-context";
+
 
 // export const metadata: Metadata = { // Metadata should be defined in a server component or page.tsx
 //   title: "Chat AI",
@@ -26,7 +27,7 @@ export default function RootLayout({
       const storedTheme = localStorage.getItem(THEME_KEY);
       if (
         storedTheme === 'dark' ||
-        (storedTheme === null && // Default to system if nothing stored
+        (storedTheme === null && 
           window.matchMedia('(prefers-color-scheme: dark)').matches)
       ) {
         document.documentElement.classList.add('dark');
@@ -54,8 +55,9 @@ export default function RootLayout({
       <body
         className={`font-sans antialiased`}
       >
-        {/* AuthProvider removed */}
-        <AppLayout>{children}</AppLayout>
+        <AuthProvider>
+          <AppLayout>{children}</AppLayout>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
