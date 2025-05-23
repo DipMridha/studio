@@ -1,13 +1,48 @@
 
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings as SettingsIcon, UserCircle, Palette, Trash2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Settings as SettingsIcon, UserCircle, Palette, Trash2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { CHAT_SETTINGS_KEY, THEME_KEY } from "@/lib/constants";
+import React, { useState, useEffect } from "react";
+
+type Theme = "light" | "dark" | "system";
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const [currentTheme, setCurrentTheme] = useState<Theme>("system");
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem(THEME_KEY) as Theme | null;
+    if (storedTheme) {
+      setCurrentTheme(storedTheme);
+    } else {
+      setCurrentTheme("system"); // Default if nothing is stored
+    }
+  }, []);
+
+  const handleThemeChange = (theme: Theme) => {
+    setCurrentTheme(theme);
+    localStorage.setItem(THEME_KEY, theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else { // System theme
+      localStorage.removeItem(THEME_KEY); // Let RootLayout handle system preference
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+    toast({
+      title: "Theme Updated",
+      description: `Theme set to ${theme.charAt(0).toUpperCase() + theme.slice(1)}.`,
+    });
+  };
 
   const handleComingSoon = () => {
     toast({
@@ -15,6 +50,27 @@ export default function SettingsPage() {
       description: "This setting is currently under development.",
     });
   };
+  
+  const clearAllChatData = () => {
+    localStorage.removeItem(CHAT_SETTINGS_KEY);
+    toast({
+      title: "Chat Data Cleared",
+      description: "All companion preferences, traits, and chat settings have been reset.",
+    });
+    setTimeout(() => window.location.reload(), 1000); // Reload to reflect changes
+  };
+
+  const resetApplication = () => {
+    // For now, this also just clears the main settings key. Could be expanded.
+    localStorage.removeItem(CHAT_SETTINGS_KEY);
+    localStorage.removeItem(THEME_KEY); // Also reset theme
+    toast({
+      title: "Application Reset",
+      description: "All application data and preferences have been reset to defaults.",
+    });
+    setTimeout(() => window.location.reload(), 1000);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -45,7 +101,6 @@ export default function SettingsPage() {
                   Your display name is managed on the "Companion" page.
                 </p>
               </div>
-               {/* Add more account-related settings placeholders here */}
               <Button variant="outline" onClick={handleComingSoon} disabled>
                 Manage Subscription (Coming Soon)
               </Button>
@@ -63,13 +118,27 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium">Theme</h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Select your preferred application theme. (Light/Dark mode switching coming soon!)
-                </p>
-                <Button variant="outline" onClick={handleComingSoon} disabled>
-                  Toggle Theme (Coming Soon)
-                </Button>
+                <h4 className="font-medium mb-2">Theme</h4>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant={currentTheme === 'light' ? 'default' : 'outline'} 
+                    onClick={() => handleThemeChange('light')}
+                  >
+                    Light
+                  </Button>
+                  <Button 
+                    variant={currentTheme === 'dark' ? 'default' : 'outline'} 
+                    onClick={() => handleThemeChange('dark')}
+                  >
+                    Dark
+                  </Button>
+                  <Button 
+                    variant={currentTheme === 'system' ? 'default' : 'outline'} 
+                    onClick={() => handleThemeChange('system')}
+                  >
+                    System
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -84,11 +153,11 @@ export default function SettingsPage() {
               <CardDescription>Manage your application data and preferences.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" onClick={handleComingSoon} disabled>
-                Clear Chat History (Coming Soon)
+              <Button variant="outline" onClick={clearAllChatData}>
+                Clear All Chat Data (Companion, Traits, etc.)
               </Button>
-              <Button variant="destructive" onClick={handleComingSoon} disabled>
-                Reset All Settings (Coming Soon)
+              <Button variant="destructive" onClick={resetApplication}>
+                Reset Application (Clears All Data)
               </Button>
             </CardContent>
           </Card>

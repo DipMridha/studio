@@ -13,8 +13,7 @@ import { ImageIcon, Loader2, Sparkles, UserCircle2, MessageSquareText } from "lu
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-const CHAT_SETTINGS_KEY = "chatAiChatSettings";
+import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 
 interface Companion {
   id: string;

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Loader2, PlayCircle } from "lucide-react";
+import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 
 interface Companion {
   id: string;
@@ -60,8 +61,6 @@ const initialCompanions: Companion[] = [
     persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
   }
 ];
-
-const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface CompanionCustomizations {
   selectedTraits?: string[];

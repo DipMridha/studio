@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 
 
 interface Companion {
@@ -81,8 +82,6 @@ const languageOptions: LanguageOption[] = [
 ];
 
 const personalityTraitsOptions = ['Shy', 'Bold', 'Funny', 'Caring', 'Gamer', 'Intellectual', 'Artistic', 'Adventurous', 'Mysterious', 'Optimistic', 'Sarcastic', 'Flirty'];
-
-const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface CompanionCustomizations {
   selectedTraits?: string[];
@@ -192,9 +191,8 @@ export default function CompanionPage() {
         }
       }));
     }
-  }, [selectedCompanionId, isClient]); // Only re-run if selectedCompanionId changes or isClient becomes true.
-                                     // We read companionCustomizations but it's not a direct dependency for *this specific logic's trigger*
-                                     // to prevent loops if this effect itself updates companionCustomizations.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- We only want this to run on selectedCompanionId change or client mount, companionCustomizations is read but shouldn't trigger loop here.
+  }, [selectedCompanionId, isClient]); 
 
   // Effect 3: Save all settings to localStorage whenever relevant states change
   useEffect(() => {
@@ -476,5 +474,3 @@ export default function CompanionPage() {
     </div>
   );
 }
-
-    

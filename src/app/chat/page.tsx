@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Send, User, Loader2, Mic, Volume2 } from "lucide-react";
+import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 
 interface Message {
   id: string;
@@ -84,8 +85,6 @@ const languageOptions: LanguageOption[] = [
   { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
   { value: "ta", label: "தமிழ் (Tamil)", aiName: "Tamil" },
 ];
-
-const CHAT_SETTINGS_KEY = "chatAiChatSettings";
 
 interface CompanionCustomizations {
   selectedTraits?: string[];
