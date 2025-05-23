@@ -143,7 +143,7 @@ export default function ARModePage() {
         toast({
           variant: 'destructive',
           title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
+          description: 'Camera access was denied. Please enable camera permissions for this site in your browser settings and refresh the page.',
         });
       }
     };
@@ -230,3 +230,5 @@ export default function ARModePage() {
     </div>
   );
 }
+
+    
