@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
-  SidebarFooter,
+  // SidebarFooter, // Removed as Sign Out is not active
 } from "@/components/ui/sidebar";
 import {
   MessageCircle,
@@ -25,6 +25,7 @@ import {
   BookOpen,
   View,
   CreditCard,
+  // LogOut, // Removed as Sign Out is not active
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -35,7 +36,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/chat", label: "Chat", icon: MessageCircle },
+  { href: "/chat", label: "Chat", icon: MessageCircle }, // Ensuring this is "Chat"
   { href: "/gallery", label: "AI Generator", icon: Sparkles },
   { href: "/companion", label: "Companion", icon: UserCog },
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
@@ -77,9 +78,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-2 space-y-2">
-           {/* Sign Out button removed if auth is not active */}
-        </SidebarFooter>
+        {/* <SidebarFooter className="p-2 space-y-2">
+           Sign Out button was here, removed as auth is not active 
+        </SidebarFooter> */}
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
