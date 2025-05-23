@@ -1,4 +1,3 @@
-
 // Make this a Server Component to export metadata
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -8,8 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Chat AI - Welcome',
-  description: 'Your personal AI companion awaits. Explore the features below to get started and connect with Chat AI.',
+  title: 'Candy Chat AI - Welcome',
+  description: 'Your personal AI companion awaits. Explore the features below to get started and connect with Candy Chat AI.',
 };
 
 export default function HomePage() {
@@ -18,16 +17,16 @@ export default function HomePage() {
       <Card className="shadow-lg overflow-hidden">
         <CardHeader className="text-center bg-card p-6 md:p-10">
           <div className="flex justify-center mb-4">
-            <Image src="/app-logo.png" alt="Chat AI Logo" width={64} height={64} className="rounded-md" />
+            <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={64} height={64} data-ai-hint="pink candy" className="rounded-md animate-pulse" />
           </div>
-          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Chat AI</CardTitle>
+          <CardTitle className="text-3xl md:text-4xl font-bold">Welcome to Candy Chat AI</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
-            Your personal AI companion awaits. Explore the features below to get started and connect with Chat AI.
+            Your personal AI companion awaits. Explore the features below to get started and connect with Candy Chat AI.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8">
           <p className="text-center text-muted-foreground mb-8 md:mb-10 text-base">
-            Begin your journey with Chat AI.
+            Begin your journey with Candy Chat AI.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FeatureCard
@@ -76,7 +75,7 @@ export default function HomePage() {
               href="/subscription"
               icon={<CreditCard className="h-8 w-8 text-primary" />}
               title="Subscription"
-              description="Manage your Chat AI subscription plan and features."
+              description="Manage your Candy Chat AI subscription plan and features."
             />
           </div>
         </CardContent>

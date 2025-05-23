@@ -24,7 +24,6 @@ import {
   BookOpen,
   View,
   CreditCard,
-  // Home icon was for Virtual Space, which is being removed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -53,8 +52,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/app-logo.png" alt="Chat AI Logo" width={32} height={32} className="rounded-sm" />
-            <h1 className="text-xl font-semibold text-sidebar-foreground">Chat AI</h1>
+            <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={32} height={32} data-ai-hint="pink candy" className="rounded-sm animate-pulse" />
+            <h1 className="text-xl font-semibold text-sidebar-foreground">Candy Chat AI</h1>
           </Link>
         </SidebarHeader>
         <SidebarContent>
@@ -82,8 +81,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
           <Link href="/" className="flex items-center gap-2">
-             <Image src="/app-logo.png" alt="Chat AI Logo" width={28} height={28} className="rounded-sm" />
-            <span className="text-lg font-semibold text-foreground">Chat AI</span>
+             <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={28} height={28} data-ai-hint="pink candy" className="rounded-sm animate-pulse" />
+            <span className="text-lg font-semibold text-foreground">Candy Chat AI</span>
           </Link>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
