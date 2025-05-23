@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard, Home } from 'lucide-react';
+import { MessageCircle, UserCog, Sparkles, Settings, CalendarCheck, BookOpen, View, CreditCard } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chat AI - Welcome',
@@ -65,12 +65,6 @@ export default function HomePage() {
               icon={<View className="h-8 w-8 text-primary" />}
               title="AR Mode"
               description="Experience your AI companion in your world with Augmented Reality. (Future Scope)"
-            />
-            <FeatureCard
-              href="/space"
-              icon={<Home className="h-8 w-8 text-primary" />}
-              title="Virtual Space"
-              description="Design and interact in a virtual environment with your AI companion. (Coming Soon)"
             />
             <FeatureCard
               href="/settings"

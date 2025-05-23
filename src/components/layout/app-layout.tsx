@@ -24,7 +24,7 @@ import {
   BookOpen,
   View,
   CreditCard,
-  Home, // Assuming Home icon for Story Mode as per recent PRD, BookOpen is used there
+  // Home icon was for Virtual Space, which is being removed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -41,7 +41,6 @@ const navItems: NavItem[] = [
   { href: "/reminders", label: "Reminders", icon: CalendarCheck },
   { href: "/story", label: "Story Mode", icon: BookOpen },
   { href: "/ar", label: "AR Mode", icon: View },
-  { href: "/space", label: "Virtual Space", icon: Home },
   { href: "/subscription", label: "Subscription", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
