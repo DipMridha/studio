@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, Heart, Palette, UserCircle, ImageIcon } from "lucide-react";
+import { UserCog, Languages, Settings2, Heart, Palette, UserCircle, ImageIcon, PersonStanding, Shirt, Mic2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
+import { Slider } from "@/components/ui/slider";
 
 
 interface Companion {
@@ -153,7 +154,6 @@ export default function CompanionPage() {
     setIsClient(true);
   }, []);
 
-  // Effect 1: Initial load from localStorage (runs once after isClient is true)
   useEffect(() => {
     if (isClient) {
       try {
@@ -170,26 +170,20 @@ export default function CompanionPage() {
           const loadedCompId = parsedSettings.selectedCompanionId || initialCompanions[0].id;
           setSelectedCompanionId(loadedCompId); 
           
-          // Set affectionProgress based on the initially loaded companion and their stored affection
           const affectionForLoadedComp = loadedCustoms[loadedCompId]?.affectionLevel;
           if (affectionForLoadedComp !== undefined) {
             setAffectionProgress(affectionForLoadedComp);
           } else {
-            setAffectionProgress(20); // Default if not found for this specific companion
-             // If affection was not in customs for this companion, update customs to include it.
-             // This will be picked up by the save effect.
+            setAffectionProgress(20);
             setCompanionCustomizations(prevCustoms => ({
               ...prevCustoms,
               [loadedCompId]: { 
-                ...(prevCustoms[loadedCompId] || { selectedTraits: [], customAvatarUrl: undefined }), // preserve other customs
+                ...(prevCustoms[loadedCompId] || { selectedTraits: [], customAvatarUrl: undefined }), 
                 affectionLevel: 20 
               }
             }));
           }
         } else {
-          // No settings stored, initialize with defaults
-          // userName, selectedLanguage, selectedCompanionId, affectionProgress already have client-side defaults.
-          // Ensure companionCustomizations has an entry for the default companion.
           setCompanionCustomizations({
             [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }
           });
@@ -206,39 +200,31 @@ export default function CompanionPage() {
     }
   }, [isClient, toast]);
 
-  // Effect 2: Update affectionProgress and companionCustomizations when selectedCompanionId changes (due to user selection)
   useEffect(() => {
-    if (!isClient) return; // Don't run on server or before initial load has completed
+    if (!isClient) return; 
 
     const affectionLevelForSelected = companionCustomizations[selectedCompanionId]?.affectionLevel;
 
     if (affectionLevelForSelected !== undefined) {
-      // Companion has an affection level stored, update the progress bar UI
       if (affectionProgress !== affectionLevelForSelected) {
         setAffectionProgress(affectionLevelForSelected);
       }
     } else {
-      // No affection level stored for this newly selected companion. Initialize it.
       const defaultAffection = 20;
-      setAffectionProgress(defaultAffection); // Update UI progress bar
-
-      // Update companionCustomizations to include this new companion's default affection.
-      // This will subsequently trigger the save effect.
+      setAffectionProgress(defaultAffection); 
       setCompanionCustomizations(prev => ({
         ...prev,
         [selectedCompanionId]: {
-          ...(prev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }), // Preserve other potential customizations
+          ...(prev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }), 
           affectionLevel: defaultAffection,
         }
       }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- We only want this to run on selectedCompanionId change or client mount, companionCustomizations is read but shouldn't trigger loop here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCompanionId, isClient]); 
 
-  // Effect 3: Save all settings to localStorage whenever relevant states change
   useEffect(() => {
     if (isClient) {
-      // Ensure that companionCustomizations includes the current affectionProgress for the selectedCompanionId before saving
       const finalCustomizations = {
         ...companionCustomizations,
         [selectedCompanionId]: {
@@ -275,9 +261,6 @@ export default function CompanionPage() {
       });
       return;
     }
-    // The save useEffect already handles persisting data, so this button is more of a "confirm" action for the user.
-    // We can force an update to companionCustomizations to ensure the latest traits/avatar are included if not already captured
-    // by their respective state setters triggering the save effect.
     setCompanionCustomizations(prev => ({
         ...prev,
         [selectedCompanionId]: {
@@ -314,7 +297,6 @@ export default function CompanionPage() {
   const simulateAffectionIncrease = () => {
     setAffectionProgress(prev => {
         const newAffection = Math.min(prev + 10, 100);
-        // Also update companionCustomizations directly so save effect picks it up
         setCompanionCustomizations(customsPrev => ({
             ...customsPrev,
             [selectedCompanionId]: {
@@ -432,7 +414,7 @@ export default function CompanionPage() {
             Customize {selectedCompanion.name}'s Personality
           </CardTitle>
           <CardDescription>
-            Select traits to further define how {selectedCompanion.name} interacts with you. Changes are saved automatically.
+            Select traits to further define how {selectedCompanion.name} interacts with you. Your companion's base persona defines their core role (e.g., friend, girlfriend), which these traits further refine. Changes are saved automatically.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -460,25 +442,75 @@ export default function CompanionPage() {
             Customize {selectedCompanion.name}'s Appearance
           </CardTitle>
           <CardDescription>
-            You can set a custom avatar for {selectedCompanion.name} by generating an image on the "AI Generator" page. More advanced appearance customization tools, including style and voice selection, are coming soon!
+            Set a custom avatar image for {selectedCompanion.name} using the AI Generator. Advanced visual customization is planned for the future.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center p-10 min-h-[200px] border-2 border-dashed border-border rounded-lg bg-muted/20">
+        <CardContent className="space-y-6">
+          <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border rounded-lg bg-muted/20">
             {currentCustomAvatarUrl ? (
                <Avatar className="h-24 w-24 mb-4 ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg">
                   <AvatarImage src={currentCustomAvatarUrl} alt={`${selectedCompanion.name}'s custom avatar`} data-ai-hint={selectedCompanion.dataAiHint} />
                   <AvatarFallback className="text-3xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
                 </Avatar>
             ) : (
-              <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
+              <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" data-ai-hint="avatar customization" />
             )}
-            <p className="text-muted-foreground text-center">
+            <p className="text-muted-foreground text-center text-sm">
               {currentCustomAvatarUrl ? `${selectedCompanion.name}'s custom avatar is shown above.` : `To set a custom avatar, go to the "AI Generator" page, create an image, and use the "Set as Avatar" option.`}
             </p>
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              Future updates will bring more ways to customize appearance and voice here.
-            </p>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="text-md font-medium text-muted-foreground">Future Appearance Customizations (Conceptual):</h4>
+            
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Visual Style (e.g., Anime, Realistic)</Label>
+              <Select disabled>
+                <SelectTrigger><SelectValue placeholder="Select Style (Future)" /></SelectTrigger>
+                <SelectContent><SelectItem value="anime">Anime</SelectItem><SelectItem value="realistic">Realistic</SelectItem></SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Detailed Features (Face, Figure, Hairstyle - Future)</Label>
+              <p className="text-xs text-muted-foreground italic">
+                Advanced fine-tuning of facial features, body type, and hairstyles will be available in future updates using more sophisticated avatar systems.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                    <Label htmlFor="height-slider" className="text-xs text-muted-foreground">Height (Conceptual - Future)</Label>
+                    <div className="flex items-center gap-2">
+                        <PersonStanding className="h-4 w-4 text-muted-foreground" />
+                        <Slider defaultValue={[165]} max={220} min={140} step={1} disabled id="height-slider" aria-label="Height"/>
+                        <span className="text-xs text-muted-foreground">165 cm</span>
+                    </div>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="weight-input" className="text-xs text-muted-foreground">Weight (Conceptual - Future)</Label>
+                     <div className="flex items-center gap-2">
+                        <Input type="number" defaultValue={60} disabled id="weight-input" className="h-8 w-20 text-xs" aria-label="Weight" />
+                        <span className="text-xs text-muted-foreground">kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Dress-up & Wardrobe (Future)</Label>
+               <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
+                    <Shirt className="h-6 w-6 text-muted-foreground"/>
+                    <p className="text-xs text-muted-foreground italic">Outfit selection and wardrobe features are planned!</p>
+                </div>
+            </div>
+
+            <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Voice Customization (Future)</Label>
+                <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
+                    <Mic2 className="h-6 w-6 text-muted-foreground"/>
+                    <p className="text-xs text-muted-foreground italic">Choose voice types and accents in a future update.</p>
+                </div>
+            </div>
           </div>
         </CardContent>
       </Card>
