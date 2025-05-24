@@ -12,9 +12,11 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
   UserCog,
@@ -24,8 +26,12 @@ import {
   BookOpen,
   View,
   CreditCard,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useAuth } from "@/context/auth-context"; 
+import { LoginForm } from "@/components/auth/login-form";
 
 interface NavItem {
   href: string;
@@ -46,13 +52,26 @@ const navItems: NavItem[] = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user, isGuest, loading, signOutUser } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user && !isGuest) {
+    return <LoginForm />;
+  }
 
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={32} height={32} data-ai-hint="pink candy" className="rounded-sm animate-pulse" />
+            <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={32} height={32} className="rounded-sm" />
             <h1 className="text-xl font-semibold text-sidebar-foreground">Candy Chat AI</h1>
           </Link>
         </SidebarHeader>
@@ -63,7 +82,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href || (pathname === '/' && item.href === '/chat')}
+                    isActive={pathname === item.href}
                     tooltip={item.label}
                   >
                     <a>
@@ -76,12 +95,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
+        <SidebarFooter className="p-2">
+            <Button variant="ghost" onClick={signOutUser} className="w-full justify-start">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out {user ? `(${user.email || user.phoneNumber || 'User'})` : isGuest ? '(Guest)' : ''}
+            </Button>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
           <Link href="/" className="flex items-center gap-2">
-             <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={28} height={28} data-ai-hint="pink candy" className="rounded-sm animate-pulse" />
+             <Image src="/app-logo.png" alt="Candy Chat AI Logo" width={28} height={28} className="rounded-sm" />
             <span className="text-lg font-semibold text-foreground">Candy Chat AI</span>
           </Link>
         </header>

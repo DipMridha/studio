@@ -1,19 +1,14 @@
 
 "use client";
 
-import type { Metadata } from "next"; // Keep for potential future use by child server components
+import type { Metadata } from "next"; 
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
 import { THEME_KEY } from "@/lib/constants";
-
-// Metadata should be defined in a server component or page.tsx if this remains a client component
-// export const metadata: Metadata = {
-//   title: "Chat AI",
-//   description: "Your AI Companion - Chat AI",
-// };
+import { AuthProvider } from "@/context/auth-context";
 
 
 export default function RootLayout({
@@ -54,8 +49,10 @@ export default function RootLayout({
       <body
         className={`font-sans antialiased`}
       >
-        <AppLayout>{children}</AppLayout>
-        <Toaster />
+        <AuthProvider>
+          <AppLayout>{children}</AppLayout>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
