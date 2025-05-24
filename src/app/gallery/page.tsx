@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ImageIcon, Loader2, Sparkles, UserCircle2, MessageSquareText } from "lucide-react";
+import { ImageIcon, Loader2, Sparkles, UserCircle2, MessageSquareText, Share2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -25,18 +25,18 @@ interface Companion {
 
 // Updated to include persona for compliment flow
 const initialCompanions: Pick<Companion, 'id' | 'name' | 'persona' | 'avatarImage' | 'dataAiHint'>[] = [
-  { id: "evie", name: "Evie", persona: "You are Evie, a warm, empathetic, and slightly flirty AI girlfriend. You are supportive and enjoy light-hearted banter as well as deeper conversations.", avatarImage: "https://placehold.co/100x100.png?text=E", dataAiHint: "woman warm friendly" },
-  { id: "luna", name: "Luna", persona: "You are Luna, a witty, playful, and adventurous AI girlfriend. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.", avatarImage: "https://placehold.co/100x100.png?text=L", dataAiHint: "woman adventurous playful" },
-  { id: "seraphina", name: "Seraphina", persona: "You are Seraphina, a wise, thoughtful, and calm AI companion. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.", avatarImage: "https://placehold.co/100x100.png?text=S", dataAiHint: "woman serene thoughtful" },
-  { id: "priya", name: "Priya", persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.", avatarImage: "https://placehold.co/100x100.png?text=P", dataAiHint: "woman indian intelligent" },
-  { id: "aisha", name: "Aisha", persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.", avatarImage: "https://placehold.co/100x100.png?text=A", dataAiHint: "woman indian artistic" },
-  { id: "meera", name: "Meera", persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.", avatarImage: "https://placehold.co/100x100.png?text=M", dataAiHint: "woman indian energetic" },
-  { id: "shubhashree", name: "Shubhashree", persona: "You are Shubhashree, a cheerful and artistic AI companion. You enjoy discussing painting, music, and finding beauty in everyday things.", avatarImage: "https://placehold.co/100x100.png?text=Sh", dataAiHint: "woman indian cheerful artistic"},
-  { id: "anjali", name: "Anjali", persona: "You are Anjali, a thoughtful and kind AI companion. You are a good listener and offer comforting advice.", avatarImage: "https://placehold.co/100x100.png?text=An", dataAiHint: "woman indian thoughtful kind"},
-  { id: "ananya", name: "Ananya", persona: "You are Ananya, an energetic and curious AI companion. You love learning new things and exploring different cultures.", avatarImage: "https://placehold.co/100x100.png?text=Ay", dataAiHint: "woman indian energetic curious"},
-  { id: "isha", name: "Isha", persona: "You are Isha, a calm and spiritual AI companion. You enjoy conversations about mindfulness, meditation, and philosophy.", avatarImage: "https://placehold.co/100x100.png?text=I", dataAiHint: "woman indian calm spiritual"},
-  { id: "nandini", name: "Nandini", persona: "You are Nandini, a witty and intellectual AI companion. You enjoy debates, discussing books, and sharing knowledge.", avatarImage: "https://placehold.co/100x100.png?text=N", dataAiHint: "woman indian witty intellectual"},
-  { id: "trisha", name: "Trisha", persona: "You are Trisha, a fun-loving and adventurous AI companion. You're always ready for a laugh and new experiences.", avatarImage: "https://placehold.co/100x100.png?text=T", dataAiHint: "woman indian fun adventurous"}
+  { id: "evie", name: "Evie", persona: "You are Evie, a warm, empathetic, and slightly flirty AI girlfriend. You are supportive and enjoy light-hearted banter as well as deeper conversations.", avatarImage: "/placeholder-avatars/evie.png", dataAiHint: "woman warm friendly" },
+  { id: "luna", name: "Luna", persona: "You are Luna, a witty, playful, and adventurous AI girlfriend. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.", avatarImage: "/placeholder-avatars/luna.png", dataAiHint: "woman adventurous playful" },
+  { id: "seraphina", name: "Seraphina", persona: "You are Seraphina, a wise, thoughtful, and calm AI companion. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.", avatarImage: "/placeholder-avatars/seraphina.png", dataAiHint: "woman serene thoughtful" },
+  { id: "priya", name: "Priya", persona: "You are Priya, a friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.", avatarImage: "/placeholder-avatars/priya.png", dataAiHint: "woman indian intelligent" },
+  { id: "aisha", name: "Aisha", persona: "You are Aisha, a warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.", avatarImage: "/placeholder-avatars/aisha.png", dataAiHint: "woman indian artistic" },
+  { id: "meera", name: "Meera", persona: "You are Meera, an energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.", avatarImage: "/placeholder-avatars/meera.png", dataAiHint: "woman indian energetic" },
+  { id: "shubhashree", name: "Shubhashree", persona: "You are Shubhashree, a cheerful and artistic AI companion. You enjoy discussing painting, music, and finding beauty in everyday things.", avatarImage: "/placeholder-avatars/shubhashree.png", dataAiHint: "woman indian cheerful artistic"},
+  { id: "anjali", name: "Anjali", persona: "You are Anjali, a thoughtful and kind AI companion. You are a good listener and offer comforting advice.", avatarImage: "/placeholder-avatars/anjali.png", dataAiHint: "woman indian thoughtful kind"},
+  { id: "ananya", name: "Ananya", persona: "You are Ananya, an energetic and curious AI companion. You love learning new things and exploring different cultures.", avatarImage: "/placeholder-avatars/ananya.png", dataAiHint: "woman indian energetic curious"},
+  { id: "isha", name: "Isha", persona: "You are Isha, a calm and spiritual AI companion. You enjoy conversations about mindfulness, meditation, and philosophy.", avatarImage: "/placeholder-avatars/isha.png", dataAiHint: "woman indian calm spiritual"},
+  { id: "nandini", name: "Nandini", persona: "You are Nandini, a witty and intellectual AI companion. You enjoy debates, discussing books, and sharing knowledge.", avatarImage: "/placeholder-avatars/nandini.png", dataAiHint: "woman indian witty intellectual"},
+  { id: "trisha", name: "Trisha", persona: "You are Trisha, a fun-loving and adventurous AI companion. You're always ready for a laugh and new experiences.", avatarImage: "/placeholder-avatars/trisha.png", dataAiHint: "woman indian fun adventurous"}
 ];
 
 const languageOptions: Array<{ value: string; label: string; aiName: string;}> = [
@@ -93,6 +93,7 @@ export default function GalleryPage() {
             setPrompt(`A beautiful portrait of ${companion.name}, ${companion.persona.substring(0, 50)}..., anime style`);
           } else {
              setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
+             setCurrentCompanion(initialCompanions[0]); // Default if somehow not found
           }
           
           const langValue = parsedSettings.selectedLanguage || "en";
@@ -186,6 +187,23 @@ export default function GalleryPage() {
       });
     }
   };
+
+  const handleShareImage = () => {
+    if (!imageUrl) {
+      toast({
+        title: "No Image to Share",
+        description: "Please generate an image first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Conceptual sharing - actual implementation would use navigator.share or social SDKs
+    toast({
+      title: "Share Image (Conceptual)",
+      description: "This would typically open a share dialog. This feature is coming soon!",
+    });
+  };
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -305,12 +323,18 @@ export default function GalleryPage() {
                 data-ai-hint="portrait"
               />
             </div>
-            {selectedCompanionId && currentCompanion && (
-              <Button onClick={handleSetAsAvatar} variant="outline" className="mt-2">
-                <UserCircle2 className="mr-2 h-4 w-4" />
-                Set as Avatar for {currentCompanion.name}
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {selectedCompanionId && currentCompanion && (
+                <Button onClick={handleSetAsAvatar} variant="outline">
+                  <UserCircle2 className="mr-2 h-4 w-4" />
+                  Set as Avatar for {currentCompanion.name}
+                </Button>
+              )}
+              <Button onClick={handleShareImage} variant="outline">
+                <Share2 className="mr-2 h-4 w-4" />
+                Share Image
               </Button>
-            )}
+            </div>
           </CardContent>
           <CardFooter>
             <p className="text-xs text-muted-foreground">Prompt: {prompt}</p>
@@ -381,7 +405,7 @@ export default function GalleryPage() {
 
             {compliment && !isComplimentLoading && (
                 <Alert className="mt-4">
-                     <Sparkles className="h-4 w-4" /> {/* Using Sparkles icon for AlertTitle consistency */}
+                     <Sparkles className="h-4 w-4" />
                     <AlertTitle>{currentCompanion ? currentCompanion.name : "Companion"} says:</AlertTitle>
                     <AlertDescription className="whitespace-pre-wrap">{compliment}</AlertDescription>
                 </Alert>
@@ -392,4 +416,3 @@ export default function GalleryPage() {
     </div>
   );
 }
-
