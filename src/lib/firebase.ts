@@ -44,17 +44,21 @@ const errorBaseMessage =
 3. IMPORTANT: After creating or editing the '.env.local' file, you MUST restart your Next.js development server for changes to take effect.
 4. Double-check that the values copied from your Firebase console are exact and have no typos or extra characters (like quotes unless they are part of the key itself, which is rare for API keys).`;
 
-if (!apiKey || apiKey.trim() === "") {
-  throw new Error(
-    `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing, a placeholder, or invalid. Received: ${displayedApiKey}.\n` + errorBaseMessage
-  );
+if (!apiKey || apiKey.trim() === "" || apiKey.includes(commonApiKeyPlaceholderPattern)) {
+  let specificMessage = `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing, a placeholder, or invalid. Received: ${displayedApiKey}.`;
+  if (apiKey && apiKey.includes(commonApiKeyPlaceholderPattern)) {
+    specificMessage = `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is a placeholder: ${displayedApiKey}. You MUST replace this with your actual Firebase API key.`;
+  } else if (!apiKey || apiKey.trim() === "") {
+    specificMessage = `Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing or empty. Received: ${displayedApiKey}.`;
+  }
+  throw new Error(`${specificMessage}\n${errorBaseMessage}`);
 }
 
-if (!authDomain || authDomain.trim() === "" ) {
+if (!authDomain || authDomain.trim() === "" || authDomain.includes(commonAuthDomainPlaceholderPattern) ) {
     throw new Error(`Firebase Auth Domain (NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) is missing or invalid. Received: ${displayedAuthDomain}.\n` + errorBaseMessage);
 }
 
-if (!projectId || projectId.trim() === "") {
+if (!projectId || projectId.trim() === "" || projectId.includes(commonProjectIdPlaceholderPattern)) {
     throw new Error(`Firebase Project ID (NEXT_PUBLIC_FIREBASE_PROJECT_ID) is missing or invalid. Received: ${displayedProjectId}.\n` + errorBaseMessage);
 }
 
