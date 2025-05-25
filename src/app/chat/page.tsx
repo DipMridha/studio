@@ -291,13 +291,14 @@ export default function ChatPage() {
        const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
       try {
         localStorage.setItem(messagesKey, JSON.stringify(messages));
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to save messages to localStorage:", error);
-        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
             toast({
                 title: "Storage Full",
-                description: "Cannot save new messages, browser storage is full.",
+                description: "Cannot save new messages, browser storage is full. Older messages might not be saved.",
                 variant: "destructive",
+                duration: 7000,
             });
         } else {
             toast({
@@ -675,5 +676,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-    

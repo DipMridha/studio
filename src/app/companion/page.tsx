@@ -230,7 +230,6 @@ export default function CompanionPage() {
             setAffectionProgress(affectionForLoadedComp);
           } else {
             setAffectionProgress(20); // Default if not found
-            // Initialize affection for this companion if it's the first time
              setCompanionCustomizations(prevCustoms => ({
               ...prevCustoms,
               [loadedCompId]: { 
@@ -240,14 +239,12 @@ export default function CompanionPage() {
             }));
           }
         } else {
-           // Initialize with default for the first companion if no settings found
            setCompanionCustomizations({
             [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }
           });
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
-        // Set defaults on error
         setUserName("User");
         setSelectedCompanionId(initialCompanions[0].id);
         setSelectedLanguage(languageOptions[0].value);
@@ -264,15 +261,12 @@ export default function CompanionPage() {
     const affectionLevelForSelected = companionCustomizations[selectedCompanionId]?.affectionLevel;
 
     if (affectionLevelForSelected !== undefined) {
-      // Only update affectionProgress if it's different from what's already there, to avoid loops
       if (affectionProgress !== affectionLevelForSelected) {
         setAffectionProgress(affectionLevelForSelected);
       }
     } else {
-      // If the newly selected companion has no affection level stored, initialize it.
       const defaultAffection = 20;
       setAffectionProgress(defaultAffection); 
-      // This will trigger the save effect below
       setCompanionCustomizations(prev => ({
         ...prev,
         [selectedCompanionId]: {
@@ -282,13 +276,12 @@ export default function CompanionPage() {
       }));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompanionId, isClient]); // Run when selectedCompanionId changes or client status is confirmed
+  }, [selectedCompanionId, isClient]); 
 
   useEffect(() => {
     if (isClient) {
       const finalCustomizations = {
         ...companionCustomizations,
-        // Ensure the current selected companion's affection level is correctly included from affectionProgress state
         [selectedCompanionId]: {
           ...(companionCustomizations[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
           affectionLevel: affectionProgress, 
@@ -303,13 +296,22 @@ export default function CompanionPage() {
       };
       try {
         localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settingsToSave));
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to save chat settings to localStorage:", error);
-        toast({
-          title: "Error",
-          description: "Could not save your settings. Changes might not persist.",
-          variant: "destructive",
-        });
+        if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
+          toast({
+            title: "Storage Full",
+            description: "Browser storage is full. Your settings could not be saved. Please clear some site data.",
+            variant: "destructive",
+            duration: 7000,
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Could not save your settings. Changes might not persist.",
+            variant: "destructive",
+          });
+        }
       }
     }
   }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, affectionProgress, isClient, toast]);
@@ -329,7 +331,6 @@ export default function CompanionPage() {
       });
       return;
     }
-    // The useEffect hook above already handles saving, this button is more for user confirmation.
     toast({
       title: "Preferences Updated!",
       description: "Your chat and companion preferences have been updated and saved.",
@@ -356,8 +357,6 @@ export default function CompanionPage() {
   const simulateAffectionIncrease = () => {
     setAffectionProgress(prev => {
         const newAffection = Math.min(prev + 10, 100);
-        // This will trigger the save useEffect because affectionProgress changes
-        // and that will update companionCustomizations
          setCompanionCustomizations(customsPrev => ({
             ...customsPrev,
             [selectedCompanionId]: {
@@ -632,5 +631,3 @@ export default function CompanionPage() {
     </div>
   );
 }
-
-    

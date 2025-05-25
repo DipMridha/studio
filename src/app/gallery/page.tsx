@@ -302,13 +302,22 @@ export default function GalleryPage() {
         title: "Avatar Updated!",
         description: `${currentCompanion.name}'s avatar has been set to the generated image.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error setting avatar:", error);
-      toast({
-        title: "Error Setting Avatar",
-        description: "Could not save the new avatar. Please try again.",
-        variant: "destructive",
-      });
+      if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
+        toast({
+          title: "Storage Full",
+          description: "Browser storage is full. The new avatar could not be saved. Please clear some custom avatars or other site data.",
+          variant: "destructive",
+          duration: 7000,
+        });
+      } else {
+        toast({
+          title: "Error Setting Avatar",
+          description: "Could not save the new avatar. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -332,6 +341,28 @@ export default function GalleryPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+        // Basic validation for file size (e.g., 5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            toast({
+                title: "File Too Large",
+                description: "Please upload an image smaller than 5MB.",
+                variant: "destructive",
+            });
+            event.target.value = ""; // Clear the input
+            return;
+        }
+        // Basic validation for file type
+        const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!acceptedImageTypes.includes(file.type)) {
+            toast({
+                title: "Invalid File Type",
+                description: "Please upload a valid image file (JPEG, PNG, GIF, WebP).",
+                variant: "destructive",
+            });
+            event.target.value = ""; // Clear the input
+            return;
+        }
+
         setUploadedImageFile(file);
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -495,6 +526,7 @@ export default function GalleryPage() {
             <div>
                 <Label htmlFor="photoUpload">Upload Your Photo</Label>
                 <Input id="photoUpload" type="file" accept="image/*" onChange={handleFileChange} className="mt-1" />
+                 <p className="text-xs text-muted-foreground mt-1">Max file size: 5MB. Accepted types: JPG, PNG, GIF, WebP.</p>
             </div>
 
             {uploadedImageDataUri && (
@@ -540,5 +572,3 @@ export default function GalleryPage() {
     </div>
   );
 }
-
-    
