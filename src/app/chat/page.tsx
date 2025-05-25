@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Send, User, Loader2, Mic, Volume2 } from "lucide-react";
+import { Send, User, Loader2, Mic, Volume2, Phone, Video } from "lucide-react";
 import { CHAT_SETTINGS_KEY, CHAT_MESSAGES_KEY_PREFIX } from "@/lib/constants";
 
 interface Message {
@@ -352,7 +352,7 @@ export default function ChatPage() {
 
     try {
       const aiInput: DynamicDialogueInput = {
-        userId: "default-user",
+        userId: "default-user", // Replace with actual user ID if implementing user accounts
         message: userMessage.text,
         userName: userName,
         companionId: selectedCompanion.id,
@@ -552,17 +552,37 @@ export default function ChatPage() {
     );
   }
 
+  const handleVoiceCall = () => {
+    toast({ title: "Voice Call (Coming Soon)", description: `Voice calling ${selectedCompanion.name} is a future feature!`});
+  };
+
+  const handleVideoCall = () => {
+    toast({ title: "Video Call (Coming Soon)", description: `Video calling ${selectedCompanion.name} is a future feature!`});
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)]">
       <Card className="flex flex-col flex-grow overflow-hidden">
-        <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-               <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint}/>
-                  <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={currentCustomAvatarUrl || selectedCompanion.avatarImage} alt={selectedCompanion.name} data-ai-hint={selectedCompanion.dataAiHint}/>
+                <AvatarFallback>{selectedCompanion.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <CardTitle className="text-lg">
                 Chat with {selectedCompanion.name}
-            </CardTitle>
+              </CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={handleVoiceCall} aria-label="Voice Call">
+                <Phone className="h-5 w-5 text-muted-foreground hover:text-primary" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleVideoCall} aria-label="Video Call">
+                <Video className="h-5 w-5 text-muted-foreground hover:text-primary" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex-grow overflow-hidden p-0">
           <ScrollArea className="h-full p-4 pr-6">
@@ -676,3 +696,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+
