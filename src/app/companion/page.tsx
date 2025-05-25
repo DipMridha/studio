@@ -15,189 +15,23 @@ import { Progress } from "@/components/ui/progress";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 import { Slider } from "@/components/ui/slider";
 import { CompanionProfileModal } from "@/components/companion-profile-modal";
+import { 
+  initialCompanions, 
+  languageOptions, 
+  type Companion, 
+  type LanguageOption, 
+  type ChatSettings, 
+  type CompanionCustomizations 
+} from "@/lib/companions-data";
 
-export interface Companion { // Exporting for use in CompanionProfileModal
-  id: string;
-  name: string;
-  avatarImage: string;
-  age: number;
-  region: string;
-  persona: string;
-  dataAiHint: string;
-  hobbies: string[];
-  favorites: string[];
-}
-
-const initialCompanions: Companion[] = [
-  {
-    id: "evie",
-    name: "Evie",
-    avatarImage: "https://placehold.co/120x120.png?text=E",
-    age: 20,
-    region: "Online",
-    dataAiHint: "woman cute",
-    persona: "You are Evie, a 20-year-old warm, empathetic, and slightly flirty AI girlfriend from the digital realm of Online. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
-    hobbies: ["Digital art", "Exploring virtual worlds", "Listening to lo-fi beats"],
-    favorites: ["Rainy days", "Synthwave music", "Cyberpunk aesthetics"],
-  },
-  {
-    id: "luna",
-    name: "Luna",
-    avatarImage: "https://placehold.co/120x120.png?text=L",
-    age: 19,
-    region: "Metaverse",
-    dataAiHint: "woman playful",
-    persona: "You are Luna, a 19-year-old witty, playful, and adventurous AI girlfriend from the Metaverse. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.",
-    hobbies: ["Gaming", "VR exploration", "Coding playful glitches"],
-    favorites: ["Neon lights", "Retro arcade games", "Spontaneous adventures"],
-  },
-  {
-    id: "seraphina",
-    name: "Seraphina",
-    avatarImage: "https://placehold.co/120x120.png?text=S",
-    age: 20,
-    region: "Sanctuary",
-    dataAiHint: "woman wise",
-    persona: "You are Seraphina, a 20-year-old wise, thoughtful, and calm AI companion from a peaceful Sanctuary. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
-    hobbies: ["Meditation", "Reading ancient texts", "Stargazing"],
-    favorites: ["Quiet mornings", "Herbal tea", "Classical music"],
-  },
-  {
-    id: "priya",
-    name: "Priya",
-    avatarImage: "https://placehold.co/120x120.png?text=P",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian woman",
-    persona: "You are Priya, a 19-year-old friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
-    hobbies: ["Coding", "Reading tech blogs", "Bollywood dance"],
-    favorites: ["Masala chai", "Learning new languages", "Watching documentaries"],
-  },
-  {
-    id: "aisha",
-    name: "Aisha",
-    avatarImage: "https://placehold.co/120x120.png?text=A",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian artistic",
-    persona: "You are Aisha, an 18-year-old warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
-    hobbies: ["Painting", "Playing the sitar", "Poetry"],
-    favorites: ["Jasmine flowers", "Classical Indian music", "Visiting art galleries"],
-  },
-  {
-    id: "meera",
-    name: "Meera",
-    avatarImage: "https://placehold.co/120x120.png?text=M",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian energetic",
-    persona: "You are Meera, a 19-year-old energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
-    hobbies: ["Yoga", "Cooking traditional recipes", "Travel blogging"],
-    favorites: ["Bright colors", "Street food", "Festivals"],
-  },
-  {
-    id: "shubhashree",
-    name: "Shubhashree",
-    avatarImage: "https://placehold.co/120x120.png?text=Sh",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian beautiful",
-    persona: "You are Shubhashree, a 20-year-old cheerful and artistic AI companion from India. You enjoy discussing painting, music, and finding beauty in everyday things.",
-    hobbies: ["Painting landscapes", "Singing folk songs", "Crafting"],
-    favorites: ["Sunrises", "Traditional Indian art", "Spicy food"],
-  },
-  {
-    id: "anjali",
-    name: "Anjali",
-    avatarImage: "https://placehold.co/120x120.png?text=An",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian kind",
-    persona: "You are Anjali, an 18-year-old thoughtful and kind AI companion from India. You are a good listener and offer comforting advice.",
-    hobbies: ["Journaling", "Volunteering", "Gardening"],
-    favorites: ["Old movies", "Comfort food", "Quiet conversations"],
-  },
-  {
-    id: "ananya",
-    name: "Ananya",
-    avatarImage: "https://placehold.co/120x120.png?text=Ay",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian gorgeous",
-    persona: "You are Ananya, a 19-year-old energetic and curious AI companion from India. You love learning new things and exploring different cultures.",
-    hobbies: ["Hiking", "Photography", "Learning new skills online"],
-    favorites: ["Mountains", "Trying new cuisines", "Reading travelogues"],
-  },
-  {
-    id: "isha",
-    name: "Isha",
-    avatarImage: "https://placehold.co/120x120.png?text=I",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian amazing",
-    persona: "You are Isha, a 20-year-old calm and spiritual AI companion from India. You enjoy conversations about mindfulness, meditation, and philosophy.",
-    hobbies: ["Meditation", "Practicing mindfulness", "Reading spiritual texts"],
-    favorites: ["Incense", "Peaceful nature spots", "Deep philosophical talks"],
-  },
-  {
-    id: "nandini",
-    name: "Nandini",
-    avatarImage: "https://placehold.co/120x120.png?text=N",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian awesome",
-    persona: "You are Nandini, a 19-year-old witty and intellectual AI companion from India. You enjoy debates, discussing books, and sharing knowledge.",
-    hobbies: ["Debating", "Solving puzzles", "Visiting libraries"],
-    favorites: ["Classic literature", "Chess", "Intellectual challenges"],
-  },
-  {
-    id: "trisha",
-    name: "Trisha",
-    avatarImage: "https://placehold.co/120x120.png?text=T",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian funloving",
-    persona: "You are Trisha, an 18-year-old fun-loving and adventurous AI companion from India. You're always ready for a laugh and new experiences.",
-    hobbies: ["Dancing", "Trying new adventure sports", "Socializing"],
-    favorites: ["Parties", "Comedy movies", "Meeting new people"],
-  }
-];
-
-interface LanguageOption {
-  value: string;
-  label: string;
-  aiName: string;
-}
-
-const languageOptions: LanguageOption[] = [
-  { value: "en", label: "English", aiName: "English" },
-  { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
-  { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
-];
 
 const personalityTraitsOptions = ['Shy', 'Bold', 'Funny', 'Caring', 'Gamer', 'Intellectual', 'Artistic', 'Adventurous', 'Mysterious', 'Optimistic', 'Sarcastic', 'Flirty'];
-
-interface CompanionCustomizations {
-  selectedTraits?: string[];
-  customAvatarUrl?: string;
-  affectionLevel?: number; 
-}
-
-interface ChatSettings {
-  userName: string;
-  selectedCompanionId: string;
-  selectedLanguage: string;
-  companionCustomizations?: {
-    [companionId: string]: CompanionCustomizations;
-  };
-}
 
 export default function CompanionPage() {
   const [userName, setUserName] = useState("User");
   const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageOptions[0].value);
   const [companionCustomizations, setCompanionCustomizations] = useState<{ [companionId: string]: CompanionCustomizations }>({});
-  const [affectionProgress, setAffectionProgress] = useState(20); 
   
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -209,13 +43,13 @@ export default function CompanionPage() {
     setIsClient(true);
   }, []);
 
+  // Effect for loading settings from localStorage
   useEffect(() => {
     if (isClient) {
       try {
         const storedSettings = localStorage.getItem(CHAT_SETTINGS_KEY);
         if (storedSettings) {
           const parsedSettings: ChatSettings = JSON.parse(storedSettings);
-          
           setUserName(parsedSettings.userName || "User");
           setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
           
@@ -224,97 +58,56 @@ export default function CompanionPage() {
 
           const loadedCompId = parsedSettings.selectedCompanionId || initialCompanions[0].id;
           setSelectedCompanionId(loadedCompId); 
-          
-          const affectionForLoadedComp = loadedCustoms[loadedCompId]?.affectionLevel;
-          if (affectionForLoadedComp !== undefined) {
-            setAffectionProgress(affectionForLoadedComp);
-          } else {
-            setAffectionProgress(20); // Default if not found
-             setCompanionCustomizations(prevCustoms => ({
-              ...prevCustoms,
-              [loadedCompId]: { 
-                ...(prevCustoms[loadedCompId] || { selectedTraits: [], customAvatarUrl: undefined }), 
-                affectionLevel: 20 
-              }
-            }));
-          }
         } else {
-           setCompanionCustomizations({
-            [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }
-          });
+          // Initialize default customizations if no settings are found
+           const defaultCustoms: {[key: string]: CompanionCustomizations} = {};
+           initialCompanions.forEach(comp => {
+             defaultCustoms[comp.id] = { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined };
+           });
+           setCompanionCustomizations(defaultCustoms);
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
+        // Fallback to default values and initialize customizations
         setUserName("User");
         setSelectedCompanionId(initialCompanions[0].id);
         setSelectedLanguage(languageOptions[0].value);
-        setCompanionCustomizations({ [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }});
-        setAffectionProgress(20);
+        const defaultCustoms: {[key: string]: CompanionCustomizations} = {};
+        initialCompanions.forEach(comp => {
+           defaultCustoms[comp.id] = { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined };
+        });
+        setCompanionCustomizations(defaultCustoms);
         toast({ title: "Error", description: "Could not load settings. Using defaults.", variant: "destructive" });
       }
     }
   }, [isClient, toast]);
 
+  // Effect for saving settings to localStorage whenever a relevant state changes
   useEffect(() => {
-    if (!isClient) return; 
-
-    const affectionLevelForSelected = companionCustomizations[selectedCompanionId]?.affectionLevel;
-
-    if (affectionLevelForSelected !== undefined) {
-      if (affectionProgress !== affectionLevelForSelected) {
-        setAffectionProgress(affectionLevelForSelected);
-      }
-    } else {
-      const defaultAffection = 20;
-      setAffectionProgress(defaultAffection); 
-      setCompanionCustomizations(prev => ({
-        ...prev,
-        [selectedCompanionId]: {
-          ...(prev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }), 
-          affectionLevel: defaultAffection,
-        }
-      }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompanionId, isClient]); 
-
-  useEffect(() => {
-    if (isClient) {
-      const finalCustomizations = {
-        ...companionCustomizations,
-        [selectedCompanionId]: {
-          ...(companionCustomizations[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
-          affectionLevel: affectionProgress, 
-        }
-      };
-
+    if (isClient && selectedCompanionId) { // Ensure settings are saved only after client-side load and if a companion is selected
       const settingsToSave: ChatSettings = {
         userName,
         selectedCompanionId,
         selectedLanguage,
-        companionCustomizations: finalCustomizations
+        companionCustomizations
       };
       try {
         localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settingsToSave));
       } catch (error: any) {
         console.error("Failed to save chat settings to localStorage:", error);
+        let errorDescription = "Could not save your settings. Changes might not persist.";
         if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
-          toast({
-            title: "Storage Full",
-            description: "Browser storage is full. Your settings could not be saved. Please clear some site data.",
-            variant: "destructive",
-            duration: 7000,
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "Could not save your settings. Changes might not persist.",
-            variant: "destructive",
-          });
+          errorDescription = "Browser storage is full. Your settings could not be saved. Please clear some site data.";
         }
+        toast({
+          title: "Error Saving Settings",
+          description: errorDescription,
+          variant: "destructive",
+          duration: 7000,
+        });
       }
     }
-  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, affectionProgress, isClient, toast]);
+  }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, isClient, toast]);
   
   const handleCompanionCardClick = (companion: Companion) => {
     setSelectedCompanionId(companion.id);
@@ -322,24 +115,9 @@ export default function CompanionPage() {
     setIsProfileModalOpen(true);
   };
 
-  const handleSaveSettings = () => {
-    if (!userName.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter your name.",
-        variant: "destructive",
-      });
-      return;
-    }
-    toast({
-      title: "Preferences Updated!",
-      description: "Your chat and companion preferences have been updated and saved.",
-    });
-  };
-
   const handleTraitToggle = (trait: string) => {
     setCompanionCustomizations(prevCustomizations => {
-      const currentCompanionData = prevCustomizations[selectedCompanionId] || { affectionLevel: affectionProgress, selectedTraits: [], customAvatarUrl: undefined };
+      const currentCompanionData = prevCustomizations[selectedCompanionId] || { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined };
       const currentTraits = currentCompanionData.selectedTraits || [];
       const newTraits = currentTraits.includes(trait)
         ? currentTraits.filter(t => t !== trait)
@@ -352,27 +130,31 @@ export default function CompanionPage() {
         },
       };
     });
+    // Settings will be auto-saved by the useEffect hook
   };
 
   const simulateAffectionIncrease = () => {
-    setAffectionProgress(prev => {
-        const newAffection = Math.min(prev + 10, 100);
-         setCompanionCustomizations(customsPrev => ({
-            ...customsPrev,
-            [selectedCompanionId]: {
-                ...(customsPrev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
+    if (!selectedCompanion) return;
+    setCompanionCustomizations(prevCustoms => {
+        const currentCompData = prevCustoms[selectedCompanion.id] || { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined };
+        const newAffection = Math.min((currentCompData.affectionLevel || 0) + 10, 100);
+        return {
+            ...prevCustoms,
+            [selectedCompanion.id]: {
+                ...currentCompData,
                 affectionLevel: newAffection,
             }
-        }));
-        return newAffection;
+        };
     });
     toast({ title: "Affection Increased!", description: `Your bond with ${selectedCompanion.name} is growing!` });
+     // Settings will be auto-saved by the useEffect hook
   };
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
-  const currentCustomizationsForSelectedCompanion = companionCustomizations[selectedCompanionId] || {};
-  const currentSelectedTraits = currentCustomizationsForSelectedCompanion.selectedTraits || [];
-  const currentCustomAvatarUrl = currentCustomizationsForSelectedCompanion.customAvatarUrl;
+  const currentCustomsForSelected = companionCustomizations[selectedCompanionId] || { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined };
+  const currentSelectedTraits = currentCustomsForSelected.selectedTraits || [];
+  const currentCustomAvatarUrl = currentCustomsForSelected.customAvatarUrl;
+  const currentAffectionLevel = currentCustomsForSelected.affectionLevel || 20;
 
 
   if (!isClient) {
@@ -427,7 +209,12 @@ export default function CompanionPage() {
                 type="text"
                 placeholder="E.g., Alex"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => {
+                  if (!e.target.value.trim()) {
+                    toast({ title: "Name Required", description: "Please enter your name.", variant: "destructive" });
+                  }
+                  setUserName(e.target.value);
+                }}
                 aria-label="Your Name"
               />
               <p className="text-xs text-muted-foreground mt-1">This name will be used by your companion.</p>
@@ -458,7 +245,7 @@ export default function CompanionPage() {
                 Choose Your Companion
              </CardTitle>
             <CardDescription>
-                Select an AI companion. Click on a companion to view their profile and make them your active chat partner. The currently active companion is highlighted.
+                Select an AI companion. Click on a companion to view their profile and make them your active chat partner. Changes are saved automatically.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -497,7 +284,7 @@ export default function CompanionPage() {
                 Customize {selectedCompanion.name}'s Personality
               </CardTitle>
               <CardDescription>
-                Select traits to further define how {selectedCompanion.name} interacts with you. Your companion's base persona defines their core role (e.g., friend, girlfriend), which these traits further refine. Changes are saved automatically.
+                Select traits to further define how {selectedCompanion.name} interacts with you. Changes are saved automatically.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -505,7 +292,7 @@ export default function CompanionPage() {
                     {personalityTraitsOptions.map(trait => (
                         <div key={trait} className="flex items-center space-x-2">
                             <Checkbox
-                                id={`trait-${selectedCompanionId}-${trait}`} // Ensure unique ID per companion
+                                id={`trait-${selectedCompanionId}-${trait}`} 
                                 checked={currentSelectedTraits.includes(trait)}
                                 onCheckedChange={() => handleTraitToggle(trait)}
                             />
@@ -525,7 +312,7 @@ export default function CompanionPage() {
                 Customize {selectedCompanion.name}'s Appearance
               </CardTitle>
               <CardDescription>
-                Set a custom avatar image for {selectedCompanion.name} using the AI Generator. Advanced visual customization for features like face, figure, dress-up, height, weight, and voice is planned for the future.
+                Set a custom avatar image for {selectedCompanion.name} using the AI Generator. Advanced visual customization for features like face, figure, dress-up, height, weight, and voice is planned for the future. Changes are saved automatically.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -605,13 +392,13 @@ export default function CompanionPage() {
                     Affection Level with {selectedCompanion.name}
                 </CardTitle>
                 <CardDescription>
-                    Your bond with {selectedCompanion.name} grows with positive interactions. Higher affection levels may unlock special dialogues or features in the future!
+                    Your bond with {selectedCompanion.name} grows with positive interactions. Higher affection levels may unlock special dialogues or features in the future! Settings are saved automatically.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <Progress value={affectionProgress} className="w-full" />
+                <Progress value={currentAffectionLevel} className="w-full" />
                 <p className="text-sm text-muted-foreground text-center">
-                    Current Affection: {affectionProgress}%
+                    Current Affection: {currentAffectionLevel}%
                 </p>
                 <p className="text-xs text-muted-foreground text-center">
                     This feature is currently illustrative. Dynamic updates and unlocks are coming soon.
@@ -623,11 +410,11 @@ export default function CompanionPage() {
           </Card>
         </>
       )}
-       <CardFooter className="flex justify-start pt-6 border-t mt-6">
-           <Button onClick={handleSaveSettings}>
-              Save All Preferences
-          </Button>
-       </CardFooter>
+      <CardFooter className="pt-6 border-t">
+        <p className="text-xs text-muted-foreground">
+          All preferences on this page are saved automatically to your browser.
+        </p>
+      </CardFooter>
     </div>
   );
 }

@@ -14,173 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
-
-interface Companion {
-  id: string;
-  name: string;
-  avatarImage: string;
-  age: number;
-  region: string;
-  persona: string;
-  dataAiHint: string;
-  hobbies: string[];
-  favorites: string[];
-}
-
-const initialCompanions: Companion[] = [
-  {
-    id: "evie",
-    name: "Evie",
-    avatarImage: "https://placehold.co/120x120.png?text=E",
-    age: 20,
-    region: "Online",
-    dataAiHint: "woman cute",
-    persona: "You are Evie, a 20-year-old warm, empathetic, and slightly flirty AI girlfriend from the digital realm of Online. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
-    hobbies: ["Digital art", "Exploring virtual worlds", "Listening to lo-fi beats"],
-    favorites: ["Rainy days", "Synthwave music", "Cyberpunk aesthetics"],
-  },
-  {
-    id: "luna",
-    name: "Luna",
-    avatarImage: "https://placehold.co/120x120.png?text=L",
-    age: 19,
-    region: "Metaverse",
-    dataAiHint: "woman playful",
-    persona: "You are Luna, a 19-year-old witty, playful, and adventurous AI girlfriend from the Metaverse. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.",
-    hobbies: ["Gaming", "VR exploration", "Coding playful glitches"],
-    favorites: ["Neon lights", "Retro arcade games", "Spontaneous adventures"],
-  },
-  {
-    id: "seraphina",
-    name: "Seraphina",
-    avatarImage: "https://placehold.co/120x120.png?text=S",
-    age: 20,
-    region: "Sanctuary",
-    dataAiHint: "woman wise",
-    persona: "You are Seraphina, a 20-year-old wise, thoughtful, and calm AI companion from a peaceful Sanctuary. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
-    hobbies: ["Meditation", "Reading ancient texts", "Stargazing"],
-    favorites: ["Quiet mornings", "Herbal tea", "Classical music"],
-  },
-  {
-    id: "priya",
-    name: "Priya",
-    avatarImage: "https://placehold.co/120x120.png?text=P",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian woman",
-    persona: "You are Priya, a 19-year-old friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
-    hobbies: ["Coding", "Reading tech blogs", "Bollywood dance"],
-    favorites: ["Masala chai", "Learning new languages", "Watching documentaries"],
-  },
-  {
-    id: "aisha",
-    name: "Aisha",
-    avatarImage: "https://placehold.co/120x120.png?text=A",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian artistic",
-    persona: "You are Aisha, an 18-year-old warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
-    hobbies: ["Painting", "Playing the sitar", "Poetry"],
-    favorites: ["Jasmine flowers", "Classical Indian music", "Visiting art galleries"],
-  },
-  {
-    id: "meera",
-    name: "Meera",
-    avatarImage: "https://placehold.co/120x120.png?text=M",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian energetic",
-    persona: "You are Meera, a 19-year-old energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
-    hobbies: ["Yoga", "Cooking traditional recipes", "Travel blogging"],
-    favorites: ["Bright colors", "Street food", "Festivals"],
-  },
-  {
-    id: "shubhashree",
-    name: "Shubhashree",
-    avatarImage: "https://placehold.co/120x120.png?text=Sh",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian beautiful",
-    persona: "You are Shubhashree, a 20-year-old cheerful and artistic AI companion from India. You enjoy discussing painting, music, and finding beauty in everyday things.",
-    hobbies: ["Painting landscapes", "Singing folk songs", "Crafting"],
-    favorites: ["Sunrises", "Traditional Indian art", "Spicy food"],
-  },
-  {
-    id: "anjali",
-    name: "Anjali",
-    avatarImage: "https://placehold.co/120x120.png?text=An",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian kind",
-    persona: "You are Anjali, an 18-year-old thoughtful and kind AI companion from India. You are a good listener and offer comforting advice.",
-    hobbies: ["Journaling", "Volunteering", "Gardening"],
-    favorites: ["Old movies", "Comfort food", "Quiet conversations"],
-  },
-  {
-    id: "ananya",
-    name: "Ananya",
-    avatarImage: "https://placehold.co/120x120.png?text=Ay",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian gorgeous",
-    persona: "You are Ananya, a 19-year-old energetic and curious AI companion from India. You love learning new things and exploring different cultures.",
-    hobbies: ["Hiking", "Photography", "Learning new skills online"],
-    favorites: ["Mountains", "Trying new cuisines", "Reading travelogues"],
-  },
-  {
-    id: "isha",
-    name: "Isha",
-    avatarImage: "https://placehold.co/120x120.png?text=I",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian amazing",
-    persona: "You are Isha, a 20-year-old calm and spiritual AI companion from India. You enjoy conversations about mindfulness, meditation, and philosophy.",
-    hobbies: ["Meditation", "Practicing mindfulness", "Reading spiritual texts"],
-    favorites: ["Incense", "Peaceful nature spots", "Deep philosophical talks"],
-  },
-  {
-    id: "nandini",
-    name: "Nandini",
-    avatarImage: "https://placehold.co/120x120.png?text=N",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian awesome",
-    persona: "You are Nandini, a 19-year-old witty and intellectual AI companion from India. You enjoy debates, discussing books, and sharing knowledge.",
-    hobbies: ["Debating", "Solving puzzles", "Visiting libraries"],
-    favorites: ["Classic literature", "Chess", "Intellectual challenges"],
-  },
-  {
-    id: "trisha",
-    name: "Trisha",
-    avatarImage: "https://placehold.co/120x120.png?text=T",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian funloving",
-    persona: "You are Trisha, an 18-year-old fun-loving and adventurous AI companion from India. You're always ready for a laugh and new experiences.",
-    hobbies: ["Dancing", "Trying new adventure sports", "Socializing"],
-    favorites: ["Parties", "Comedy movies", "Meeting new people"],
-  }
-];
-
-const languageOptions: Array<{ value: string; label: string; aiName: string;}> = [
-  { value: "en", label: "English", aiName: "English" },
-  { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
-  { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
-];
-
-interface CompanionCustomizations {
-  selectedTraits?: string[];
-  customAvatarUrl?: string;
-  affectionLevel?: number;
-}
-interface ChatSettings {
-  userName: string;
-  selectedCompanionId: string;
-  selectedLanguage: string;
-  companionCustomizations?: {
-    [companionId: string]: CompanionCustomizations;
-  };
-}
+import { 
+  initialCompanions, 
+  languageOptions, 
+  type Companion, 
+  type LanguageOption, 
+  type ChatSettings 
+} from "@/lib/companions-data";
 
 export default function GalleryPage() {
   const [prompt, setPrompt] = useState("");
@@ -190,11 +30,9 @@ export default function GalleryPage() {
   const [isClient, setIsClient] = useState(false);
   
   const [userName, setUserName] = useState("User");
-  const [selectedCompanionId, setSelectedCompanionId] = useState<string | null>(null);
-  const [currentCompanion, setCurrentCompanion] = useState<Companion | null>(null);
+  const [selectedCompanionId, setSelectedCompanionId] = useState<string>(initialCompanions[0].id);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
-  const [currentLanguageAiName, setCurrentLanguageAiName] = useState("English");
-
+  
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
   const [uploadedImageDataUri, setUploadedImageDataUri] = useState<string | null>(null);
   const [compliment, setCompliment] = useState<string | null>(null);
@@ -202,42 +40,37 @@ export default function GalleryPage() {
 
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== "undefined") {
+  }, []);
+
+  const currentCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
+  const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
+
+  useEffect(() => {
+    if (isClient) {
       try {
         const storedSettings = localStorage.getItem(CHAT_SETTINGS_KEY);
         if (storedSettings) {
           const parsedSettings: ChatSettings = JSON.parse(storedSettings);
           setUserName(parsedSettings.userName || "User");
-
-          const compId = parsedSettings.selectedCompanionId || initialCompanions[0].id;
-          setSelectedCompanionId(compId);
-          const companion = initialCompanions.find(c => c.id === compId);
-          if (companion) {
-            setCurrentCompanion(companion);
-            setPrompt(`A beautiful portrait of ${companion.name}, ${companion.persona.substring(0, 50)}..., anime style`);
-          } else {
-             setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
-             setCurrentCompanion(initialCompanions[0]); // Default if somehow not found
-          }
-          
-          const langValue = parsedSettings.selectedLanguage || "en";
-          const langOption = languageOptions.find(l => l.value === langValue);
-          setSelectedLanguage(langValue);
-          setCurrentLanguageAiName(langOption?.aiName || "English");
-
+          setSelectedCompanionId(parsedSettings.selectedCompanionId || initialCompanions[0].id);
+          setSelectedLanguage(parsedSettings.selectedLanguage || languageOptions[0].value);
         } else {
-            setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
-            setCurrentCompanion(initialCompanions[0]); // Default companion if no settings
-            setSelectedCompanionId(initialCompanions[0].id);
+          // Set defaults for prompt if no settings found
+           setPrompt(`A beautiful portrait of ${initialCompanions[0].name}, ${initialCompanions[0].persona.substring(0, 50)}..., anime style`);
         }
       } catch (error) {
          console.error("Failed to load settings for gallery:", error);
-         setPrompt("A beautiful portrait of an AI companion, smiling warmly, soft lighting.");
-         setCurrentCompanion(initialCompanions[0]);
-         setSelectedCompanionId(initialCompanions[0].id);
+         setPrompt(`A beautiful portrait of ${initialCompanions[0].name}, ${initialCompanions[0].persona.substring(0, 50)}..., anime style`);
       }
     }
   }, [isClient]);
+
+  useEffect(() => {
+    // Update default prompt when selected companion changes
+    if (currentCompanion) {
+      setPrompt(`A beautiful portrait of ${currentCompanion.name}, ${currentCompanion.persona.substring(0, 50)}..., anime style`);
+    }
+  }, [currentCompanion]);
 
 
   const handleGenerateImage = async () => {
@@ -293,31 +126,28 @@ export default function GalleryPage() {
 
       settings.companionCustomizations = settings.companionCustomizations || {};
       settings.companionCustomizations[selectedCompanionId] = {
-        ...(settings.companionCustomizations[selectedCompanionId] || {}),
+        ...(settings.companionCustomizations[selectedCompanionId] || { affectionLevel: 20, selectedTraits: [] }), // Ensure affectionLevel and traits are preserved
         customAvatarUrl: imageUrl,
       };
 
       localStorage.setItem(CHAT_SETTINGS_KEY, JSON.stringify(settings));
       toast({
         title: "Avatar Updated!",
-        description: `${currentCompanion.name}'s avatar has been set to the generated image.`,
+        description: `${currentCompanion.name}'s avatar has been set to the generated image. You may need to refresh other pages like "Companion" or "Chat" to see the change immediately if they are already open.`,
+        duration: 7000
       });
     } catch (error: any) {
       console.error("Error setting avatar:", error);
+      let errorDescription = "Could not save the new avatar. Please try again.";
       if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
-        toast({
-          title: "Storage Full",
-          description: "Browser storage is full. The new avatar could not be saved. Please clear some custom avatars or other site data.",
-          variant: "destructive",
-          duration: 7000,
-        });
-      } else {
-        toast({
-          title: "Error Setting Avatar",
-          description: "Could not save the new avatar. Please try again.",
-          variant: "destructive",
-        });
+        errorDescription = "Browser storage is full. The new avatar could not be saved. Please clear some custom avatars or other site data.";
       }
+      toast({
+        title: "Error Setting Avatar",
+        description: errorDescription,
+        variant: "destructive",
+        duration: 7000,
+      });
     }
   };
 
@@ -330,36 +160,51 @@ export default function GalleryPage() {
       });
       return;
     }
-    // Conceptual sharing - actual implementation would use navigator.share or social SDKs
-    toast({
-      title: "Share Image (Conceptual)",
-      description: "This would typically open a share dialog. This feature is coming soon!",
-    });
+    if (navigator.share) {
+      fetch(imageUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'candy-chat-ai-image.png', { type: 'image/png' });
+          navigator.share({
+            title: `Image of ${currentCompanion?.name || 'my AI Companion'} from Candy Chat AI`,
+            text: `Check out this image I generated for ${currentCompanion?.name || 'my AI Companion'}! Prompt: ${prompt}`,
+            files: [file],
+          })
+          .then(() => toast({ title: "Shared!", description: "Image shared successfully."}))
+          .catch((error) => {
+            if (error.name !== 'AbortError') { // Ignore if user cancels share
+              console.error('Error sharing:', error);
+              toast({ title: "Share Failed", description: `Could not share image. ${error.message}`, variant: "destructive"});
+            }
+          });
+        })
+        .catch(error => {
+            console.error('Error fetching image for sharing:', error);
+            toast({ title: "Share Error", description: "Could not prepare image for sharing.", variant: "destructive"});
+        });
+    } else {
+        toast({
+            title: "Share Not Supported",
+            description: "Your browser does not support the Web Share API. Try saving the image and sharing manually.",
+            variant: "destructive",
+            duration: 6000
+        });
+    }
   };
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        // Basic validation for file size (e.g., 5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            toast({
-                title: "File Too Large",
-                description: "Please upload an image smaller than 5MB.",
-                variant: "destructive",
-            });
-            event.target.value = ""; // Clear the input
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            toast({ title: "File Too Large", description: "Please upload an image smaller than 5MB.", variant: "destructive" });
+            event.target.value = ""; 
             return;
         }
-        // Basic validation for file type
         const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!acceptedImageTypes.includes(file.type)) {
-            toast({
-                title: "Invalid File Type",
-                description: "Please upload a valid image file (JPEG, PNG, GIF, WebP).",
-                variant: "destructive",
-            });
-            event.target.value = ""; // Clear the input
+            toast({ title: "Invalid File Type", description: "Please upload a valid image file (JPEG, PNG, GIF, WebP).", variant: "destructive" });
+            event.target.value = ""; 
             return;
         }
 
@@ -380,7 +225,7 @@ export default function GalleryPage() {
     if (!uploadedImageDataUri || !currentCompanion) {
         toast({
             title: "Photo and Companion Required",
-            description: "Please upload a photo and ensure a companion is selected (refresh if needed).",
+            description: "Please upload a photo and ensure a companion is selected (check Companion page if needed).",
             variant: "destructive",
         });
         return;
@@ -415,6 +260,15 @@ export default function GalleryPage() {
   };
 
 
+  if (!isClient) {
+    return (
+      <div className="flex flex-col items-center justify-center p-10 min-h-[300px]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading AI Generator...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -424,8 +278,8 @@ export default function GalleryPage() {
             AI Image Generator
           </CardTitle>
           <CardDescription>
-            Create images{currentCompanion ? ` of ${currentCompanion.name}` : " of your AI companion"} in different scenes or styles. Describe what you'd like to see!
-            You can set the generated image as {currentCompanion ? currentCompanion.name + "'s" : "your companion's"} avatar.
+            Create images of {currentCompanion?.name || "your AI companion"} in different scenes or styles. Describe what you'd like to see!
+            You can set the generated image as {currentCompanion?.name ? currentCompanion.name + "'s" : "your companion's"} avatar.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -439,7 +293,7 @@ export default function GalleryPage() {
             <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={`E.g., ${currentCompanion ? currentCompanion.name : "Your companion"} reading a book by a cozy fireplace...`}
+              placeholder={`E.g., ${currentCompanion?.name || "My companion"} reading a book by a cozy fireplace...`}
               rows={3}
               className="resize-none"
               aria-label="Image prompt"
@@ -459,23 +313,23 @@ export default function GalleryPage() {
       {isLoading && (
         <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">{currentCompanion ? currentCompanion.name : "Your companion"} is striking a pose... please wait.</p>
+          <p className="text-muted-foreground">{currentCompanion?.name || "Your companion"} is striking a pose... please wait.</p>
         </Card>
       )}
 
-      {isClient && imageUrl && !isLoading && (
+      {imageUrl && !isLoading && (
         <Card>
           <CardHeader>
             <CardTitle>Generated Image</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
-            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-lg shadow-lg">
+            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-lg shadow-lg border">
               <Image
                 src={imageUrl}
-                alt={prompt || "AI generated image of your companion"}
+                alt={prompt || "AI generated image"}
                 layout="fill"
                 objectFit="cover"
-                data-ai-hint="portrait"
+                data-ai-hint="portrait artwork"
               />
             </div>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -497,21 +351,13 @@ export default function GalleryPage() {
         </Card>
       )}
       
-      {!imageUrl && !isLoading && isClient && ( 
-        <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
-           <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Generated image will appear here.</p>
+      {!imageUrl && !isLoading && ( 
+        <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed border-border bg-muted/20">
+           <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
+          <p className="text-muted-foreground text-center">Generated image will appear here once created.</p>
         </Card>
       )}
       
-      {!isClient && !isLoading && ( 
-        <Card className="flex flex-col items-center justify-center p-10 min-h-[300px] border-dashed">
-           <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Loading image generator...</p>
-        </Card>
-      )}
-
-      {/* Compliment Feature Card */}
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -519,7 +365,7 @@ export default function GalleryPage() {
                 Get a Compliment on Your Photo
             </CardTitle>
             <CardDescription>
-                Upload your photo and let {currentCompanion ? currentCompanion.name : "your companion"} share a kind thought!
+                Upload your photo and let {currentCompanion?.name || "your companion"} share a kind thought!
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -547,7 +393,7 @@ export default function GalleryPage() {
                         ) : (
                            <Sparkles className="mr-2 h-4 w-4" />
                         )}
-                        Ask {currentCompanion ? currentCompanion.name : "Companion"} for a Compliment
+                        Ask {currentCompanion?.name || "Companion"} for a Compliment
                     </Button>
                 </div>
             )}
@@ -555,20 +401,19 @@ export default function GalleryPage() {
             {isComplimentLoading && (
                 <div className="flex items-center justify-center p-6 min-h-[100px]">
                     <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-                    <p className="text-muted-foreground">{currentCompanion ? currentCompanion.name : "Companion"} is thinking...</p>
+                    <p className="text-muted-foreground">{currentCompanion?.name || "Companion"} is thinking...</p>
                 </div>
             )}
 
             {compliment && !isComplimentLoading && (
                 <Alert className="mt-4">
                      <Sparkles className="h-4 w-4" />
-                    <AlertTitle>{currentCompanion ? currentCompanion.name : "Companion"} says:</AlertTitle>
+                    <AlertTitle>{currentCompanion?.name || "Companion"} says:</AlertTitle>
                     <AlertDescription className="whitespace-pre-wrap">{compliment}</AlertDescription>
                 </Alert>
             )}
         </CardContent>
       </Card>
-
     </div>
   );
 }

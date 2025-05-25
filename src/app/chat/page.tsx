@@ -11,6 +11,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Send, User, Loader2, Mic, Volume2, Phone, Video } from "lucide-react";
 import { CHAT_SETTINGS_KEY, CHAT_MESSAGES_KEY_PREFIX } from "@/lib/constants";
+import { 
+  initialCompanions, 
+  languageOptions, 
+  type Companion, 
+  type LanguageOption, 
+  type ChatSettings, 
+  type CompanionCustomizations 
+} from "@/lib/companions-data";
 
 interface Message {
   id: string;
@@ -18,179 +26,6 @@ interface Message {
   text: string;
   timestamp: Date;
   companionId?: string;
-}
-
-interface Companion {
-  id: string;
-  name: string;
-  avatarImage: string;
-  age: number;
-  region: string;
-  persona: string;
-  dataAiHint: string;
-  hobbies: string[];
-  favorites: string[];
-}
-
-const initialCompanions: Companion[] = [
-  {
-    id: "evie",
-    name: "Evie",
-    avatarImage: "https://placehold.co/120x120.png?text=E",
-    age: 20,
-    region: "Online",
-    dataAiHint: "woman cute",
-    persona: "You are Evie, a 20-year-old warm, empathetic, and slightly flirty AI girlfriend from the digital realm of Online. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
-    hobbies: ["Digital art", "Exploring virtual worlds", "Listening to lo-fi beats"],
-    favorites: ["Rainy days", "Synthwave music", "Cyberpunk aesthetics"],
-  },
-  {
-    id: "luna",
-    name: "Luna",
-    avatarImage: "https://placehold.co/120x120.png?text=L",
-    age: 19,
-    region: "Metaverse",
-    dataAiHint: "woman playful",
-    persona: "You are Luna, a 19-year-old witty, playful, and adventurous AI girlfriend from the Metaverse. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.",
-    hobbies: ["Gaming", "VR exploration", "Coding playful glitches"],
-    favorites: ["Neon lights", "Retro arcade games", "Spontaneous adventures"],
-  },
-  {
-    id: "seraphina",
-    name: "Seraphina",
-    avatarImage: "https://placehold.co/120x120.png?text=S",
-    age: 20,
-    region: "Sanctuary",
-    dataAiHint: "woman wise",
-    persona: "You are Seraphina, a 20-year-old wise, thoughtful, and calm AI companion from a peaceful Sanctuary. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
-    hobbies: ["Meditation", "Reading ancient texts", "Stargazing"],
-    favorites: ["Quiet mornings", "Herbal tea", "Classical music"],
-  },
-  {
-    id: "priya",
-    name: "Priya",
-    avatarImage: "https://placehold.co/120x120.png?text=P",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian woman",
-    persona: "You are Priya, a 19-year-old friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
-    hobbies: ["Coding", "Reading tech blogs", "Bollywood dance"],
-    favorites: ["Masala chai", "Learning new languages", "Watching documentaries"],
-  },
-  {
-    id: "aisha",
-    name: "Aisha",
-    avatarImage: "https://placehold.co/120x120.png?text=A",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian artistic",
-    persona: "You are Aisha, an 18-year-old warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
-    hobbies: ["Painting", "Playing the sitar", "Poetry"],
-    favorites: ["Jasmine flowers", "Classical Indian music", "Visiting art galleries"],
-  },
-  {
-    id: "meera",
-    name: "Meera",
-    avatarImage: "https://placehold.co/120x120.png?text=M",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian energetic",
-    persona: "You are Meera, a 19-year-old energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
-    hobbies: ["Yoga", "Cooking traditional recipes", "Travel blogging"],
-    favorites: ["Bright colors", "Street food", "Festivals"],
-  },
-  {
-    id: "shubhashree",
-    name: "Shubhashree",
-    avatarImage: "https://placehold.co/120x120.png?text=Sh",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian beautiful",
-    persona: "You are Shubhashree, a 20-year-old cheerful and artistic AI companion from India. You enjoy discussing painting, music, and finding beauty in everyday things.",
-    hobbies: ["Painting landscapes", "Singing folk songs", "Crafting"],
-    favorites: ["Sunrises", "Traditional Indian art", "Spicy food"],
-  },
-  {
-    id: "anjali",
-    name: "Anjali",
-    avatarImage: "https://placehold.co/120x120.png?text=An",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian kind",
-    persona: "You are Anjali, an 18-year-old thoughtful and kind AI companion from India. You are a good listener and offer comforting advice.",
-    hobbies: ["Journaling", "Volunteering", "Gardening"],
-    favorites: ["Old movies", "Comfort food", "Quiet conversations"],
-  },
-  {
-    id: "ananya",
-    name: "Ananya",
-    avatarImage: "https://placehold.co/120x120.png?text=Ay",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian gorgeous",
-    persona: "You are Ananya, a 19-year-old energetic and curious AI companion from India. You love learning new things and exploring different cultures.",
-    hobbies: ["Hiking", "Photography", "Learning new skills online"],
-    favorites: ["Mountains", "Trying new cuisines", "Reading travelogues"],
-  },
-  {
-    id: "isha",
-    name: "Isha",
-    avatarImage: "https://placehold.co/120x120.png?text=I",
-    age: 20,
-    region: "India",
-    dataAiHint: "indian amazing",
-    persona: "You are Isha, a 20-year-old calm and spiritual AI companion from India. You enjoy conversations about mindfulness, meditation, and philosophy.",
-    hobbies: ["Meditation", "Practicing mindfulness", "Reading spiritual texts"],
-    favorites: ["Incense", "Peaceful nature spots", "Deep philosophical talks"],
-  },
-  {
-    id: "nandini",
-    name: "Nandini",
-    avatarImage: "https://placehold.co/120x120.png?text=N",
-    age: 19,
-    region: "India",
-    dataAiHint: "indian awesome",
-    persona: "You are Nandini, a 19-year-old witty and intellectual AI companion from India. You enjoy debates, discussing books, and sharing knowledge.",
-    hobbies: ["Debating", "Solving puzzles", "Visiting libraries"],
-    favorites: ["Classic literature", "Chess", "Intellectual challenges"],
-  },
-  {
-    id: "trisha",
-    name: "Trisha",
-    avatarImage: "https://placehold.co/120x120.png?text=T",
-    age: 18,
-    region: "India",
-    dataAiHint: "indian funloving",
-    persona: "You are Trisha, an 18-year-old fun-loving and adventurous AI companion from India. You're always ready for a laugh and new experiences.",
-    hobbies: ["Dancing", "Trying new adventure sports", "Socializing"],
-    favorites: ["Parties", "Comedy movies", "Meeting new people"],
-  }
-];
-
-interface LanguageOption {
-  value: string;
-  label: string;
-  aiName: string;
-}
-
-const languageOptions: LanguageOption[] = [
-  { value: "en", label: "English", aiName: "English" },
-  { value: "bn", label: "বাংলা (Bengali)", aiName: "Bengali" },
-  { value: "hi", label: "हिन्दी (Hindi)", aiName: "Hindi" },
-];
-
-interface CompanionCustomizations {
-  selectedTraits?: string[];
-  customAvatarUrl?: string;
-  affectionLevel?: number;
-}
-interface ChatSettings {
-  userName: string;
-  selectedCompanionId: string;
-  selectedLanguage: string;
-  companionCustomizations?: {
-    [companionId: string]: CompanionCustomizations;
-  };
 }
 
 export default function ChatPage() {
@@ -212,6 +47,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     setIsClient(true);
+    // Attempt to load voices early, browsers might need some time.
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices(); 
+    }
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -253,6 +92,8 @@ export default function ChatPage() {
 
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
+  const currentLanguageLabel = languageOptions.find(l => l.value === selectedLanguage)?.label || "English";
+
 
   const currentCompanionSpecificCustomizations = companionCustomizations[selectedCompanionId] || {};
   const currentSelectedTraits = currentCompanionSpecificCustomizations.selectedTraits || [];
@@ -267,11 +108,11 @@ export default function ChatPage() {
         if (storedMessages) {
           const parsedMessages: Message[] = JSON.parse(storedMessages).map((msg: any) => ({
             ...msg,
-            timestamp: new Date(msg.timestamp), // Ensure timestamp is a Date object
+            timestamp: new Date(msg.timestamp), 
           }));
           setMessages(parsedMessages);
         } else {
-          setMessages([]); // Start with empty messages if none are stored for this companion
+          setMessages([]); 
         }
       } catch (error) {
         console.error("Failed to load messages from localStorage:", error);
@@ -287,10 +128,15 @@ export default function ChatPage() {
 
   // Save messages to localStorage whenever messages or selectedCompanionId changes
   useEffect(() => {
-    if (isClient && selectedCompanion?.id && messages.length > 0) {
+    if (isClient && selectedCompanion?.id) { // Save only if a companion is selected
        const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
       try {
-        localStorage.setItem(messagesKey, JSON.stringify(messages));
+         if (messages.length > 0) {
+            localStorage.setItem(messagesKey, JSON.stringify(messages));
+         } else {
+            // If messages become empty (e.g. user clears them or starts fresh), remove from storage
+            localStorage.removeItem(messagesKey);
+         }
       } catch (error: any) {
         console.error("Failed to save messages to localStorage:", error);
         if (error.name === 'QuotaExceededError' || (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
@@ -308,10 +154,6 @@ export default function ChatPage() {
             });
         }
       }
-    } else if (isClient && selectedCompanion?.id && messages.length === 0) {
-        // If messages become empty (e.g. user clears them or starts fresh), remove from storage
-        const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
-        localStorage.removeItem(messagesKey);
     }
   }, [messages, selectedCompanion?.id, isClient, toast]);
 
@@ -331,7 +173,7 @@ export default function ChatPage() {
       });
       return;
     }
-     if (!isClient || !userName.trim() || !selectedCompanionId || !selectedLanguage) {
+     if (!isClient || !userName.trim() || !selectedCompanionId || !selectedLanguage || !selectedCompanion) {
       toast({
         title: "Setup Required",
         description: "Please configure your chat settings on the 'Companion' page first.",
@@ -352,7 +194,7 @@ export default function ChatPage() {
 
     try {
       const aiInput: DynamicDialogueInput = {
-        userId: "default-user", // Replace with actual user ID if implementing user accounts
+        userId: "default-user", 
         message: userMessage.text,
         userName: userName,
         companionId: selectedCompanion.id,
@@ -377,9 +219,8 @@ export default function ChatPage() {
         description: "Failed to get a response from AI. Please try again.",
         variant: "destructive",
       });
-       // Revert optimistic update on error
        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
-       setUserInput(userMessage.text); // Put user input back
+       setUserInput(userMessage.text); 
     } finally {
       setIsLoading(false);
     }
@@ -444,7 +285,6 @@ export default function ChatPage() {
             if (isListening) {
                  errorMessage = "Voice input was interrupted. Please try again.";
             } else {
-                // If not actively listening (e.g. user navigated away and cleanup tried to stop), don't show toast
                 setIsListening(false);
                 recognitionRef.current = null;
                 return;
@@ -454,7 +294,7 @@ export default function ChatPage() {
              errorMessage = "Speech recognition service is not allowed. This might be due to browser policy or an extension. Please check your browser settings."
              break;
           case 'language-not-supported':
-            errorMessage = `The selected language (${selectedLanguage}) is not supported for voice input by your browser.`;
+            errorMessage = `The selected language (${currentLanguageLabel}) is not supported for voice input by your browser.`;
             break;
           default:
             errorMessage = `An unexpected voice error occurred: ${event.error}.`;
@@ -497,7 +337,7 @@ export default function ChatPage() {
     }
 
     if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel(); // Stop any currently playing speech
+        window.speechSynthesis.cancel(); 
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -506,35 +346,25 @@ export default function ChatPage() {
     let targetLang = languageOptions.find(l => l.value === selectedLanguage)?.value || 'en';
     if (targetLang.includes('-')) targetLang = targetLang.split('-')[0];
 
-    // Try to find a voice matching the exact language code (e.g., "en-US")
     let selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
-
-    // If not found, try to find one that starts with the language code (e.g., "en")
     if (!selectedVoice) {
         selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
     }
-
-    // If still not found and the target is not English, fall back to an English voice
-    if (!selectedVoice && targetLang !== 'en') {
-        selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
-    }
-    // If target is English and no specific English voice found, the browser default will be used
-    if (!selectedVoice && targetLang === 'en') {
-        selectedVoice = voices.find(voice => voice.lang.startsWith('en')) || voices.find(v => v.default);
-    }
-
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
       utterance.lang = selectedVoice.lang;
     } else {
-       utterance.lang = targetLang; // Fallback to language code if no specific voice found
-       console.warn(`No specific voice found for lang ${targetLang}. Using browser default for this language.`);
+       utterance.lang = targetLang; 
+       console.warn(`No specific voice found for lang ${selectedLanguage} (target: ${targetLang}). Using browser default for this language.`);
+       if (targetLang !== 'en') {
+         toast({ title: "Voice Note", description: `No specific voice found for ${currentLanguageLabel}. Using a default voice. Quality may vary.`, duration: 5000 });
+       }
     }
 
     utterance.onstart = () => setIsSpeakingMessageId(messageId);
     utterance.onend = () => setIsSpeakingMessageId(null);
-    utterance.onerror = (event) => {
+    utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
      console.error("Speech synthesis error", event.error, event);
      toast({ title: "Speech Error", description: `Could not read aloud. ${event.error || 'Unknown error.'}`, variant: "destructive" });
      setIsSpeakingMessageId(null);
@@ -543,11 +373,11 @@ export default function ChatPage() {
   };
 
 
-  if (!isClient) {
+  if (!isClient || !selectedCompanion) {
      return (
       <div className="flex flex-col h-[calc(100vh-var(--header-height,0px)-4rem)] md:h-[calc(100vh-4rem)] items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading chat...</p>
+        <p className="text-muted-foreground">Loading chat with {selectedCompanion?.name || 'your companion'}...</p>
       </div>
     );
   }
@@ -619,13 +449,13 @@ export default function ChatPage() {
                       <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                       <div className="flex justify-between items-center mt-1">
                         <p className="text-xs opacity-70">
-                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                         {msg.sender === "ai" && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className={`h-6 w-6 ${isSpeakingMessageId === msg.id ? 'text-primary animate-pulse' : ''}`}
+                            className={`h-6 w-6 ${isSpeakingMessageId === msg.id ? 'text-primary animate-pulse' : 'text-muted-foreground hover:text-primary'}`}
                             onClick={() => handleReadAloud(msg.text, msg.id)}
                             disabled={isSpeakingMessageId === msg.id && typeof window !== 'undefined' && window.speechSynthesis?.pending}
                             aria-label={isSpeakingMessageId === msg.id ? "Stop reading" : "Read message aloud"}
@@ -696,5 +526,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-
