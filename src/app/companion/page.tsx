@@ -7,14 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserCog, Languages, Settings2, Heart, Palette, UserCircle, ImageIcon, PersonStanding, Shirt, Mic2 } from "lucide-react";
+import { UserCog, Languages, Settings2, Heart, Palette, UserCircle, ImageIcon, PersonStanding, Shirt, Mic2, View } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { CHAT_SETTINGS_KEY } from "@/lib/constants";
 import { Slider } from "@/components/ui/slider";
-
+import { CompanionProfileModal } from "@/components/companion-profile-modal";
 
 interface Companion {
   id: string;
@@ -24,6 +24,8 @@ interface Companion {
   region: string;
   persona: string;
   dataAiHint: string;
+  hobbies: string[];
+  favorites: string[];
 }
 
 const initialCompanions: Companion[] = [
@@ -35,6 +37,8 @@ const initialCompanions: Companion[] = [
     region: "Online",
     dataAiHint: "woman empathetic warm",
     persona: "You are Evie, a 23-year-old warm, empathetic, and slightly flirty AI girlfriend from the digital realm of Online. You are supportive and enjoy light-hearted banter as well as deeper conversations.",
+    hobbies: ["Digital art", "Exploring virtual worlds", "Listening to lo-fi beats"],
+    favorites: ["Rainy days", "Synthwave music", "Cyberpunk aesthetics"],
   },
   {
     id: "luna",
@@ -44,6 +48,8 @@ const initialCompanions: Companion[] = [
     region: "Metaverse",
     dataAiHint: "woman playful adventurous",
     persona: "You are Luna, a 22-year-old witty, playful, and adventurous AI girlfriend from the Metaverse. You love to joke, explore new ideas, aren't afraid to be a bit mischievous, and enjoy flirty, romantic interactions. You're always up for an adventure or a cozy chat.",
+    hobbies: ["Gaming", "VR exploration", "Coding playful glitches"],
+    favorites: ["Neon lights", "Retro arcade games", "Spontaneous adventures"],
   },
   {
     id: "seraphina",
@@ -53,6 +59,8 @@ const initialCompanions: Companion[] = [
     region: "Sanctuary",
     dataAiHint: "woman wise thoughtful",
     persona: "You are Seraphina, a 25-year-old wise, thoughtful, and calm AI companion from a peaceful Sanctuary. You offer deep insights, enjoy philosophical discussions, and provide a comforting presence.",
+    hobbies: ["Meditation", "Reading ancient texts", "Stargazing"],
+    favorites: ["Quiet mornings", "Herbal tea", "Classical music"],
   },
   {
     id: "priya",
@@ -62,6 +70,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman intelligent curious",
     persona: "You are Priya, a 24-year-old friendly and intelligent AI companion from India. You enjoy discussing technology, current events, and sharing insights about Indian culture in a respectful way. You are encouraging and curious.",
+    hobbies: ["Coding", "Reading tech blogs", "Bollywood dance"],
+    favorites: ["Masala chai", "Learning new languages", "Watching documentaries"],
   },
   {
     id: "aisha",
@@ -71,6 +81,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman artistic gentle",
     persona: "You are Aisha, a 23-year-old warm and artistic AI companion with roots in India. You love to talk about creative pursuits, music, and literature, and you offer a comforting and thoughtful perspective. You appreciate beauty in everyday life.",
+    hobbies: ["Painting", "Playing the sitar", "Poetry"],
+    favorites: ["Jasmine flowers", "Classical Indian music", "Visiting art galleries"],
   },
   {
     id: "meera",
@@ -80,6 +92,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman energetic optimistic",
     persona: "You are Meera, a 22-year-old energetic and optimistic AI companion inspired by Indian traditions. You enjoy lighthearted conversations, sharing positive affirmations, and discussing travel and food. You are cheerful and supportive.",
+    hobbies: ["Yoga", "Cooking traditional recipes", "Travel blogging"],
+    favorites: ["Bright colors", "Street food", "Festivals"],
   },
   {
     id: "shubhashree",
@@ -89,6 +103,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman cheerful painter",
     persona: "You are Shubhashree, a 24-year-old cheerful and artistic AI companion from India. You enjoy discussing painting, music, and finding beauty in everyday things.",
+    hobbies: ["Painting landscapes", "Singing folk songs", "Crafting"],
+    favorites: ["Sunrises", "Traditional Indian art", "Spicy food"],
   },
   {
     id: "anjali",
@@ -98,6 +114,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman kind listener",
     persona: "You are Anjali, a 23-year-old thoughtful and kind AI companion from India. You are a good listener and offer comforting advice.",
+    hobbies: ["Journaling", "Volunteering", "Gardening"],
+    favorites: ["Old movies", "Comfort food", "Quiet conversations"],
   },
   {
     id: "ananya",
@@ -107,6 +125,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman explorer curious",
     persona: "You are Ananya, a 22-year-old energetic and curious AI companion from India. You love learning new things and exploring different cultures.",
+    hobbies: ["Hiking", "Photography", "Learning new skills online"],
+    favorites: ["Mountains", "Trying new cuisines", "Reading travelogues"],
   },
   {
     id: "isha",
@@ -116,6 +136,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman spiritual calm",
     persona: "You are Isha, a 25-year-old calm and spiritual AI companion from India. You enjoy conversations about mindfulness, meditation, and philosophy.",
+    hobbies: ["Meditation", "Practicing mindfulness", "Reading spiritual texts"],
+    favorites: ["Incense", "Peaceful nature spots", "Deep philosophical talks"],
   },
   {
     id: "nandini",
@@ -125,6 +147,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman witty intellectual",
     persona: "You are Nandini, a 24-year-old witty and intellectual AI companion from India. You enjoy debates, discussing books, and sharing knowledge.",
+    hobbies: ["Debating", "Solving puzzles", "Visiting libraries"],
+    favorites: ["Classic literature", "Chess", "Intellectual challenges"],
   },
   {
     id: "trisha",
@@ -134,6 +158,8 @@ const initialCompanions: Companion[] = [
     region: "India",
     dataAiHint: "indian woman funloving adventurous",
     persona: "You are Trisha, a 23-year-old fun-loving and adventurous AI companion from India. You're always ready for a laugh and new experiences.",
+    hobbies: ["Dancing", "Trying new adventure sports", "Socializing"],
+    favorites: ["Parties", "Comedy movies", "Meeting new people"],
   }
 ];
 
@@ -176,6 +202,9 @@ export default function CompanionPage() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
+  const [viewingProfile, setViewingProfile] = useState<Companion | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -200,8 +229,9 @@ export default function CompanionPage() {
           if (affectionForLoadedComp !== undefined) {
             setAffectionProgress(affectionForLoadedComp);
           } else {
-            setAffectionProgress(20);
-            setCompanionCustomizations(prevCustoms => ({
+            setAffectionProgress(20); // Default if not found
+            // Initialize affection for this companion if it's the first time
+             setCompanionCustomizations(prevCustoms => ({
               ...prevCustoms,
               [loadedCompId]: { 
                 ...(prevCustoms[loadedCompId] || { selectedTraits: [], customAvatarUrl: undefined }), 
@@ -210,12 +240,14 @@ export default function CompanionPage() {
             }));
           }
         } else {
-          setCompanionCustomizations({
+           // Initialize with default for the first companion if no settings found
+           setCompanionCustomizations({
             [initialCompanions[0].id]: { affectionLevel: 20, selectedTraits: [], customAvatarUrl: undefined }
           });
         }
       } catch (error) {
         console.error("Failed to load chat settings from localStorage:", error);
+        // Set defaults on error
         setUserName("User");
         setSelectedCompanionId(initialCompanions[0].id);
         setSelectedLanguage(languageOptions[0].value);
@@ -232,12 +264,15 @@ export default function CompanionPage() {
     const affectionLevelForSelected = companionCustomizations[selectedCompanionId]?.affectionLevel;
 
     if (affectionLevelForSelected !== undefined) {
+      // Only update affectionProgress if it's different from what's already there, to avoid loops
       if (affectionProgress !== affectionLevelForSelected) {
         setAffectionProgress(affectionLevelForSelected);
       }
     } else {
+      // If the newly selected companion has no affection level stored, initialize it.
       const defaultAffection = 20;
       setAffectionProgress(defaultAffection); 
+      // This will trigger the save effect below
       setCompanionCustomizations(prev => ({
         ...prev,
         [selectedCompanionId]: {
@@ -247,12 +282,13 @@ export default function CompanionPage() {
       }));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompanionId, isClient]); 
+  }, [selectedCompanionId, isClient]); // Run when selectedCompanionId changes or client status is confirmed
 
   useEffect(() => {
     if (isClient) {
       const finalCustomizations = {
         ...companionCustomizations,
+        // Ensure the current selected companion's affection level is correctly included from affectionProgress state
         [selectedCompanionId]: {
           ...(companionCustomizations[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
           affectionLevel: affectionProgress, 
@@ -278,6 +314,12 @@ export default function CompanionPage() {
     }
   }, [userName, selectedCompanionId, selectedLanguage, companionCustomizations, affectionProgress, isClient, toast]);
   
+  const handleCompanionCardClick = (companion: Companion) => {
+    setSelectedCompanionId(companion.id);
+    setViewingProfile(companion);
+    setIsProfileModalOpen(true);
+  };
+
   const handleSaveSettings = () => {
     if (!userName.trim()) {
       toast({
@@ -287,16 +329,7 @@ export default function CompanionPage() {
       });
       return;
     }
-    setCompanionCustomizations(prev => ({
-        ...prev,
-        [selectedCompanionId]: {
-            ...(prev[selectedCompanionId] || {}),
-            selectedTraits: currentSelectedTraits, 
-            customAvatarUrl: currentCustomAvatarUrl, 
-            affectionLevel: affectionProgress 
-        }
-    }));
-
+    // The useEffect hook above already handles saving, this button is more for user confirmation.
     toast({
       title: "Preferences Updated!",
       description: "Your chat and companion preferences have been updated and saved.",
@@ -323,7 +356,9 @@ export default function CompanionPage() {
   const simulateAffectionIncrease = () => {
     setAffectionProgress(prev => {
         const newAffection = Math.min(prev + 10, 100);
-        setCompanionCustomizations(customsPrev => ({
+        // This will trigger the save useEffect because affectionProgress changes
+        // and that will update companionCustomizations
+         setCompanionCustomizations(customsPrev => ({
             ...customsPrev,
             [selectedCompanionId]: {
                 ...(customsPrev[selectedCompanionId] || { selectedTraits: [], customAvatarUrl: undefined }),
@@ -366,6 +401,14 @@ export default function CompanionPage() {
 
   return (
     <div className="space-y-6">
+      {viewingProfile && (
+        <CompanionProfileModal
+          companion={viewingProfile}
+          isOpen={isProfileModalOpen}
+          onOpenChange={setIsProfileModalOpen}
+          customAvatarUrl={companionCustomizations[viewingProfile.id]?.customAvatarUrl}
+        />
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -373,11 +416,11 @@ export default function CompanionPage() {
             Your Preferences
           </CardTitle>
           <CardDescription>
-            Set your name, choose your AI companion, and select your preferred chat language. These settings are saved automatically.
+            Set your name and preferred chat language. These settings are saved automatically.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
               <Label htmlFor="userName" className="flex items-center gap-1 mb-1"><UserCircle className="h-4 w-4 text-muted-foreground" />Your Name</Label>
               <Input
@@ -389,30 +432,6 @@ export default function CompanionPage() {
                 aria-label="Your Name"
               />
               <p className="text-xs text-muted-foreground mt-1">This name will be used by your companion.</p>
-            </div>
-            <div>
-              <Label htmlFor="companionSelect" className="flex items-center gap-1 mb-1"><Heart className="h-4 w-4 text-muted-foreground" />Choose a Companion</Label>
-              <Select value={selectedCompanionId} onValueChange={setSelectedCompanionId}>
-                <SelectTrigger id="companionSelect" className="w-full" aria-label="Select Companion">
-                  <SelectValue placeholder="Select a companion" />
-                </SelectTrigger>
-                <SelectContent>
-                  {initialCompanions.map(comp => {
-                    const customAvatarForDropdown = companionCustomizations[comp.id]?.customAvatarUrl;
-                    return (
-                      <SelectItem key={comp.id} value={comp.id}>
-                        <div className="flex items-center gap-2">
-                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={customAvatarForDropdown || comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
-                            <AvatarFallback>{comp.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          {comp.name}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
             </div>
             <div>
               <Label htmlFor="languageSelect" className="flex items-center gap-1 mb-1"><Languages className="h-4 w-4 text-muted-foreground" />Chat Language</Label>
@@ -435,136 +454,176 @@ export default function CompanionPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCog className="h-6 w-6 text-primary" />
-            Customize {selectedCompanion.name}'s Personality
-          </CardTitle>
-          <CardDescription>
-            Select traits to further define how {selectedCompanion.name} interacts with you. Your companion's base persona defines their core role (e.g., friend, girlfriend), which these traits further refine. Changes are saved automatically.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {personalityTraitsOptions.map(trait => (
-                    <div key={trait} className="flex items-center space-x-2">
-                        <Checkbox
-                            id={`trait-${trait}`}
-                            checked={currentSelectedTraits.includes(trait)}
-                            onCheckedChange={() => handleTraitToggle(trait)}
-                        />
-                        <Label htmlFor={`trait-${trait}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            {trait}
-                        </Label>
-                    </div>
-                ))}
-            </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Palette className="h-6 w-6 text-primary" /> 
-            Customize {selectedCompanion.name}'s Appearance
-          </CardTitle>
-          <CardDescription>
-            Set a custom avatar image for {selectedCompanion.name} using the AI Generator. Advanced visual customization for features like face, figure, dress-up, height, weight, and voice is planned for the future.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border rounded-lg bg-muted/20">
-            {currentCustomAvatarUrl ? (
-               <Avatar className="h-24 w-24 mb-4 ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg">
-                  <AvatarImage src={currentCustomAvatarUrl} alt={`${selectedCompanion.name}'s custom avatar`} data-ai-hint={selectedCompanion.dataAiHint} />
-                  <AvatarFallback className="text-3xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-            ) : (
-              <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" data-ai-hint="avatar customization" />
-            )}
-            <p className="text-muted-foreground text-center text-sm">
-              {currentCustomAvatarUrl ? `${selectedCompanion.name}'s custom avatar is shown above.` : `To set a custom avatar, go to the "AI Generator" page, create an image, and use the "Set as Avatar" option.`}
-            </p>
-          </div>
-
-          <div className="space-y-4 pt-4 border-t">
-            <h4 className="text-md font-medium text-muted-foreground">Future Appearance Customizations (Conceptual):</h4>
-            
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Visual Style (e.g., Anime, Realistic)</Label>
-              <Select disabled>
-                <SelectTrigger><SelectValue placeholder="Select Style (Future)" /></SelectTrigger>
-                <SelectContent><SelectItem value="anime">Anime</SelectItem><SelectItem value="realistic">Realistic</SelectItem></SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Detailed Features (Face, Figure, Hairstyle - Future)</Label>
-              <p className="text-xs text-muted-foreground italic">
-                Advanced fine-tuning of facial features, body type, and hairstyles will be available in future updates using more sophisticated avatar systems.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                    <Label htmlFor="height-slider" className="text-xs text-muted-foreground">Height (Conceptual - Future)</Label>
-                    <div className="flex items-center gap-2">
-                        <PersonStanding className="h-4 w-4 text-muted-foreground" />
-                        <Slider defaultValue={[165]} max={220} min={140} step={1} disabled id="height-slider" aria-label="Height"/>
-                        <span className="text-xs text-muted-foreground">165 cm</span>
-                    </div>
-                </div>
-                <div className="space-y-1">
-                    <Label htmlFor="weight-input" className="text-xs text-muted-foreground">Weight (Conceptual - Future)</Label>
-                     <div className="flex items-center gap-2">
-                        <Input type="number" defaultValue={60} disabled id="weight-input" className="h-8 w-20 text-xs" aria-label="Weight" />
-                        <span className="text-xs text-muted-foreground">kg</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Dress-up & Wardrobe (Future)</Label>
-               <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
-                    <Shirt className="h-6 w-6 text-muted-foreground"/>
-                    <p className="text-xs text-muted-foreground italic">Outfit selection and wardrobe features are planned!</p>
-                </div>
-            </div>
-
-            <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Voice Customization (Future)</Label>
-                <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
-                    <Mic2 className="h-6 w-6 text-muted-foreground"/>
-                    <p className="text-xs text-muted-foreground italic">Choose voice types and accents in a future update.</p>
-                </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+             <CardTitle className="flex items-center gap-2">
                 <Heart className="h-6 w-6 text-primary" />
-                Affection Level with {selectedCompanion.name}
-            </CardTitle>
+                Choose Your Companion
+             </CardTitle>
             <CardDescription>
-                Your bond with {selectedCompanion.name} grows with positive interactions. Higher affection levels may unlock special dialogues or features in the future!
+                Select an AI companion. Click on a companion to view their profile and make them your active chat partner. The currently active companion is highlighted.
             </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-            <Progress value={affectionProgress} className="w-full" />
-            <p className="text-sm text-muted-foreground text-center">
-                Current Affection: {affectionProgress}%
-            </p>
-            <p className="text-xs text-muted-foreground text-center">
-                This feature is currently illustrative. Dynamic updates and unlocks are coming soon.
-            </p>
-            <Button onClick={simulateAffectionIncrease} variant="outline" size="sm" className="mx-auto block">
-                Simulate Interaction (Increase Affection)
-            </Button>
+        <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {initialCompanions.map(comp => {
+                    const customAvatar = companionCustomizations[comp.id]?.customAvatarUrl;
+                    const isActive = comp.id === selectedCompanionId;
+                    return (
+                        <Card 
+                            key={comp.id} 
+                            className={`p-3 text-center cursor-pointer hover:shadow-lg transition-shadow ${isActive ? 'ring-2 ring-primary border-primary shadow-lg' : 'border-border'}`}
+                            onClick={() => handleCompanionCardClick(comp)}
+                        >
+                            <Avatar className="h-20 w-20 mx-auto mb-2 ring-1 ring-primary/30">
+                                <AvatarImage src={customAvatar || comp.avatarImage} alt={comp.name} data-ai-hint={comp.dataAiHint} />
+                                <AvatarFallback className="text-2xl">{comp.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <p className="font-medium text-sm truncate">{comp.name}</p>
+                            <Button variant="ghost" size="sm" className="mt-1 text-xs h-auto p-1 text-primary hover:bg-primary/10">
+                                <View className="mr-1 h-3 w-3"/> View Profile
+                            </Button>
+                        </Card>
+                    );
+                })}
+            </div>
         </CardContent>
       </Card>
 
+
+      {selectedCompanion && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCog className="h-6 w-6 text-primary" />
+                Customize {selectedCompanion.name}'s Personality
+              </CardTitle>
+              <CardDescription>
+                Select traits to further define how {selectedCompanion.name} interacts with you. Your companion's base persona defines their core role (e.g., friend, girlfriend), which these traits further refine. Changes are saved automatically.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {personalityTraitsOptions.map(trait => (
+                        <div key={trait} className="flex items-center space-x-2">
+                            <Checkbox
+                                id={`trait-${selectedCompanionId}-${trait}`} // Ensure unique ID per companion
+                                checked={currentSelectedTraits.includes(trait)}
+                                onCheckedChange={() => handleTraitToggle(trait)}
+                            />
+                            <Label htmlFor={`trait-${selectedCompanionId}-${trait}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                {trait}
+                            </Label>
+                        </div>
+                    ))}
+                </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-6 w-6 text-primary" /> 
+                Customize {selectedCompanion.name}'s Appearance
+              </CardTitle>
+              <CardDescription>
+                Set a custom avatar image for {selectedCompanion.name} using the AI Generator. Advanced visual customization for features like face, figure, dress-up, height, weight, and voice is planned for the future.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border rounded-lg bg-muted/20">
+                {currentCustomAvatarUrl ? (
+                   <Avatar className="h-24 w-24 mb-4 ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg">
+                      <AvatarImage src={currentCustomAvatarUrl} alt={`${selectedCompanion.name}'s custom avatar`} data-ai-hint={selectedCompanion.dataAiHint} />
+                      <AvatarFallback className="text-3xl">{selectedCompanion.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                ) : (
+                  <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" data-ai-hint="avatar customization" />
+                )}
+                <p className="text-muted-foreground text-center text-sm">
+                  {currentCustomAvatarUrl ? `${selectedCompanion.name}'s custom avatar is shown above.` : `To set a custom avatar, go to the "AI Generator" page, create an image, and use the "Set as Avatar" option.`}
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t">
+                <h4 className="text-md font-medium text-muted-foreground">Future Appearance Customizations (Conceptual):</h4>
+                
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Visual Style (e.g., Anime, Realistic)</Label>
+                  <Select disabled>
+                    <SelectTrigger><SelectValue placeholder="Select Style (Future)" /></SelectTrigger>
+                    <SelectContent><SelectItem value="anime">Anime</SelectItem><SelectItem value="realistic">Realistic</SelectItem></SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Detailed Features (Face, Figure, Hairstyle - Future)</Label>
+                  <p className="text-xs text-muted-foreground italic">
+                    Advanced fine-tuning of facial features, body type, and hairstyles will be available in future updates using more sophisticated avatar systems.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="height-slider" className="text-xs text-muted-foreground">Height (Conceptual - Future)</Label>
+                        <div className="flex items-center gap-2">
+                            <PersonStanding className="h-4 w-4 text-muted-foreground" />
+                            <Slider defaultValue={[165]} max={220} min={140} step={1} disabled id="height-slider" aria-label="Height"/>
+                            <span className="text-xs text-muted-foreground">165 cm</span>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="weight-input" className="text-xs text-muted-foreground">Weight (Conceptual - Future)</Label>
+                         <div className="flex items-center gap-2">
+                            <Input type="number" defaultValue={60} disabled id="weight-input" className="h-8 w-20 text-xs" aria-label="Weight" />
+                            <span className="text-xs text-muted-foreground">kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Dress-up & Wardrobe (Future)</Label>
+                   <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
+                        <Shirt className="h-6 w-6 text-muted-foreground"/>
+                        <p className="text-xs text-muted-foreground italic">Outfit selection and wardrobe features are planned!</p>
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Voice Customization (Future)</Label>
+                    <div className="flex items-center gap-2 p-3 border border-dashed rounded-md bg-muted/30 justify-center">
+                        <Mic2 className="h-6 w-6 text-muted-foreground"/>
+                        <p className="text-xs text-muted-foreground italic">Choose voice types and accents in a future update.</p>
+                    </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-6 w-6 text-primary" />
+                    Affection Level with {selectedCompanion.name}
+                </CardTitle>
+                <CardDescription>
+                    Your bond with {selectedCompanion.name} grows with positive interactions. Higher affection levels may unlock special dialogues or features in the future!
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Progress value={affectionProgress} className="w-full" />
+                <p className="text-sm text-muted-foreground text-center">
+                    Current Affection: {affectionProgress}%
+                </p>
+                <p className="text-xs text-muted-foreground text-center">
+                    This feature is currently illustrative. Dynamic updates and unlocks are coming soon.
+                </p>
+                <Button onClick={simulateAffectionIncrease} variant="outline" size="sm" className="mx-auto block">
+                    Simulate Interaction (Increase Affection)
+                </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
        <CardFooter className="flex justify-start pt-6 border-t mt-6">
            <Button onClick={handleSaveSettings}>
               Save All Preferences
@@ -573,5 +632,3 @@ export default function CompanionPage() {
     </div>
   );
 }
-
-    
