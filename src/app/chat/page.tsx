@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Send, User, Loader2, Mic, Volume2 } from "lucide-react";
-import { CHAT_SETTINGS_KEY } from "@/lib/constants";
+import { CHAT_SETTINGS_KEY, CHAT_MESSAGES_KEY_PREFIX } from "@/lib/constants";
 
 interface Message {
   id: string;
@@ -23,7 +23,7 @@ interface Message {
 interface Companion {
   id: string;
   name: string;
-  avatarImage: string; 
+  avatarImage: string;
   persona: string;
   dataAiHint: string;
 }
@@ -157,7 +157,6 @@ export default function ChatPage() {
   const [isSpeakingMessageId, setIsSpeakingMessageId] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-
   useEffect(() => {
     setIsClient(true);
     return () => {
@@ -171,6 +170,7 @@ export default function ChatPage() {
     };
   }, []);
 
+  // Load general chat settings
   useEffect(() => {
     if (isClient) {
       try {
@@ -198,13 +198,69 @@ export default function ChatPage() {
     }
   }, [isClient, toast]);
 
-
   const selectedCompanion = initialCompanions.find(c => c.id === selectedCompanionId) || initialCompanions[0];
   const currentLanguageAiName = languageOptions.find(l => l.value === selectedLanguage)?.aiName || "English";
-  
+
   const currentCompanionSpecificCustomizations = companionCustomizations[selectedCompanionId] || {};
   const currentSelectedTraits = currentCompanionSpecificCustomizations.selectedTraits || [];
   const currentCustomAvatarUrl = currentCompanionSpecificCustomizations.customAvatarUrl;
+
+  // Load messages from localStorage when component mounts or selectedCompanionId changes
+  useEffect(() => {
+    if (isClient && selectedCompanion?.id) {
+      const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
+      try {
+        const storedMessages = localStorage.getItem(messagesKey);
+        if (storedMessages) {
+          const parsedMessages: Message[] = JSON.parse(storedMessages).map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp), // Ensure timestamp is a Date object
+          }));
+          setMessages(parsedMessages);
+        } else {
+          setMessages([]); // Start with empty messages if none are stored for this companion
+        }
+      } catch (error) {
+        console.error("Failed to load messages from localStorage:", error);
+        setMessages([]);
+        toast({
+          title: "Error loading messages",
+          description: "Could not retrieve previous messages.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [isClient, selectedCompanion?.id, toast]);
+
+  // Save messages to localStorage whenever messages or selectedCompanionId changes
+  useEffect(() => {
+    if (isClient && selectedCompanion?.id && messages.length > 0) {
+       const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
+      try {
+        localStorage.setItem(messagesKey, JSON.stringify(messages));
+      } catch (error) {
+        console.error("Failed to save messages to localStorage:", error);
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+            toast({
+                title: "Storage Full",
+                description: "Cannot save new messages, browser storage is full.",
+                variant: "destructive",
+            });
+        } else {
+            toast({
+                title: "Error saving messages",
+                description: "Could not save new messages.",
+                variant: "destructive",
+            });
+        }
+      }
+    } else if (isClient && selectedCompanion?.id && messages.length === 0) {
+        // If messages become empty (e.g. user clears them or starts fresh), remove from storage
+        const messagesKey = CHAT_MESSAGES_KEY_PREFIX + selectedCompanion.id;
+        localStorage.removeItem(messagesKey);
+    }
+  }, [messages, selectedCompanion?.id, isClient, toast]);
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -242,7 +298,7 @@ export default function ChatPage() {
 
     try {
       const aiInput: DynamicDialogueInput = {
-        userId: "default-user", 
+        userId: "default-user",
         message: userMessage.text,
         userName: userName,
         companionId: selectedCompanion.id,
@@ -267,13 +323,14 @@ export default function ChatPage() {
         description: "Failed to get a response from AI. Please try again.",
         variant: "destructive",
       });
-       setMessages(prev => prev.slice(0, -1)); 
-       setUserInput(userMessage.text); 
+       // Revert optimistic update on error
+       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+       setUserInput(userMessage.text); // Put user input back
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   const handleVoiceInput = () => {
     if (!isClient) return;
 
@@ -298,7 +355,7 @@ export default function ChatPage() {
     const recognition = new SpeechRecognitionAPI();
     recognitionRef.current = recognition;
 
-    recognition.lang = selectedLanguage; 
+    recognition.lang = selectedLanguage;
     recognition.interimResults = false;
     recognition.continuous = false;
 
@@ -313,7 +370,7 @@ export default function ChatPage() {
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("Speech recognition error event:", event); 
+      console.error("Speech recognition error event:", event);
       let errorMessage = "Could not understand audio.";
       if (event.error) {
         switch (event.error) {
@@ -330,10 +387,13 @@ export default function ChatPage() {
             errorMessage = "A network error occurred during speech recognition. Please check your internet connection.";
             break;
           case 'aborted':
-            if (isListening) { 
+            if (isListening) {
                  errorMessage = "Voice input was interrupted. Please try again.";
             } else {
-                return; 
+                // If not actively listening (e.g. user navigated away and cleanup tried to stop), don't show toast
+                setIsListening(false);
+                recognitionRef.current = null;
+                return;
             }
             break;
           case 'service-not-allowed':
@@ -346,15 +406,16 @@ export default function ChatPage() {
             errorMessage = `An unexpected voice error occurred: ${event.error}.`;
         }
       }
-      if (errorMessage) { 
+      if (errorMessage) {
         toast({ title: "Voice Error", description: errorMessage, variant: "destructive" });
       }
-      setIsListening(false); 
+      setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.onend = () => {
       setIsListening(false);
-      recognitionRef.current = null; 
+      recognitionRef.current = null;
     };
 
     try {
@@ -380,41 +441,47 @@ export default function ChatPage() {
         setIsSpeakingMessageId(null);
         return;
     }
-    
+
     if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel(); // Stop any currently playing speech
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
-    
+
     let targetLang = languageOptions.find(l => l.value === selectedLanguage)?.value || 'en';
-    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0]; 
+    if (targetLang.includes('-')) targetLang = targetLang.split('-')[0];
 
-    let selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
-    
-    if (!selectedVoice) { 
-        selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
+    // Try to find a voice matching the exact language code (e.g., "en-US")
+    let selectedVoice = voices.find(voice => voice.lang === selectedLanguage);
+
+    // If not found, try to find one that starts with the language code (e.g., "en")
+    if (!selectedVoice) {
+        selectedVoice = voices.find(voice => voice.lang.startsWith(targetLang));
     }
 
-    if (!selectedVoice && targetLang !== 'en') { 
+    // If still not found and the target is not English, fall back to an English voice
+    if (!selectedVoice && targetLang !== 'en') {
         selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
     }
-    if(!selectedVoice && targetLang === 'en'){
-        selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
+    // If target is English and no specific English voice found, the browser default will be used
+    if (!selectedVoice && targetLang === 'en') {
+        selectedVoice = voices.find(voice => voice.lang.startsWith('en')) || voices.find(v => v.default);
     }
+
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang; 
+      utterance.lang = selectedVoice.lang;
     } else {
-       utterance.lang = targetLang; 
+       utterance.lang = targetLang; // Fallback to language code if no specific voice found
+       console.warn(`No specific voice found for lang ${targetLang}. Using browser default for this language.`);
     }
 
     utterance.onstart = () => setIsSpeakingMessageId(messageId);
     utterance.onend = () => setIsSpeakingMessageId(null);
     utterance.onerror = (event) => {
-     console.error("Speech synthesis error", event.error, event); 
+     console.error("Speech synthesis error", event.error, event);
      toast({ title: "Speech Error", description: `Could not read aloud. ${event.error || 'Unknown error.'}`, variant: "destructive" });
      setIsSpeakingMessageId(null);
     };
@@ -447,12 +514,12 @@ export default function ChatPage() {
           <ScrollArea className="h-full p-4 pr-6">
             <div className="space-y-4">
               {messages.map((msg) => {
-                const companionForMessage = msg.sender === "ai" 
-                  ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion 
+                const companionForMessage = msg.sender === "ai"
+                  ? initialCompanions.find(c => c.id === msg.companionId) || selectedCompanion
                   : selectedCompanion;
-                
-                const avatarForMessage = msg.sender === "ai" 
-                  ? (companionCustomizations[msg.companionId || selectedCompanionId]?.customAvatarUrl || companionForMessage.avatarImage) 
+
+                const avatarForMessage = msg.sender === "ai"
+                  ? (companionCustomizations[msg.companionId || selectedCompanionId]?.customAvatarUrl || companionForMessage.avatarImage)
                   : "";
 
                 return (
@@ -484,12 +551,12 @@ export default function ChatPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6"
+                            className={`h-6 w-6 ${isSpeakingMessageId === msg.id ? 'text-primary animate-pulse' : ''}`}
                             onClick={() => handleReadAloud(msg.text, msg.id)}
-                            disabled={isSpeakingMessageId === msg.id && typeof window !== 'undefined' && window.speechSynthesis?.speaking && window.speechSynthesis.pending} 
+                            disabled={isSpeakingMessageId === msg.id && typeof window !== 'undefined' && window.speechSynthesis?.pending}
                             aria-label={isSpeakingMessageId === msg.id ? "Stop reading" : "Read message aloud"}
                           >
-                            <Volume2 className={`h-4 w-4 ${isSpeakingMessageId === msg.id ? 'text-primary' : ''}`} />
+                            <Volume2 className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -530,11 +597,11 @@ export default function ChatPage() {
                 }}
                 aria-label={`Your message to ${selectedCompanion.name}`}
                 />
-                <Button 
-                  type="button" 
-                  variant={isListening ? "destructive" : "outline"} 
-                  onClick={handleVoiceInput} 
-                  disabled={isLoading} 
+                <Button
+                  type="button"
+                  variant={isListening ? "destructive" : "outline"}
+                  onClick={handleVoiceInput}
+                  disabled={isLoading}
                   className="h-full px-4 py-2 aspect-square"
                   aria-label={isListening ? "Stop voice input" : "Start voice input"}
                 >
